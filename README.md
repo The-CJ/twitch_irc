@@ -3,9 +3,8 @@
 Simple to use IRC connection for Twitch optimited for the PhaazeOS project
 but usable to any purpose
 
-:copyright: (c) 2018-2018 The_CJ
 
-- Inspired by the code of Rapptz's Discord library (function names and usage)
+> Inspired by the code of Rapptz's Discord library (function names and usage)
 
 ## Usage
 
@@ -22,3 +21,4 @@ class MyBot(twitch_irc.Client):
 x = MyBot()
 x.run(token="oauth:supersecret", nickname="cool_username")
 ```
+:copyright: 2018-2018 The_CJ
