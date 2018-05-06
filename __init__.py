@@ -11,6 +11,8 @@ but usable to any purpose
 :copyright: (c) 2018-2018 The_CJ
 :license: eee dunno, gonna first finish it
 
+- Inspired by the code of Rapptz's Discord library (function names and usage)
+
 """
 
 import asyncio, time, re
@@ -77,11 +79,6 @@ class Client():
 		await self.req_commands()
 		await self.req_tags()
 
-		#join main channel
-		await self.join_channel(self.nickname)
-
-		await self.send_message(self.nickname, "Jo")
-
 	async def listen(self):
 
 		#listen to twitch
@@ -91,7 +88,6 @@ class Client():
 			payload = payload.decode('UTF-8')
 			print(payload+"\n")
 
-
 			#just to be sure
 			if payload in ["", " ", None]: continue
 
@@ -100,7 +96,7 @@ class Client():
 				self.last_ping = time.time()
 				await self.send_pong()
 
-			#we are connected
+			#on_ready
 			elif re.match(r"^:tmi\.twitch\.tv 001.*", payload) != None:
 				asyncio.ensure_future( self.on_ready() )
 
@@ -110,16 +106,14 @@ class Client():
 
 			#on_member_join
 			elif re.match(r"^:tmi.+\.twitch\.tv JOIN #.+", payload) != None:
-				name = payload.split("!")[1]
-				name = name.split("@")[0]
-
-				channel = payload.split("#")[1]
-
-				asyncio.ensure_future( self.BASE.modules._Twitch_.Base.on_member_join(self.BASE, channel, name) )
+				asyncio.ensure_future( self.on_member_join( self.User(payload) ) )
 
 	#events
 	async def on_ready(self):
 		print('Connected')
 
 	async def on_message(self, message):
-		pass
+		print('Message')
+
+	async def on_member_join(self, user):
+		print('Join')
