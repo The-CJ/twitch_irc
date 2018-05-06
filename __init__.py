@@ -1,5 +1,19 @@
-import asyncio, time, re, discord
+# -*- coding: utf-8 -*-
 
+"""
+##################
+Twitch IRC wrapper
+##################
+
+Simple to use IRC connection for Twitch optimited for the PhaazeOS project
+but usable to any purpose
+
+:copyright: (c) 2018-2018 The_CJ
+:license: eee dunno, gonna first finish it
+
+"""
+
+import asyncio, time, re
 
 class Client():
 	from .utils import send_pong, send_nick, send_pass,	req_membership,	req_commands, req_tags
