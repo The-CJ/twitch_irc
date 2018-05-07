@@ -44,6 +44,7 @@ class Client():
 		self.connection.close()
 
 	def run(self, **kwargs):
+		self.running = True
 
 		self.token = kwargs.get('token', None)
 		self.nickname = kwargs.get('nickname', None)
@@ -55,29 +56,29 @@ class Client():
 		loop.run_until_complete(self.start())
 
 	async def start(self):
-		self.running = True
 		self.last_ping = time.time()
 
 		try:
 			#init connection
 			self.connection_reader, self.connection_writer = await asyncio.open_connection(host=self.host, port=self.port)
 			#start listen
-			asyncio.ensure_future( self.listen() )
+
+			#login
+			await self.send_pass()
+			await self.send_nick()
+
+			#get infos
+			await self.req_membership()
+			await self.req_commands()
+			await self.req_tags()
+
 			self.last_ping = time.time()
+			await self.listen()
 
 		except:
 			self.connection.close()
 			self.last_ping = time.time()
 			await asyncio.sleep(10)
-
-		#login
-		await self.send_pass()
-		await self.send_nick()
-
-		#get infos
-		await self.req_membership()
-		await self.req_commands()
-		await self.req_tags()
 
 	async def listen(self):
 
@@ -85,8 +86,8 @@ class Client():
 		while self.running:
 
 			payload = await self.connection_reader.readuntil()
+			asyncio.ensure_future( self.on_raw_data(payload) )
 			payload = payload.decode('UTF-8')
-			print(payload+"\n")
 
 			#just to be sure
 			if payload in ["", " ", None]: continue
@@ -109,11 +110,50 @@ class Client():
 				asyncio.ensure_future( self.on_member_join( self.User(payload) ) )
 
 	#events
+	async def on_raw_data(self, raw):
+		"""
+		Attributes:
+		`raw`  =  type :: bytes
+
+		called every time some bytes of data get received by the client
+		"""
+		pass
+
 	async def on_ready(self):
-		print('Connected')
+		"""
+		Attributes:
+		None
+
+		called when the client is connected to twitch and is ready to receive or send data
+		"""
+		pass
 
 	async def on_message(self, message):
-		print('Message')
+		"""
+		Attributes:
+		`message` = object :: Message
+
+		called when the client received a message in a channel
+		"""
+		pass
 
 	async def on_member_join(self, user):
-		print('Join')
+		"""
+		Attributes:
+		`user` = object :: User
+
+		called when a user joined a twitch channel
+		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator joins) ]
+		"""
+		pass
+
+	async def on_member_left(self, user):
+		"""
+		Attributes:
+		`user` = object :: User
+
+		called when a user left a twitch channel
+		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
+		"""
+		pass
+
