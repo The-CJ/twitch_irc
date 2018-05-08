@@ -15,7 +15,7 @@ class Channel(dict):
 		slow=0;
 		subs-only=0 :tmi.twitch.tv ROOMSTATE #phaazebot
 
-		into a usable class and adds it to the bots self['channel'] list
+		into a usable class and adds it to the bots self.channels list
 	"""
 
 	def __init__(self, raw_data):
