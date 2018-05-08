@@ -19,9 +19,14 @@ import asyncio, time, re
 
 class Client():
 	from .utils import send_pong, send_nick, send_pass,	req_membership,	req_commands, req_tags
+	from .utils import update_channel_infos
 	from .commands import send_message,	join_channel, part_channel
 
+	# TODO: Add Subs, resubs, raids and more events
+
 	from .message import Message
+	from .channel import Channel
+	from .user import User
 
 	def __init__(self, token=None, nickname=None):
 
@@ -35,7 +40,7 @@ class Client():
 
 		self.connection_reader = None
 		self.connection_writer = None
-		self.channels = {}
+		self.channels = dict()
 
 		self.traffic = 0
 
@@ -101,13 +106,19 @@ class Client():
 			elif re.match(r"^:tmi\.twitch\.tv 001.*", payload) != None:
 				asyncio.ensure_future( self.on_ready() )
 
+			#channel_update
+			elif re.match(r"^@.+:tmi\.twitch\.tv ROOMSTATE #.+", payload) != None:
+				chan = self.Channel(payload)
+				chan = self.update_channel_infos(chan)
+				asyncio.ensure_future( self.on_channel_update( chan ) )
+
+			#on_member_join
+			elif re.match(r"^.+\.tmi\.twitch\.tv JOIN #.+", payload) != None:
+				asyncio.ensure_future( self.on_member_join( self.User(payload) ) )
+
 			#on_message
 			elif re.match(r'^@.+\.tmi\.twitch\.tv PRIVMSG #.+', payload) != None:
 				asyncio.ensure_future( self.on_message( self.Message(payload) ) )
-
-			#on_member_join
-			elif re.match(r"^:tmi.+\.twitch\.tv JOIN #.+", payload) != None:
-				asyncio.ensure_future( self.on_member_join( self.User(payload) ) )
 
 	#events
 	async def on_raw_data(self, raw):
@@ -131,16 +142,25 @@ class Client():
 	async def on_message(self, message):
 		"""
 		Attributes:
-		`message` = object :: Message
+		`message` = dict :: Message
 
 		called when the client received a message in a channel
+		"""
+		pass
+
+	async def on_channel_update(self, channel):
+		"""
+		Attributes:
+		`channel` = dict :: Channel
+
+		called when the bot joines a new channel or attributes on a channel are changed like slowmode etc...
 		"""
 		pass
 
 	async def on_member_join(self, user):
 		"""
 		Attributes:
-		`user` = object :: User
+		`user` = dict :: User
 
 		called when a user joined a twitch channel
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator joins) ]
@@ -150,7 +170,7 @@ class Client():
 	async def on_member_left(self, user):
 		"""
 		Attributes:
-		`user` = object :: User
+		`user` = dict :: User
 
 		called when a user left a twitch channel
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
