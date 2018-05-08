@@ -18,3 +18,19 @@ async def req_commands(self):
 async def req_tags(self):
 	self.connection_writer.write(bytes("CAP REQ :twitch.tv/tags\r\n", 'UTF-8'))
 
+#
+
+def update_channel_infos(self, channel):
+	current_state = self.channels.get( channel['id'], None )
+	if current_state == None:
+		self.channels[channel['id']] = channel
+		return self.channels[channel['id']]
+
+	for key, value in channel.items():
+		if value == None: continue
+		self.channels[channel['id']][key] = value
+
+	return self.channels[channel['id']]
+
+
+
