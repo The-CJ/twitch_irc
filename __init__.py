@@ -15,11 +15,11 @@ but usable to any purpose
 
 """
 
-import asyncio, time, re
+import asyncio, time, re, traceback
 
 class Client():
 	from .utils import send_pong, send_nick, send_pass,	req_membership,	req_commands, req_tags
-	from .utils import update_channel_infos
+	from .utils import update_channel_infos, get_channel
 	from .commands import send_message,	join_channel, part_channel
 
 	# TODO: Add Subs, resubs, raids and more events
@@ -63,27 +63,29 @@ class Client():
 	async def start(self):
 		self.last_ping = time.time()
 
-		try:
-			#init connection
-			self.connection_reader, self.connection_writer = await asyncio.open_connection(host=self.host, port=self.port)
-			#start listen
+		while self.running:
 
-			#login
-			await self.send_pass()
-			await self.send_nick()
+			try:
+				#init connection
+				self.connection_reader, self.connection_writer = await asyncio.open_connection(host=self.host, port=self.port)
+				#start listen
 
-			#get infos
-			await self.req_membership()
-			await self.req_commands()
-			await self.req_tags()
+				#login
+				await self.send_pass()
+				await self.send_nick()
 
-			self.last_ping = time.time()
-			await self.listen()
+				#get infos
+				await self.req_membership()
+				await self.req_commands()
+				await self.req_tags()
 
-		except:
-			self.connection.close()
-			self.last_ping = time.time()
-			await asyncio.sleep(10)
+				self.last_ping = time.time()
+				await self.listen()
+
+			except Exception as e:
+				self.connection_writer.close()
+				self.on_error(e)
+				await asyncio.sleep(5)
 
 	async def listen(self):
 
@@ -114,13 +116,36 @@ class Client():
 
 			#on_member_join
 			elif re.match(r"^.+\.tmi\.twitch\.tv JOIN #.+", payload) != None:
-				asyncio.ensure_future( self.on_member_join( self.User(payload) ) )
+				user = self.User(payload)
+				c = self.get_channel(by="name", attr=user['name'])
+				if c != None:
+					user['channel'] = c
+				asyncio.ensure_future( self.on_member_join( user ) )
+
+			#on_member_left
+			elif re.match(r"^.+\.tmi\.twitch\.tv LEFT #.+", payload) != None:
+				user = self.User(payload)
+				c = self.get_channel(by="name", attr=user['name'])
+				if c != None:
+					user['channel'] = c
+				asyncio.ensure_future( self.on_member_left( user ) )
 
 			#on_message
 			elif re.match(r'^@.+\.tmi\.twitch\.tv PRIVMSG #.+', payload) != None:
-				asyncio.ensure_future( self.on_message( self.Message(payload) ) )
+				message = self.Message(payload)
+				asyncio.ensure_future( self.on_message( message ) )
 
 	#events
+	async def on_error(self, exeception):
+		"""
+		Attributes:
+		`exeception`  =  type :: exeception
+
+		called every time something goes wrong
+		"""
+
+		traceback.print_tb(exeception)
+
 	async def on_raw_data(self, raw):
 		"""
 		Attributes:

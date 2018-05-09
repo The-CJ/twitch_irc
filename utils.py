@@ -32,5 +32,11 @@ def update_channel_infos(self, channel):
 
 	return self.channels[channel['id']]
 
+def get_channel(self, by=None, attr=None):
+	for chan_id in self.channels:
+		c = self.channels[chan_id]
+		s = c.get(by, object)
+		if s == attr:
+			return c
 
-
+	return None

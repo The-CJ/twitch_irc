@@ -19,7 +19,7 @@ class Channel(dict):
 	"""
 
 	def __init__(self, raw_data):
-		self['raw'] = raw_data				# str
+		self['raw'] = raw_data.strip('@')	# str
 
 		self['broadcaster_lang'] = None 	# str
 		self['emote_only'] = None 			# bool
@@ -30,6 +30,8 @@ class Channel(dict):
 		self['slow'] = None					# int
 		self['subs_only'] = None			# bool
 		self['name'] = None					# str
+
+		self['viewer'] = None				# list
 
 		self.process()
 		del self['raw']
