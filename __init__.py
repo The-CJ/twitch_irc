@@ -17,6 +17,10 @@ but usable to any purpose
 
 import asyncio, time, re, traceback
 
+from .message import Message
+from .channel import Channel
+from .user import User
+
 class Client():
 	from .utils import send_pong, send_nick, send_pass,	req_membership,	req_commands, req_tags
 	from .utils import update_channel_infos, get_channel
@@ -24,9 +28,6 @@ class Client():
 
 	# TODO: Add Subs, resubs, raids and more events
 
-	from .message import Message
-	from .channel import Channel
-	from .user import User
 
 	def __init__(self, token=None, nickname=None):
 
@@ -110,13 +111,13 @@ class Client():
 
 			#channel_update
 			elif re.match(r"^@.+:tmi\.twitch\.tv ROOMSTATE #.+", payload) != None:
-				chan = self.Channel(payload)
+				chan = Channel(payload)
 				chan = self.update_channel_infos(chan)
 				asyncio.ensure_future( self.on_channel_update( chan ) )
 
 			#on_member_join
 			elif re.match(r"^.+\.tmi\.twitch\.tv JOIN #.+", payload) != None:
-				user = self.User(payload)
+				user = User(payload)
 				c = self.get_channel(name=user.channel_name)
 				if c != None:
 					user.channel = c
@@ -124,7 +125,7 @@ class Client():
 
 			#on_member_left
 			elif re.match(r"^.+\.tmi\.twitch\.tv LEFT #.+", payload) != None:
-				user = self.User(payload)
+				user = User(payload)
 				c = self.get_channel(name=user.channel_name)
 				if c != None:
 					user.channel = c
@@ -132,7 +133,7 @@ class Client():
 
 			#on_message
 			elif re.match(r'^@.+\.tmi\.twitch\.tv PRIVMSG #.+', payload) != None:
-				message = self.Message(payload)
+				message = Message(payload)
 				c = self.channels.get(message.channel_id, None)
 				if c != None:
 					message.channel = c
