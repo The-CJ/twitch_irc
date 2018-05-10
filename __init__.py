@@ -84,7 +84,7 @@ class Client():
 
 			except Exception as e:
 				self.connection_writer.close()
-				self.on_error(e)
+				await self.on_error(e)
 				await asyncio.sleep(5)
 
 	async def listen(self):
@@ -117,22 +117,26 @@ class Client():
 			#on_member_join
 			elif re.match(r"^.+\.tmi\.twitch\.tv JOIN #.+", payload) != None:
 				user = self.User(payload)
-				c = self.get_channel(by="name", attr=user['name'])
+				c = self.get_channel(name=user.channel_name)
 				if c != None:
-					user['channel'] = c
+					user.channel = c
 				asyncio.ensure_future( self.on_member_join( user ) )
 
 			#on_member_left
 			elif re.match(r"^.+\.tmi\.twitch\.tv LEFT #.+", payload) != None:
 				user = self.User(payload)
-				c = self.get_channel(by="name", attr=user['name'])
+				c = self.get_channel(name=user.channel_name)
 				if c != None:
-					user['channel'] = c
+					user.channel = c
 				asyncio.ensure_future( self.on_member_left( user ) )
 
 			#on_message
 			elif re.match(r'^@.+\.tmi\.twitch\.tv PRIVMSG #.+', payload) != None:
 				message = self.Message(payload)
+				c = self.channels.get(message.channel_id, None)
+				if c != None:
+					message.channel = c
+
 				asyncio.ensure_future( self.on_message( message ) )
 
 	#events
@@ -167,7 +171,7 @@ class Client():
 	async def on_message(self, message):
 		"""
 		Attributes:
-		`message` = dict :: Message
+		`message` = object :: Message
 
 		called when the client received a message in a channel
 		"""
@@ -176,7 +180,7 @@ class Client():
 	async def on_channel_update(self, channel):
 		"""
 		Attributes:
-		`channel` = dict :: Channel
+		`channel` = object :: Channel
 
 		called when the bot joines a new channel or attributes on a channel are changed like slowmode etc...
 		"""
@@ -185,7 +189,7 @@ class Client():
 	async def on_member_join(self, user):
 		"""
 		Attributes:
-		`user` = dict :: User
+		`user` = object :: User
 
 		called when a user joined a twitch channel
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator joins) ]
@@ -195,7 +199,7 @@ class Client():
 	async def on_member_left(self, user):
 		"""
 		Attributes:
-		`user` = dict :: User
+		`user` = object :: User
 
 		called when a user left a twitch channel
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]

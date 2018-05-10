@@ -1,6 +1,6 @@
 import re
 
-class User(dict):
+class User(object):
 	"""This class represents a user like on a event on join or left,
 
 		`raw_data` = type :: str
@@ -11,23 +11,23 @@ class User(dict):
 	"""
 
 	def __init__(self, raw_data, main_data=None):
-		self['raw'] = raw_data			# str
+		self.raw = raw_data			# str
 
-		self['name'] = None 			# str
-		self['channel_name'] = None		# str
-		self['channel'] = None			# dict :: Channel 
+		self.name = None 			# str
+		self.channel_name = None	# str
+		self.channel = None			# object :: Channel
 
 		self.process()
-		del self['raw']
+		del self.raw
 
 	def process(self):
 
 		#name
-		search = re.search(r'^:(.+?)!', self['raw'])
+		search = re.search(r'^:(.+?)!', self.raw)
 		if search != None:
-			self['name'] = str( search.group(1) )
+			self.name = str( search.group(1) )
 
-		search = re.search(r' (JOIN|LEFT) #(.+?)$', self['raw'])
+		search = re.search(r' (JOIN|LEFT) #(.+?)$', self.raw)
 		if search != None:
-			self['channel_name'] = str( search.group(2) )
+			self.channel_name = str( search.group(2) )
 

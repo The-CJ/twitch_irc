@@ -1,6 +1,6 @@
 import re
 
-class Channel(dict):
+class Channel(object):
 	"""This class is generated when the bot join's a chat room or some kind of channel update happen,
 
 		`raw_data` = type :: str
@@ -19,80 +19,80 @@ class Channel(dict):
 	"""
 
 	def __init__(self, raw_data):
-		self['raw'] = raw_data.strip('@')	# str
+		self.raw = raw_data.strip('@')	# str
 
-		self['broadcaster_lang'] = None 	# str
-		self['emote_only'] = None 			# bool
-		self['followers_only'] = None		# int
-		self['r9k'] = None					# bool
-		self['rituals'] = None				# bool
-		self['id'] = None					# str
-		self['slow'] = None					# int
-		self['subs_only'] = None			# bool
-		self['name'] = None					# str
+		self.broadcaster_lang = None 	# str
+		self.emote_only = None 			# bool
+		self.followers_only = None		# int
+		self.r9k = None					# bool
+		self.rituals = None				# bool
+		self.id = None					# str
+		self.slow = None				# int
+		self.subs_only = None			# bool
+		self.name = None				# str
 
-		self['viewer'] = None				# list
+		self.viewer = None				# list
 
 		self.process()
-		del self['raw']
+		del self.raw
 
 	def process(self):
-		self['raw'] = self['raw'].strip('@')
+		self.raw = self.raw.strip('@')
 
 		#broadcaster_lang
-		search = re.search(r'broadcaster-lang=(.*?)[; ]', self['raw'])
+		search = re.search(r'broadcaster-lang=(.*?)[; ]', self.raw)
 		if search != None:
-			self['broadcaster_lang'] = str( search.group(1) )
+			self.broadcaster_lang = str( search.group(1) )
 
 		#emote_only
-		search = re.search(r'emote-only=(1|0)[; ]', self['raw'])
+		search = re.search(r'emote-only=(1|0)[; ]', self.raw)
 		if search != None:
 			if search.group(1) == "1":
-				self['emote_only'] = True
+				self.emote_only = True
 			elif search.group(1) == "0":
-				self['emote_only'] = False
+				self.emote_only = False
 
 		#folloers_only
-		search = re.search(r'followers-only=(\d+?|-1)[; ]', self['raw'])
+		search = re.search(r'followers-only=(\d+?|-1)[; ]', self.raw)
 		if search != None:
-			self['followers_only'] = int( search.group(1) )
+			self.followers_only = int( search.group(1) )
 
 		#r9k
-		search = re.search(r'r9k=(1|0)[; ]', self['raw'])
+		search = re.search(r'r9k=(1|0)[; ]', self.raw)
 		if search != None:
 			if search.group(1) == "1":
-				self['r9k'] = True
+				self.r9k = True
 			elif search.group(1) == "0":
-				self['r9k'] = False
+				self.r9k = False
 
 		#rituals
-		search = re.search(r'rituals=(1|0)[; ]', self['raw'])
+		search = re.search(r'rituals=(1|0)[; ]', self.raw)
 		if search != None:
 			if search.group(1) == "1":
-				self['rituals'] = True
+				self.rituals = True
 			elif search.group(1) == "0":
-				self['rituals'] = False
+				self.rituals = False
 
 		#id
-		search = re.search(r'room-id=(\d+?)[; ]', self['raw'])
+		search = re.search(r'room-id=(\d+?)[; ]', self.raw)
 		if search != None:
-			self['id'] = str( search.group(1) )
+			self.id = str( search.group(1) )
 
 		#slow
-		search = re.search(r'slow=(\d+?)[; ]', self['raw'])
+		search = re.search(r'slow=(\d+?)[; ]', self.raw)
 		if search != None:
-			self['slow'] = int( search.group(1) )
+			self.slow = int( search.group(1) )
 
 		#subs_only
-		search = re.search(r'subs-only=(1|0)[; ]', self['raw'])
+		search = re.search(r'subs-only=(1|0)[; ]', self.raw)
 		if search != None:
 			if search.group(1) == "1":
-				self['subs_only'] = True
+				self.subs_only = True
 			elif search.group(1) == "0":
-				self['subs_only'] = False
+				self.subs_only = False
 
 		#name
-		search = re.search(r'ROOMSTATE #(\w+)', self['raw'])
+		search = re.search(r'ROOMSTATE #(\w+)', self.raw)
 		if search != None:
-			self['name'] = str( search.group(1) )
+			self.name = str( search.group(1) )
 

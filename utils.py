@@ -21,22 +21,28 @@ async def req_tags(self):
 #
 
 def update_channel_infos(self, channel):
-	current_state = self.channels.get( channel['id'], None )
+	current_state = self.channels.get( channel.id, None )
 	if current_state == None:
-		self.channels[channel['id']] = channel
-		return self.channels[channel['id']]
+		self.channels[channel.id] = channel
+		return self.channels[channel.id]
 
 	for key, value in channel.items():
 		if value == None: continue
-		self.channels[channel['id']][key] = value
+		self.channels[channel.id][key] = value
 
-	return self.channels[channel['id']]
+	return self.channels[channel.id]
 
-def get_channel(self, by=None, attr=None):
+def get_channel(self, **kwargs):
 	for chan_id in self.channels:
 		c = self.channels[chan_id]
-		s = c.get(by, object)
-		if s == attr:
+
+		try:
+			for key in kwargs:
+				if getattr(c, key, object) != kwargs[key]:
+					raise NameError
 			return c
+			
+		except:
+			continue
 
 	return None
