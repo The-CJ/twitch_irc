@@ -32,10 +32,10 @@ class Message(object):
 		self.display_name = None 					# str
 		self.name = None 							# str
 		self.emotes = [] 							# list
-		self.channel_id = None						# str TODO: rename to id
-		self.channel_name = None					# str TODO: rename to name
-		self.user_id = None 						# str TODO: pack into .User Object  like message.user.id
-		self.user_type = None 						# str TODO: pack into .User Object
+		self.channel_id = None						# str
+		self.channel_name = None					# str
+		self.user_id = None 						# str
+		self.user_type = None 						# str
 		self.sub = False 							# bool
 		self.mod = False 							# bool
 		self.turbo = False 							# bool
