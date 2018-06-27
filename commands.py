@@ -1,9 +1,10 @@
 import asyncio
 
 async def send_message(self, channel, message):
+	#need to made messages over 29, query to send later
 	if self.traffic <= 29:
 		self.connection_writer.write(bytes("PRIVMSG #{0} :{1}\r\n".format(channel.lower(), message), 'UTF-8'))
-		self.add_traffic()
+		asyncio.ensure_future(self.add_traffic())
 
 async def add_traffic(self):
 		self.traffic += 1

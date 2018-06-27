@@ -14,6 +14,7 @@ class User(object):
 		self.raw = raw_data			# str
 
 		self.name = None 			# str
+		self.id = None				# str | added at the first message of user (is not given on join/part)
 		self.channel_name = None	# str
 		self.channel = None			# object :: Channel
 

@@ -23,11 +23,10 @@ from .user import User
 
 class Client():
 	from .utils import send_pong, send_nick, send_pass,	req_membership,	req_commands, req_tags
-	from .utils import update_channel_infos, get_channel
+	from .utils import update_channel_infos, get_channel, update_channel_viewer
 	from .commands import send_message,	join_channel, part_channel, add_traffic
 
 	# TODO: Add Subs, resubs, raids and more events
-
 
 	def __init__(self, token=None, nickname=None):
 
@@ -77,7 +76,6 @@ class Client():
 			try:
 				#init connection
 				self.connection_reader, self.connection_writer = await asyncio.open_connection(host=self.host, port=self.port)
-				#start listen
 
 				#login
 				await self.send_pass()
@@ -88,6 +86,7 @@ class Client():
 				await self.req_commands()
 				await self.req_tags()
 
+				#start listen
 				self.last_ping = time.time()
 				await self.listen()
 
@@ -129,6 +128,7 @@ class Client():
 				c = self.get_channel(name=user.channel_name)
 				if c != None:
 					user.channel = c
+				self.update_channel_viewer(user, 'add')
 				asyncio.ensure_future( self.on_member_join( user ) )
 
 			#on_member_left
@@ -137,6 +137,7 @@ class Client():
 				c = self.get_channel(name=user.channel_name)
 				if c != None:
 					user.channel = c
+				self.update_channel_viewer(user, 'rem')
 				asyncio.ensure_future( self.on_member_left( user ) )
 
 			#on_message
@@ -156,8 +157,8 @@ class Client():
 
 		called every time something goes wrong
 		"""
-
-		traceback.print_tb(exeception)
+		print(exeception)
+		traceback.print_exc()
 
 	async def on_raw_data(self, raw):
 		"""

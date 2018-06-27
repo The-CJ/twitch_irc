@@ -32,17 +32,36 @@ def update_channel_infos(self, channel):
 
 	return self.channels[channel.id]
 
-def get_channel(self, **kwargs):
-	for chan_id in self.channels:
-		c = self.channels[chan_id]
+def update_channel_viewer(self, user, operation=None):
+	if user.channel_name.lower() == self.nickname.lower(): return
+	if operation not in ['add', 'rem']:
+		raise AttributeError('only supports "add" and "rem"')
 
-		try:
-			for key in kwargs:
-				if getattr(c, key, object) != kwargs[key]:
-					raise NameError
-			return c
-			
-		except:
-			continue
+	if user.channel != None:
+		chan = user.channel
+	else:
+		chan = self.get_channel(name = user.channel_name)
+
+	if chan == None: return
+
+	if operation == 'add':
+		if chan.users.get(user.name, None) != None:
+			raise LookupError('user already in users list')
+		chan.users[user.name] = user
+
+	if operation == 'rem':
+		if chan.users.get(user.name, None) == None:
+			raise LookupError('user not in users list')
+		chan.users[user.name]
+
+
+def get_channel(self, **search):
+	for chan_id in self.channels:
+		chan = self.channels[chan_id]
+
+		for key in search:
+			if getattr(chan, key, object) != search[key]:
+				continue
+		return chan
 
 	return None
