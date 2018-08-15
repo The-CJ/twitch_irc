@@ -23,14 +23,15 @@ from .user import User
 
 class Client():
 	from .utils import send_pong, send_nick, send_pass,	req_membership,	req_commands, req_tags
-	from .utils import update_channel_infos, get_channel, update_channel_viewer
-	from .commands import send_message,	join_channel, part_channel, add_traffic
+	from .utils import update_channel_infos, get_channel, update_channel_viewer, send_content, add_traffic, send_query
+	from .commands import send_message,	join_channel, part_channel
 
 	# TODO: Add Subs, resubs, raids and more events
 
 	def __init__(self, token=None, nickname=None):
 
 		self.running = False
+		self.query_running = False
 
 		self.token = token
 		self.nickname = nickname
@@ -43,6 +44,7 @@ class Client():
 		self.channels = dict()
 
 		self.traffic = 0
+		self.stored_traffic = list()
 
 		self.regex_PING=re.compile(r'^PING')
 		self.regex_on_ready=re.compile(r"^:tmi\.twitch\.tv 001.*")
@@ -53,11 +55,13 @@ class Client():
 
 	def stop(self):
 		self.running = False
+		self.query_running = False
 		self.connection_reader.close()
 		self.connection_writer.close()
 
 	def run(self, **kwargs):
 		self.running = True
+		self.query_running = True
 
 		self.token = kwargs.get('token', None)
 		self.nickname = kwargs.get('nickname', None)
@@ -88,11 +92,14 @@ class Client():
 
 				#start listen
 				self.last_ping = time.time()
+				self.query_running = True
+				asyncio.ensure_future(self.send_query())
 				await self.listen()
 
 			except Exception as e:
 				self.connection_writer.close()
 				await self.on_error(e)
+				self.query_running = False
 				await asyncio.sleep(5)
 
 	async def listen(self):
@@ -159,6 +166,16 @@ class Client():
 		"""
 		print(exeception)
 		traceback.print_exc()
+
+	async def on_limit(self):
+		"""
+		Attributes:
+		None
+
+		called every time a request was not send because it hit the twitch limit,
+		the request is stored and send as soon as possible
+		"""
+		pass
 
 	async def on_raw_data(self, raw):
 		"""
