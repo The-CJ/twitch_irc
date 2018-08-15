@@ -1,18 +1,17 @@
 import asyncio
+from .channel import Channel as tpl_channel
 
 async def send_message(self, channel, message):
-	#need to made messages over 29, query to send later
-	if self.traffic <= 29:
-		self.connection_writer.write(bytes("PRIVMSG #{0} :{1}\r\n".format(channel.lower(), message), 'UTF-8'))
-		asyncio.ensure_future(self.add_traffic())
+	f = isinstance(channel, tpl_channel)
+	if f: channel = channel.name
 
-async def add_traffic(self):
-		self.traffic += 1
-		await asyncio.sleep(20)
-		self.traffic -= 1
+	channel = channel.lower().strip('#')
+	await self.send_content( "PRIVMSG #{0} :{1}\r\n".format(channel, message) )
 
 async def join_channel(self, channel):
-	self.connection_writer.write(bytes("JOIN #{0}\r\n".format(channel.lower()), 'UTF-8'))
+	channel = channel.lower().strip('#')
+	await self.send_content( "JOIN #{0}\r\n".format(channel) )
 
 async def part_channel(self, channel):
-	self.connection_writer.write(bytes("PART #{0}\r\n".format(channel.lower()), 'UTF-8'))
+	channel = channel.lower().strip('#')
+	await self.send_content( "PART #{0}\r\n".format(channel) )

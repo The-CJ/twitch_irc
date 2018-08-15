@@ -12,6 +12,10 @@ but usable to any purpose
 import asyncio, twitch_irc
 
 class MyBot(twitch_irc.Client):
+
+  async def on_ready(self):
+    await self.join_channel('my_channel_name')
+
   async def on_message(self, message):
     print(message.content)
 

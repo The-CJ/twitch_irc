@@ -1,24 +1,52 @@
 import asyncio
 
+async def send_content(self, content, ignore_limit=False):
+	#request limit 20 / 30sec | even doh you can send 100 in channel with mod status
+	if self.traffic <= 19 or ignore_limit:
+		self.traffic += 1
+		asyncio.ensure_future( self.add_traffic() )
+		if type(content) != bytes:
+			content = bytes(content, 'UTF-8')
+		self.connection_writer.write(content)
+
+	else:
+		asyncio.ensure_future(self.on_limit())
+		self.stored_traffic.append( content )
+
+async def add_traffic(self):
+	await asyncio.sleep(30)
+	self.traffic -= 1
+
+async def send_query(self):
+	""" get started on Cient.run(), a coro thats takes all requests that would be over the limit and send them later """
+	while self.running and self.query_running:
+		if self.traffic <= 18 and len(self.stored_traffic) > 0:
+			req = self.stored_traffic.pop(0)
+			await self.send_content( req )
+		else:
+			await asyncio.sleep(0.05)
+
+# # # # #
+
 async def send_pong(self):
-	self.connection_writer.write(bytes("PONG :tmi.twitch.tv\r\n", 'UTF-8'))
+	await self.send_content( "PONG :tmi.twitch.tv\r\n", ignore_limit=True )
 
 async def send_nick(self):
-	self.connection_writer.write(bytes("NICK {0}\r\n".format(self.nickname), 'UTF-8'))
+	await self.send_content( "NICK {0}\r\n".format(self.nickname), ignore_limit=True )
 
 async def send_pass(self):
-	self.connection_writer.write(bytes("PASS {0}\r\n".format(self.token), 'UTF-8'))
+	await self.send_content( "PASS {0}\r\n".format(self.token), ignore_limit=True )
 
 async def req_membership(self):
-	self.connection_writer.write(bytes("CAP REQ :twitch.tv/membership\r\n", 'UTF-8'))
+	await self.send_content( "CAP REQ :twitch.tv/membership\r\n", ignore_limit=True )
 
 async def req_commands(self):
-	self.connection_writer.write(bytes("CAP REQ :twitch.tv/commands\r\n", 'UTF-8'))
+	await self.send_content( "CAP REQ :twitch.tv/commands\r\n", ignore_limit=True )
 
 async def req_tags(self):
-	self.connection_writer.write(bytes("CAP REQ :twitch.tv/tags\r\n", 'UTF-8'))
+	await self.send_content( "CAP REQ :twitch.tv/tags\r\n", ignore_limit=True )
 
-#
+# # # # #
 
 def update_channel_infos(self, channel):
 	current_state = self.channels.get( channel.id, None )
