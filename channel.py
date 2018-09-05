@@ -94,7 +94,7 @@ class Channel(object):
 		#name
 		search = re.search(r'ROOMSTATE #(\w+)', self.raw)
 		if search != None:
-			self.name = str( search.group(1) )
+			self.name = search.group(1)
 
 	def update(self, new_cannel):
 		""" together with a new channel object, it updates all attributes that are not None """
@@ -102,7 +102,7 @@ class Channel(object):
 			raise AttributeError(f'channel must be "{str(Channel)}" not "{type(channel)}"')
 
 		__all__ = dir(new_cannel)
-		__all__ = [attr for attr in __all__ if not attr.startswith('__')]
+		__all__ = [attr for attr in __all__ if not attr.startswith('__') and attr != "users"]
 		for attr in __all__:
 
 			if not callable( getattr(self, attr) ):

@@ -28,7 +28,7 @@ class User(object):
 		if search != None:
 			self.name = str( search.group(1) )
 
-		search = re.search(r' (JOIN|LEFT) #(.+?)$', self.raw)
+		search = re.search(r' (JOIN|LEFT) #(\w+)', self.raw)
 		if search != None:
 			self.channel_name = str( search.group(2) )
 

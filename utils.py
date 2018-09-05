@@ -98,7 +98,6 @@ def update_channel_viewer(self, user, operation=None):
 			raise LookupError('user not in users list')
 		chan.users[user.name]
 
-
 def get_channel(self, **search):
 	for chan_id in self.channels:
 		chan = self.channels[chan_id]
@@ -106,6 +105,6 @@ def get_channel(self, **search):
 		for key in search:
 			if getattr(chan, key, object) != search[key]:
 				continue
-		return chan
+			return chan
 
 	return None
