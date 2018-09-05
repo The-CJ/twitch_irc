@@ -1,6 +1,8 @@
 import asyncio
+from .channel import Channel
 
 async def send_content(self, content, ignore_limit=False):
+	""" used to send content of any type to twitch """
 	#request limit 20 / 30sec | even doh you can send 100 in channel with mod status
 	if self.traffic <= 19 or ignore_limit:
 		self.traffic += 1
@@ -14,8 +16,10 @@ async def send_content(self, content, ignore_limit=False):
 		self.stored_traffic.append( content )
 
 async def add_traffic(self):
+	""" called after any send_content to reset the traffic """
 	await asyncio.sleep(30)
-	self.traffic -= 1
+	if self.traffic <= 0: self.traffic = 0
+	else: self.traffic -= 1
 
 async def send_query(self):
 	""" get started on Cient.run(), a coro thats takes all requests that would be over the limit and send them later """
@@ -49,14 +53,26 @@ async def req_tags(self):
 # # # # #
 
 def update_channel_infos(self, channel):
+	"""
+	used to update channel infos in self.channels
+	it will update all non None attributes in a existing object or create a new entry in self.channels
+
+	returns updated channel
+	"""
+
+	if type(channel) != Channel:
+		raise AttributeError(f'channel must be "{str(Channel)}" not "{type(channel)}"')
+
+	if type(channel.id) != str:
+		raise AttributeError(f'channel id "{str(channel.id)}" type "{type(channel.id)}" is invalid')
+
 	current_state = self.channels.get( channel.id, None )
 	if current_state == None:
 		self.channels[channel.id] = channel
 		return self.channels[channel.id]
 
-	for key, value in channel.items():
-		if value == None: continue
-		self.channels[channel.id][key] = value
+	else:
+		self.channels[channel.id].update( channel )
 
 	return self.channels[channel.id]
 

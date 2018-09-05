@@ -96,3 +96,18 @@ class Channel(object):
 		if search != None:
 			self.name = str( search.group(1) )
 
+	def update(self, new_cannel):
+		""" together with a new channel object, it updates all attributes that are not None """
+		if type(new_cannel) != Channel:
+			raise AttributeError(f'channel must be "{str(Channel)}" not "{type(channel)}"')
+
+		__all__ = dir(new_cannel)
+		__all__ = [attr for attr in __all__ if not attr.startswith('__')]
+		for attr in __all__:
+
+			if not callable( getattr(self, attr) ):
+
+				new_value = getattr(new_cannel, attr, None)
+				if new_value != None:
+					setattr(self, attr, new_value)
+
