@@ -56,7 +56,6 @@ class Client():
 	def stop(self):
 		self.running = False
 		self.query_running = False
-		self.connection_reader.close()
 		self.connection_writer.close()
 
 	def run(self, **kwargs):
@@ -98,7 +97,6 @@ class Client():
 
 			except Exception as e:
 				self.connection_writer.close()
-				self.connection_reader.close()
 				self.query_running = False
 				await self.on_error(e)
 				await asyncio.sleep(5)
