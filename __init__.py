@@ -9,7 +9,7 @@ Simple to use IRC connection for Twitch optimited for the PhaazeOS project
 but usable to any purpose
 
 :copyright: (c) 2018-2018 The_CJ
-:license: eee dunno, gonna first finish it
+:license: MIT License
 
 - Inspired by the code of Rapptz's Discord library (function names and usage)
 
@@ -98,8 +98,9 @@ class Client():
 
 			except Exception as e:
 				self.connection_writer.close()
-				await self.on_error(e)
+				self.connection_reader.close()
 				self.query_running = False
+				await self.on_error(e)
 				await asyncio.sleep(5)
 
 	async def listen(self):
@@ -107,12 +108,15 @@ class Client():
 		#listen to twitch
 		while self.running:
 
-			payload = await self.connection_reader.readuntil()
+			payload = await self.connection_reader.readuntil(seperator='\r\n')
 			asyncio.ensure_future( self.on_raw_data(payload) )
-			payload = payload.decode('UTF-8').strip('\n').strip('\r')
+			payload = payload.decode('UTF-8')
 
 			#just to be sure
-			if payload in ["", " ", None]: break
+			if payload in ["", " ", None]: raise ConnectionResetError()
+
+			# last ping is over 6min (way over twitch normal response)
+			if (time.time() - self.last_ping) > 60*6: raise ConnectionResetError()
 
 			#response to PING
 			elif re.match(self.regex_PING, payload) != None:
