@@ -108,7 +108,7 @@ class Client():
 		#listen to twitch
 		while self.running:
 
-			payload = await self.connection_reader.readuntil(separator='\r\n')
+			payload = await self.connection_reader.readuntil(separator=b'\r\n')
 			asyncio.ensure_future( self.on_raw_data(payload) )
 			payload = payload.decode('UTF-8')
 
