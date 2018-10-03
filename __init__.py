@@ -20,10 +20,22 @@ import asyncio, time, re, traceback
 from .message import Message
 from .channel import Channel
 from .user import User
+from .regex import Regex
 
 class Client():
+	# CAP requests
 	from .utils import send_pong, send_nick, send_pass,	req_membership,	req_commands, req_tags
-	from .utils import update_channel_infos, get_channel, update_channel_viewer, send_content, add_traffic, send_query
+
+	# update functions
+	from .utils import update_channel_infos, update_channel_viewer
+
+	# get functions
+	from .utils import get_channel
+
+	# system utils
+	from .utils import add_traffic, send_query, send_content
+
+	# commands
 	from .commands import send_message,	join_channel, part_channel
 
 	# TODO: Add Subs, resubs, raids and more events
@@ -45,13 +57,6 @@ class Client():
 
 		self.traffic = 0
 		self.stored_traffic = list()
-
-		self.regex_PING=re.compile(r'^PING')
-		self.regex_on_ready=re.compile(r"^:tmi\.twitch\.tv 001.*")
-		self.regex_channel_update=re.compile(r"^@.+:tmi\.twitch\.tv ROOMSTATE #.+")
-		self.regex_on_member_join=re.compile(r"^.+\.tmi\.twitch\.tv JOIN #.+")
-		self.regex_on_member_left=re.compile(r"^.+\.tmi\.twitch\.tv LEFT #.+")
-		self.regex_on_message=re.compile(r"^@.+\.tmi\.twitch\.tv PRIVMSG #.+")
 
 	def stop(self):
 		self.running = False
@@ -117,22 +122,22 @@ class Client():
 			if (time.time() - self.last_ping) > 60*6: raise ConnectionResetError()
 
 			#response to PING
-			elif re.match(self.regex_PING, payload) != None:
+			elif re.match(Regex.ping, payload) != None:
 				self.last_ping = time.time()
 				await self.send_pong()
 
 			#on_ready
-			elif re.match(self.regex_on_ready, payload) != None:
+			elif re.match(Regex.on_ready, payload) != None:
 				asyncio.ensure_future( self.on_ready() )
 
 			#channel_update
-			elif re.match(self.regex_channel_update, payload) != None:
+			elif re.match(Regex.channel_update, payload) != None:
 				chan = Channel(payload)
 				chan = self.update_channel_infos(chan)
 				asyncio.ensure_future( self.on_channel_update( chan ) )
 
 			#on_member_join
-			elif re.match(self.regex_on_member_join, payload) != None:
+			elif re.match(Regex.on_member_join, payload) != None:
 				user = User(payload)
 				c = self.get_channel(name=user.channel_name)
 				if c != None:
@@ -141,7 +146,7 @@ class Client():
 				asyncio.ensure_future( self.on_member_join( user ) )
 
 			#on_member_left
-			elif re.match(self.regex_on_member_left, payload) != None:
+			elif re.match(Regex.on_member_left, payload) != None:
 				user = User(payload)
 				c = self.get_channel(name=user.channel_name)
 				if c != None:
@@ -150,7 +155,7 @@ class Client():
 				asyncio.ensure_future( self.on_member_left( user ) )
 
 			#on_message
-			elif re.match(self.regex_on_message, payload) != None:
+			elif re.match(Regex.on_message, payload) != None:
 				message = Message(payload)
 				c = self.channels.get(message.channel_id, None)
 				if c != None:
