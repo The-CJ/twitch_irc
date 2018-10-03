@@ -3,7 +3,7 @@ from .regex import Regex
 from .emote import Emote
 
 class Message(object):
-	"""This class is generated when a user is sending a message, it turns raw data like:
+	""" This class is generated when a user is sending a message, it turns raw data like:
 
 		`raw_data` = type :: str
 
@@ -33,7 +33,8 @@ class Message(object):
 		self.color = None 							# str
 		self.display_name = None 					# str
 		self.name = None 							# str
-		self.emotes = [] 							# list
+		self.emotes_str = None						# str
+		self.emotes = [] 							# list :: Emote
 		self.channel_id = None						# str
 		self.channel_name = None					# str
 		self.user_id = None 						# str
@@ -44,6 +45,7 @@ class Message(object):
 		self.content = None 						# str
 
 		self.process()
+		self.get_emotes()
 		del self.raw
 
 	def process(self):
@@ -67,17 +69,10 @@ class Message(object):
 		if search != None:
 			self.name = search.group(1)
 
-		#emotes
-		search = re.search(Regex.Message.emotes, self.raw)
+		#emotes_str
+		search = re.search(Regex.Message.emotes_str, self.raw)
 		if search != None:
-			try:
-				e = search.group(1).split('/')
-				for emote in e:
-					id_, amount = emote.split(":", 1)
-					em = dict(id= id_, amount= len(amount.split(",")))
-					self.emotes.append( em )
-			except:
-				self.emotes = []
+			self.emotes_str = search.group(1)
 
 		#room_id | channel_id
 		search = re.search(Regex.Message.room_id, self.raw)
@@ -118,4 +113,17 @@ class Message(object):
 		search = re.search(Regex.Message.content, self.raw)
 		if search != None:
 			self.content = search.group(1).strip('\r')
+
+	def get_emotes(self):
+		# 25:0-4,6-10,12-16,24-28/1902:18-22,30-34
+
+		if self.emotes_str in [None, ""]: return
+
+		emote_str_list = self.emotes_str.split("/")
+		for emote_str in emote_str_list:
+			e = Emote(emote_str, self.content)
+			self.emotes.append(e)
+
+
+
 
