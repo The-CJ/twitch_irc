@@ -48,10 +48,7 @@ class Channel(object):
 		#emote_only
 		search = re.search(Regex.Channel.emote_only, self.raw)
 		if search != None:
-			if search.group(1) == "1":
-				self.emote_only = True
-			elif search.group(1) == "0":
-				self.emote_only = False
+			self.emote_only = True if search.group(1) == "1" else False
 
 		#folloers_only
 		search = re.search(Regex.Channel.folloers_only, self.raw)
@@ -61,18 +58,12 @@ class Channel(object):
 		#r9k
 		search = re.search(Regex.Channel.r9k, self.raw)
 		if search != None:
-			if search.group(1) == "1":
-				self.r9k = True
-			elif search.group(1) == "0":
-				self.r9k = False
+			self.r9k = True if search.group(1) == "1" else False
 
 		#rituals
 		search = re.search(Regex.Channel.rituals, self.raw)
 		if search != None:
-			if search.group(1) == "1":
-				self.rituals = True
-			elif search.group(1) == "0":
-				self.rituals = False
+			self.rituals = True if search.group(1) == "1" else False
 
 		#room_id | id
 		search = re.search(Regex.Channel.room_id, self.raw)
@@ -87,10 +78,7 @@ class Channel(object):
 		#subs_only
 		search = re.search(Regex.Channel.subs_only, self.raw)
 		if search != None:
-			if search.group(1) == "1":
-				self.subs_only = True
-			elif search.group(1) == "0":
-				self.subs_only = False
+			self.subs_only = True if search.group(1) == "1" else False
 
 		#room_name | name
 		search = re.search(Regex.Channel.room_name, self.raw)
