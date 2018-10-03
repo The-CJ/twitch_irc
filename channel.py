@@ -18,6 +18,8 @@ class Channel(object):
 
 		into a usable class and adds it to the bots self.channels dict
 	"""
+	def __str__(self):
+		return self.name
 
 	def __init__(self, raw_data):
 		self.raw = raw_data.strip('@')	# str

@@ -9,6 +9,8 @@ class User(object):
 
 		into a usable class and adds it to the bots self.channel list
 	"""
+	def __str__(self):
+		return self.name
 
 	def __init__(self, raw_data, main_data=None):
 		self.raw = raw_data			# str

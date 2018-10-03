@@ -25,6 +25,8 @@ class Message(object):
 
 		into a usable class
 	"""
+	def __str__(self):
+		return self.content
 
 	def __init__(self, raw_data):
 		self.raw = raw_data.strip('@')				# str

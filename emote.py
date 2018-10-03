@@ -11,6 +11,8 @@ class Emote(object):
 		would make 4 emotes into a classes:
 
 	"""
+	def __str__(self):
+		return self.name
 
 	def __init__(self, emote_str, message_content):
 		self.emote_str = emote_str
