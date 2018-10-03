@@ -1,4 +1,6 @@
 import re
+from .regex import Regex
+from .emote import Emote
 
 class Message(object):
 	"""This class is generated when a user is sending a message, it turns raw data like:
@@ -46,27 +48,27 @@ class Message(object):
 
 	def process(self):
 		#badges
-		search = re.search(r'badges=(.+?)[; ]', self.raw)
+		search = re.search(Regex.Message.badges, self.raw)
 		if search != None:
 			self.badges = search.group(1).split(',')
 
 		#color
-		search = re.search(r'color=#(.+?)[; ]', self.raw)
+		search = re.search(Regex.Message.color, self.raw)
 		if search != None:
 			self.color = search.group(1)
 
 		#display_name
-		search = re.search(r'display-name=(.+?)[; ]', self.raw)
+		search = re.search(Regex.Message.display_name, self.raw)
 		if search != None:
 			self.display_name = search.group(1)
 
 		#name
-		search = re.search(r'!(.+?)@', self.raw)
+		search = re.search(Regex.Message.name, self.raw)
 		if search != None:
 			self.name = search.group(1)
 
 		#emotes
-		search = re.search(r'emotes=(.+?)[; ]', self.raw)
+		search = re.search(Regex.Message.emotes, self.raw)
 		if search != None:
 			try:
 				e = search.group(1).split('/')
@@ -77,52 +79,43 @@ class Message(object):
 			except:
 				self.emotes = []
 
-		#channel_id
-		search = re.search(r'room-id=(.+?)[; ]', self.raw)
+		#room_id | channel_id
+		search = re.search(Regex.Message.room_id, self.raw)
 		if search != None:
 			self.channel_id = search.group(1)
 
-		#channel_name
-		search = re.search(r'PRIVMSG #(.+?) :', self.raw)
+		#room_name | channel_name
+		search = re.search(Regex.Message.room_name, self.raw)
 		if search != None:
 			self.channel_name = search.group(1)
 
 		#user_id
-		search = re.search(r'user-id=(.+?)[; ]', self.raw)
+		search = re.search(Regex.Message.user_id, self.raw)
 		if search != None:
 			self.user_id = search.group(1)
 
 		#user_type
-		search = re.search(r'user-type=(.+?)[; ]', self.raw)
+		search = re.search(Regex.Message.user_type, self.raw)
 		if search != None:
 			self.user_type = search.group(1)
 
 		#sub
-		search = re.search(r'subscriber=(0|1)[; ]', self.raw)
+		search = re.search(Regex.Message.sub, self.raw)
 		if search != None:
-			if search.group(1) == "1":
-				self.sub = True
-			else:
-				self.sub = False
+			self.sub = True if search.group(1) == "1" else False
 
 		#mod
-		search = re.search(r'mod=(0|1)[; ]', self.raw)
+		search = re.search(Regex.Message.mod, self.raw)
 		if search != None:
-			if search.group(1) == "1":
-				self.mod = True
-			else:
-				self.mod = False
+			self.mod = True if search.group(1) == "1" else False
 
 		#turbo
-		search = re.search(r'turbo=(0|1)[; ]', self.raw)
+		search = re.search(Regex.Message.turbo, self.raw)
 		if search != None:
-			if search.group(1) == "1":
-				self.turbo = True
-			else:
-				self.turbo = False
+			self.turbo = True if search.group(1) == "1" else False
 
 		#content
-		search = re.search(r'PRIVMSG #.+? :(.+)', self.raw)
+		search = re.search(Regex.Message.content, self.raw)
 		if search != None:
 			self.content = search.group(1).strip('\r')
 

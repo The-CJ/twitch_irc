@@ -22,3 +22,17 @@ class Regex(object):
 		subs_only = re.compile(r"subs-only=(1|0)[; ]")
 		room_name = re.compile(r"ROOMSTATE #(\w+)")
 
+	class Message(object):
+		badges = re.compile(r"badges=(.+?)[; ]")
+		color = re.compile(r"color=#(.+?)[; ]")
+		display_name = re.compile(r"display-name=(.+?)[; ]")
+		name = re.compile(r"!(.+?)@")
+		emotes = re.compile(r"emotes=(.+?)[; ]")
+		room_id = re.compile(r"room-id=(.+?)[; ]")
+		room_name = re.compile(r"PRIVMSG #(.+?) :")
+		user_id = re.compile(r"user-id=(.+?)[; ]")
+		user_type = re.compile(r"user-type=(.+?)[; ]")
+		sub = re.compile(r"subscriber=(0|1)[; ]")
+		mod = re.compile(r"mod=(0|1)[; ]")
+		turbo = re.compile(r"turbo=(0|1)[; ]")
+		content = re.compile(r"PRIVMSG #.+? :(.+)")
