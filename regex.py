@@ -11,6 +11,10 @@ class Regex(object):
 	on_member_left = re.compile(r"^.+\.tmi\.twitch\.tv LEFT #.+")
 	on_message = re.compile(r"^@.+\.tmi\.twitch\.tv PRIVMSG #.+")
 
+	class User(object):
+		name = re.compile(r"^:(.+?)!")
+		channel_name = re.compile(r"(JOIN|LEFT) #(\w+)")
+
 	class Channel(object):
 		broadcaster_lang = re.compile(r"broadcaster-lang=(.*?)[; ]")
 		emote_only = re.compile(r"emote-only=(1|0)[; ]")

@@ -1,13 +1,14 @@
 import re
+from .regex import Regex
 
 class User(object):
-	"""This class represents a user like on a event on join or left,
+	""" This class represents a user from a channel for a join or left event,
 
 		`raw_data` = type :: str
 
 		:phaazebot!phaazebot@phaazebot.tmi.twitch.tv JOIN #phaazebot
 
-		into a usable class and adds it to the bots self.channel list
+		into a usable class and adds it to the bots self.channels[chan].users list (or removes it)
 	"""
 	def __str__(self):
 		return self.name
@@ -26,11 +27,12 @@ class User(object):
 	def process(self):
 
 		#name
-		search = re.search(r'^:(.+?)!', self.raw)
+		search = re.search(Regex.User.name, self.raw)
 		if search != None:
 			self.name = str( search.group(1) )
 
-		search = re.search(r' (JOIN|LEFT) #(\w+)', self.raw)
+		#channel_name
+		search = re.search(Regex.User.channel_name, self.raw)
 		if search != None:
 			self.channel_name = str( search.group(2) )
 
