@@ -77,9 +77,14 @@ class Client():
 		loop.run_until_complete(self.start())
 
 	async def start(self):
-		self.last_ping = time.time()
 
 		while self.running:
+
+			#reset bot storage
+			self.last_ping = time.time()
+			self.traffic = 0
+			self.channels = dict()
+			# NOTE: not resetting self.stored_traffic | maybe there is something important insite
 
 			try:
 				#init connection
@@ -167,7 +172,7 @@ class Client():
 	async def on_error(self, exeception):
 		"""
 		Attributes:
-		`exeception`  =  type :: exeception
+		`exeception`  =  type :: Exeception
 
 		called every time something goes wrong
 		"""
