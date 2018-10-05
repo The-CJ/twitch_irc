@@ -17,9 +17,6 @@ but usable to any purpose
 
 import asyncio, time, re, traceback
 
-from .message import Message
-from .channel import Channel
-from .user import User
 from .regex import Regex
 
 class Client():
@@ -34,6 +31,9 @@ class Client():
 
 	# system utils
 	from .utils import add_traffic, send_query, send_content
+
+	# event handler
+	from .handler import handle_channel_update, handle_on_member_join, handle_on_member_left, handle_on_message
 
 	# commands
 	from .commands import send_message,	join_channel, part_channel
@@ -137,36 +137,19 @@ class Client():
 
 			#channel_update
 			elif re.match(Regex.channel_update, payload) != None:
-				chan = Channel(payload)
-				chan = self.update_channel_infos(chan)
-				asyncio.ensure_future( self.on_channel_update( chan ) )
+				await self.handle_channel_update(payload)
 
 			#on_member_join
 			elif re.match(Regex.on_member_join, payload) != None:
-				user = User(payload)
-				c = self.get_channel(name=user.channel_name)
-				if c != None:
-					user.channel = c
-				self.update_channel_viewer(user, 'add')
-				asyncio.ensure_future( self.on_member_join( user ) )
+				await self.handle_on_member_join(payload)
 
 			#on_member_left
 			elif re.match(Regex.on_member_left, payload) != None:
-				user = User(payload)
-				c = self.get_channel(name=user.channel_name)
-				if c != None:
-					user.channel = c
-				self.update_channel_viewer(user, 'rem')
-				asyncio.ensure_future( self.on_member_left( user ) )
+				await self.handle_on_member_left(payload)
 
 			#on_message
 			elif re.match(Regex.on_message, payload) != None:
-				message = Message(payload)
-				c = self.channels.get(message.channel_id, None)
-				if c != None:
-					message.channel = c
-
-				asyncio.ensure_future( self.on_message( message ) )
+				await self.handle_on_message(payload)
 
 	#events
 	async def on_error(self, exeception):
