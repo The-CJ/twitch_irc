@@ -97,8 +97,7 @@ def update_channel_viewer(self, user, operation=None):
 
 	if operation == 'add':
 		if chan.users.get(user.name, None) != None:
-			return
-		chan.users[user.name] = user
+			chan.users[user.name] = user
 
 	if operation == 'rem':
 		if chan.users.get(user.name, None) == None:

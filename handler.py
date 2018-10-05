@@ -43,17 +43,29 @@ async def handle_on_message(self, payload):
 	`self.on_message(message)` for custom user code
 	"""
 
+	# generate message
 	message = Message(payload)
+
+	#get Channel
 	c = self.channels.get(message.channel_id, None)
-	# Channel
 	if c != None:
 		message.channel = c
 	else:
-		message.channel = Channel(payload, generated_by="message")
-	# Author
-	u = message.channel.get_user(name=message.name)
-	if u != None:
-		message.author = u
+		message.channel = Channel(None, generated_by="message", message=message)
+
+	# get Author
+	user = message.channel.get_user(name=message.name)
+	if user != None:
+		if user.minimalistic:
+			full_user = User(message, generated_by="message", message=message)
+			user.update(full_user)
+
+		message.author = user
+	else:
+		# get called when the user write a message befor twitch tells us the he joined, so we add it to viewer befor we get the join event
+		full_user = User(message, generated_by="message", message=message)
+		self.update_channel_viewer(full_user, 'add')
+		message.author = full_user
 
 	asyncio.ensure_future( self.on_message( message ) )
 
