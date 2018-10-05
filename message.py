@@ -31,7 +31,7 @@ class Message(object):
 	def __init__(self, raw_data):
 		self.raw = raw_data.strip('@')				# str
 
-		self.badges = [] 							# list
+		self.badges = [] 							# list :: str? maybe make badge objects
 		self.color = None 							# str
 		self.display_name = None 					# str
 		self.name = None 							# str
@@ -45,6 +45,9 @@ class Message(object):
 		self.mod = False 							# bool
 		self.turbo = False 							# bool
 		self.content = None 						# str
+
+		self.channel = None							# object :: Channel
+		self.author = None							# object :: User
 
 		self.process()
 		self.get_emotes()

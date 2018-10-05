@@ -7,7 +7,7 @@ class Channel(object):
 
 		`raw_data` = type :: str
 		`generated_by` = type :: str ["event", "message"]
-		`source_object` = type :: Message | must be provided when `generated_by` = 'message'
+		`message` = type :: Message | must be provided when `generated_by` = 'message'
 
 		into a usable class and adds it to the bots self.channels dict
 	"""
