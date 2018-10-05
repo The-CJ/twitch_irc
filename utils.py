@@ -77,6 +77,13 @@ def update_channel_infos(self, channel):
 	return self.channels[channel.id]
 
 def update_channel_viewer(self, user, operation=None):
+	"""
+	used to add or remove user in a channel.users object from self.channels
+	- for some reason twitch sends joins double or don't send a leave
+	  so it's not 100% clear that channel.users contains all viewers
+	  #ThanksTwitch
+	"""
+
 	if user.channel_name.lower() == self.nickname.lower(): return
 	if operation not in ['add', 'rem']:
 		raise AttributeError('only supports "add" and "rem"')
@@ -90,12 +97,12 @@ def update_channel_viewer(self, user, operation=None):
 
 	if operation == 'add':
 		if chan.users.get(user.name, None) != None:
-			raise LookupError('user already in users list')
+			return
 		chan.users[user.name] = user
 
 	if operation == 'rem':
 		if chan.users.get(user.name, None) == None:
-			raise LookupError('user not in users list')
+			return
 		del chan.users[user.name]
 
 def get_channel(self, **search):
