@@ -41,6 +41,7 @@ class User(object):
 			self.process_message()
 
 		del self.raw
+		del self.source
 
 	def process_event(self):
 		"""
