@@ -84,7 +84,6 @@ def update_channel_viewer(self, user, operation=None):
 	  #ThanksTwitch
 	"""
 
-	if user.channel_name.lower() == self.nickname.lower(): return
 	if operation not in ['add', 'rem']:
 		raise AttributeError('only supports "add" and "rem"')
 
