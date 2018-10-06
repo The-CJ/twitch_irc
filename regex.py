@@ -27,7 +27,7 @@ class Regex(object):
 		room_name = re.compile(r"ROOMSTATE #(\w+)")
 
 	class Message(object):
-		badges = re.compile(r"badges=(.*?)[; ]")
+		badges_str = re.compile(r"badges=(.*?)[; ]")
 		color = re.compile(r"color=#(.*?)[; ]")
 		display_name = re.compile(r"display-name=(.+?)[; ]")
 		name = re.compile(r"!(.+?)@")

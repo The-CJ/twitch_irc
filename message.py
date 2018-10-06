@@ -1,6 +1,7 @@
 import re
 from .regex import Regex
 from .emote import Emote
+from .badge import Badge
 
 class Message(object):
 	""" This class is generated when a user is sending a message, it turns raw data like:
@@ -31,7 +32,8 @@ class Message(object):
 	def __init__(self, raw_data):
 		self.raw = raw_data.strip('@')				# str
 
-		self.badges = [] 							# list :: str? maybe make badge objects
+		self.badges_str = None						# str
+		self.badges = [] 							# list :: Badge
 		self.color = None 							# str
 		self.display_name = None 					# str
 		self.name = None 							# str
@@ -51,13 +53,14 @@ class Message(object):
 
 		self.process()
 		self.get_emotes()
+		self.get_badges()
 		del self.raw
 
 	def process(self):
-		#badges
-		search = re.search(Regex.Message.badges, self.raw)
+		#badges_str
+		search = re.search(Regex.Message.badges_str, self.raw)
 		if search != None:
-			self.badges = search.group(1).split(',')
+			self.badges_str = search.group(1)
 
 		#color
 		search = re.search(Regex.Message.color, self.raw)
@@ -129,6 +132,15 @@ class Message(object):
 			e = Emote(emote_str, self.content)
 			self.emotes.append(e)
 
+	def get_badges(self):
+		# moderator/1,premium/1
+
+		if self.badges_str in [None, ""]: return
+
+		badge_str_list = self.badges_str.split(",")
+		for badge_str in badge_str_list:
+			e = Badge(badge_str)
+			self.badges.append(e)
 
 
 
