@@ -8,12 +8,12 @@ class Regex(object):
 
 	on_ready = re.compile(r"^:tmi\.twitch\.tv 001.*")
 	on_member_join = re.compile(r"^.+\.tmi\.twitch\.tv JOIN #.+")
-	on_member_left = re.compile(r"^.+\.tmi\.twitch\.tv LEFT #.+")
+	on_member_left = re.compile(r"^.+\.tmi\.twitch\.tv PART #.+")
 	on_message = re.compile(r"^@.+\.tmi\.twitch\.tv PRIVMSG #.+")
 
 	class User(object):
 		name = re.compile(r"^:(.+?)!")
-		channel_name = re.compile(r"(JOIN|LEFT) #(\w+)")
+		channel_name = re.compile(r"(JOIN|PART) #(\w+)")
 
 	class Channel(object):
 		broadcaster_lang = re.compile(r"broadcaster-lang=(.*?)[; ]")
