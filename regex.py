@@ -4,6 +4,7 @@ class Regex(object):
 	""" Includes a precompiled re objects for every IRC event  """
 
 	ping = re.compile(r'^PING')
+	wrong_auth = re.compile(r'^:tmi\.twitch\.tv NOTICE \* :Login authentication failed.*')
 	channel_update = re.compile(r"^@.+:tmi\.twitch\.tv ROOMSTATE #.+")
 
 	on_ready = re.compile(r"^:tmi\.twitch\.tv 001.*")

@@ -44,6 +44,7 @@ class Client():
 
 		self.running = False
 		self.query_running = False
+		self.auth_success = False
 
 		self.token = token
 		self.nickname = nickname
@@ -131,8 +132,14 @@ class Client():
 				self.last_ping = time.time()
 				await self.send_pong()
 
+			#wrong_auth
+			elif not self.auth_success and re.match(Regex.wrong_auth, payload) != None:
+				asyncio.ensure_future( self.on_error(ConnectionRefusedError("wrong_auth")) )
+				self.stop()
+
 			#on_ready
 			elif re.match(Regex.on_ready, payload) != None:
+				self.auth_success = True
 				asyncio.ensure_future( self.on_ready() )
 
 			#channel_update
