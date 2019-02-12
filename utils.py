@@ -3,16 +3,20 @@ from .channel import Channel
 
 async def send_content(self, content, ignore_limit=False):
 	""" used to send content of any type to twitch """
-	#request limit 20 / 30sec | even doh you can send 100 in channel with mod status
-	if self.traffic <= 19 or ignore_limit:
+	#default request limit 20 / 30sec | even doh you can send 100 in channel with mod status
+	#offical bots may use: bot = twitch_irc.Client(request_limit=100)
+	#one channel mod bots: bot = twitch_irc.Client(request_limit=1000)
+	#others are not recommended, could bring u to a multi hour twitch timeout
+	if type(content) != bytes:
+		content = bytes(content, 'UTF-8')
+
+	if self.traffic <= self.request_limit or ignore_limit:
 		self.traffic += 1
 		asyncio.ensure_future( self.add_traffic() )
-		if type(content) != bytes:
-			content = bytes(content, 'UTF-8')
 		self.connection_writer.write(content)
 
 	else:
-		asyncio.ensure_future(self.on_limit())
+		asyncio.ensure_future( self.on_limit(content) )
 		self.stored_traffic.append( content )
 
 async def add_traffic(self):
@@ -24,7 +28,7 @@ async def add_traffic(self):
 async def send_query(self):
 	""" get started on Cient.run(), a coro thats takes all requests that would be over the limit and send them later """
 	while self.running and self.query_running:
-		if self.traffic <= 18 and len(self.stored_traffic) > 0:
+		if self.traffic <= (self.request_limit-1) and len(self.stored_traffic) > 0:
 			req = self.stored_traffic.pop(0)
 			await self.send_content( req )
 		else:

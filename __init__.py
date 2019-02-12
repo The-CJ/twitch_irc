@@ -43,7 +43,7 @@ class Client():
 
 	# TODO: Add Subs, resubs, raids and more events
 
-	def __init__(self, token=None, nickname=None):
+	def __init__(self, token=None, nickname=None, request_limit=19):
 
 		self.running = False
 		self.query_running = False
@@ -59,6 +59,7 @@ class Client():
 		self.connection_writer = None
 		self.channels = dict()
 
+		self.request_limit = request_limit
 		self.traffic = 0
 		self.stored_traffic = list()
 
@@ -181,10 +182,10 @@ class Client():
 		print(exeception)
 		traceback.print_exc()
 
-	async def on_limit(self):
+	async def on_limit(self, payload):
 		"""
 		Attributes:
-		None
+		`payload` = type :: bytes
 
 		called every time a request was not send because it hit the twitch limit,
 		the request is stored and send as soon as possible
