@@ -103,9 +103,12 @@ class Client():
 				await self.req_commands()
 				await self.req_tags()
 
-				#start listen
+				#reset vars
 				self.last_ping = time.time()
 				self.query_running = True
+				self.auth_success = False
+
+				#start listen
 				asyncio.ensure_future(self.send_query())
 				await self.listen()
 
@@ -144,10 +147,14 @@ class Client():
 			elif not self.auth_success and re.match(Regex.wrong_auth, payload) != None:
 				raise self.InvalidAuth(str(payload))
 
-			#on_ready
+			#on_ready on_reconnect
 			elif re.match(Regex.on_ready, payload) != None:
-				self.auth_success = True
-				asyncio.ensure_future( self.on_ready() )
+				if self.auth_success:
+					#means we got a reconnect
+					asyncio.ensure_future( self.on_reconnect() )
+				else:
+					self.auth_success = True
+					asyncio.ensure_future( self.on_ready() )
 
 			#channel_update
 			elif re.match(Regex.channel_update, payload) != None:
@@ -201,6 +208,15 @@ class Client():
 		None
 
 		called when the client is connected to twitch and is ready to receive or send data
+		"""
+		pass
+
+	async def on_reconnect(self):
+		"""
+		Attributes:
+		None
+
+		called when the client was allready connected but was/had to reconnect
 		"""
 		pass
 
