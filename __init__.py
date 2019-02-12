@@ -39,7 +39,7 @@ class Client():
 	from .commands import send_message,	join_channel, part_channel
 
 	# error
-	from .error import InvalidAuth
+	from .error import InvalidAuth, PingTimeout, EmptyPayload
 
 	# TODO: Add Subs, resubs, raids and more events
 
@@ -133,10 +133,10 @@ class Client():
 			payload = payload.decode('UTF-8').strip('\n').strip('\r')
 
 			#just to be sure
-			if payload in ["", " ", None]: raise ConnectionResetError()
+			if payload in ["", " ", None]: raise self.EmptyPayload()
 
 			# last ping is over 6min (way over twitch normal response)
-			if (time.time() - self.last_ping) > 60*6: raise ConnectionResetError()
+			if (time.time() - self.last_ping) > 60*6: raise self.PingTimeout()
 
 			#response to PING
 			elif re.match(Regex.ping, payload) != None:
@@ -149,12 +149,10 @@ class Client():
 
 			#on_ready on_reconnect
 			elif re.match(Regex.on_ready, payload) != None:
-				if self.auth_success:
-					#means we got a reconnect
+				if self.auth_success: #means we got a reconnect
 					asyncio.ensure_future( self.on_reconnect() )
-				else:
-					self.auth_success = True
-					asyncio.ensure_future( self.on_ready() )
+				self.auth_success = True
+				asyncio.ensure_future( self.on_ready() )
 
 			#channel_update
 			elif re.match(Regex.channel_update, payload) != None:
@@ -217,6 +215,7 @@ class Client():
 		None
 
 		called when the client was allready connected but was/had to reconnect
+		always called with on_ready
 		"""
 		pass
 
