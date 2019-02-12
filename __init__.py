@@ -109,9 +109,11 @@ class Client():
 				asyncio.ensure_future(self.send_query())
 				await self.listen()
 
+			except self.InvalidAuth as e:
+				self.stop()
+				await self.on_error(e)
+
 			except Exception as e:
-				self.connection_writer.close()
-				self.query_running = False
 				await self.on_error(e)
 				if self.running:
 					await asyncio.sleep(5)
@@ -140,9 +142,7 @@ class Client():
 
 			#wrong_auth
 			elif not self.auth_success and re.match(Regex.wrong_auth, payload) != None:
-				self.stop()
 				raise self.InvalidAuth(str(payload))
-				#asyncio.ensure_future( self.on_error( InvalidAuth("wrong_auth") ) )
 
 			#on_ready
 			elif re.match(Regex.on_ready, payload) != None:
