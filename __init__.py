@@ -5,7 +5,7 @@
 Twitch IRC wrapper
 ##################
 
-Simple to use IRC connection for Twitch optimited for the PhaazeOS project
+Simple to use IRC connection for Twitch optimized for the PhaazeOS project
 but usable to any purpose
 
 :copyright: (c) 2018-2018 The_CJ
@@ -37,6 +37,9 @@ class Client():
 
 	# commands
 	from .commands import send_message,	join_channel, part_channel
+
+	# error
+	from .error import InvalidAuth
 
 	# TODO: Add Subs, resubs, raids and more events
 
@@ -110,7 +113,10 @@ class Client():
 				self.connection_writer.close()
 				self.query_running = False
 				await self.on_error(e)
-				await asyncio.sleep(5)
+				if self.running:
+					await asyncio.sleep(5)
+				else:
+					break
 
 	async def listen(self):
 
@@ -134,8 +140,9 @@ class Client():
 
 			#wrong_auth
 			elif not self.auth_success and re.match(Regex.wrong_auth, payload) != None:
-				asyncio.ensure_future( self.on_error(ConnectionRefusedError("wrong_auth")) )
 				self.stop()
+				raise self.InvalidAuth(str(payload))
+				#asyncio.ensure_future( self.on_error( InvalidAuth("wrong_auth") ) )
 
 			#on_ready
 			elif re.match(Regex.on_ready, payload) != None:
