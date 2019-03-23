@@ -117,6 +117,14 @@ class Client():
 				self.stop()
 				await self.on_error(e)
 
+			except self.EmptyPayload as e:
+				await self.on_error(e)
+				break
+
+			except self.PingTimeout as e:
+				await self.on_error(e)
+				break
+
 			except Exception as e:
 				await self.on_error(e)
 				if self.running:
