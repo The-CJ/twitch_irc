@@ -1,7 +1,12 @@
-import setuptools, re
+import setuptools, re, pathlib
+here = pathlib.Path(__file__).parent
 
-with open("README.md", "r") as rm:
+with open(f"{here}/README.md", "r") as rm:
 	long_description = rm.read()
+
+requirements = []
+with open(f"{here}/requirements.txt", "r") as req:
+  requirements = req.read().splitlines()
 
 try:
 	version = re.findall(r"^__version__\s?=\s?[\'\"](.+)[\'\"]$", open("twitch_irc/__init__.py").read(), re.M)[0]
@@ -17,6 +22,8 @@ setuptools.setup(
 	long_description=long_description,
 	long_description_content_type="text/markdown",
 	url="https://github.com/The-CJ/twitch_irc",
+	license="MIT",
+	install_requires=requirements,
 	packages=["twitch_irc"],
 	classifiers=[
 		"Programming Language :: Python :: 3.5",
