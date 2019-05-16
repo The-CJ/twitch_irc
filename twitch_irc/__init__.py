@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+__version__ = "0.5.0"
+
 """
 ##################
 Twitch IRC wrapper
@@ -265,4 +267,3 @@ class Client():
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
 		"""
 		pass
-
