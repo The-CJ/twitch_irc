@@ -107,7 +107,7 @@ class Channel(object):
 		if search != None:
 			self.name = search.group(1)
 
-	def buildFromMessage(self, Msg:Message):
+	def buildFromMessage(self, Msg:Message) -> None:
 		"""
 			! emergency function
 
@@ -118,7 +118,7 @@ class Channel(object):
 		self.channel_id = Msg.channel_id
 		self.name = Msg.channel_name
 
-	def update(self, New:"Channel"):
+	def update(self, New:"Channel") -> None:
 		"""
 			together with a new channel object, it updates all attributes that are not None
 		"""
@@ -135,7 +135,7 @@ class Channel(object):
 				if new_value != None:
 					setattr(self, attr, new_value)
 
-	def getUser(self, **search):
+	def getUser(self, **search) -> User or None:
 		"""
 			get a user from the channel viewers based on the given kwargs,
 			returns the first user all kwargs are valid, or None if 0 valid
