@@ -15,17 +15,6 @@ class User(object):
 	name = re.compile(r"^:(.+?)!")
 	channel_name = re.compile(r"(JOIN|PART) #(\w+)")
 
-class Channel(object):
-	broadcaster_lang = re.compile(r"broadcaster-lang=(.*?)[; ]")
-	emote_only = re.compile(r"emote-only=(1|0)[; ]")
-	folloers_only = re.compile(r"followers-only=(\d+?|-1)[; ]")
-	r9k = re.compile(r"r9k=(1|0)[; ]")
-	rituals = re.compile(r"rituals=(1|0)[; ]")
-	room_id = re.compile(r"room-id=(\d+?)[; ]")
-	slow = re.compile(r"slow=(\d+?)[; ]")
-	subs_only = re.compile(r"subs-only=(1|0)[; ]")
-	room_name = re.compile(r"ROOMSTATE #(\w+)")
-
 class Message(object):
 	badges_str = re.compile(r"badges=(.*?)[; ]")
 	color = re.compile(r"color=#(.*?)[; ]")

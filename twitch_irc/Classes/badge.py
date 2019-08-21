@@ -9,7 +9,7 @@ class Badge(object):
 			moderator/1
 	"""
 	def __repr__(self):
-		return f"<name='{self.name}' version='{self.version}'>"
+		return f"<{self.__class__.__name__} name='{self.name}' version='{self.version}'>"
 
 	def __str__(self):
 		return f"{self.name}/{self.version}"
