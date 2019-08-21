@@ -3,9 +3,9 @@ if TYPE_CHECKING:
     from ..Classes.client import Client
 
 import asyncio
-from .channel import Channel
-from .user import User
-from .message import Message
+from ..Classes.channel import Channel
+from ..Classes.user import User
+from ..Classes.message import Message
 
 async def handleChannelUpdate(cls:"Client", payload):
 	"""
@@ -13,8 +13,8 @@ async def handleChannelUpdate(cls:"Client", payload):
 		calls onChannelUpdate(Channel) for custom user code
 	"""
 	chan = Channel(payload, generated_by="event")
-	chan = self.update_channel_infos(chan)
-	asyncio.ensure_future( self.on_channel_update( chan ) )
+	chan = cls.update_channel_infos(chan)
+	asyncio.ensure_future( cls.on_channel_update( chan ) )
 
 async def handleOnMemberJoin(cls:"Client", payload):
 	"""
@@ -22,11 +22,11 @@ async def handleOnMemberJoin(cls:"Client", payload):
 		calls onMemberJoin(User) for custom user code
 	"""
 	user = User(payload, generated_by="event")
-	c = self.get_channel(name=user.channel_name)
+	c = cls.get_channel(name=user.channel_name)
 	if c != None:
 		user.channel = c
-	self.update_channel_viewer(user, 'add')
-	asyncio.ensure_future( self.on_member_join( user ) )
+	cls.update_channel_viewer(user, 'add')
+	asyncio.ensure_future( cls.on_member_join( user ) )
 
 async def handleOnMemberLeft(cls:"Client", payload):
 	"""
@@ -34,11 +34,11 @@ async def handleOnMemberLeft(cls:"Client", payload):
 		calls onMemberLeft(User) for custom user code
 	"""
 	user = User(payload, generated_by="event")
-	c = self.get_channel(name=user.channel_name)
+	c = cls.get_channel(name=user.channel_name)
 	if c != None:
 		user.channel = c
-	self.update_channel_viewer(user, 'rem')
-	asyncio.ensure_future( self.on_member_left( user ) )
+	cls.update_channel_viewer(user, 'rem')
+	asyncio.ensure_future( cls.on_member_left( user ) )
 
 async def handleOnMessage(cls:"Client", payload):
 	"""
@@ -50,7 +50,7 @@ async def handleOnMessage(cls:"Client", payload):
 	message = Message(payload)
 
 	#get Channel
-	c = self.channels.get(message.channel_id, None)
+	c = cls.channels.get(message.channel_id, None)
 	if c != None:
 		message.channel = c
 	else:
@@ -67,7 +67,7 @@ async def handleOnMessage(cls:"Client", payload):
 	else:
 		# get called when the user write a message befor twitch tells us the he joined, so we add it to viewer befor we get the join event
 		full_user = User(message, generated_by="message", message=message)
-		self.update_channel_viewer(full_user, 'add')
+		cls.update_channel_viewer(full_user, 'add')
 		message.author = full_user
 
-	asyncio.ensure_future( self.on_message( message ) )
+	asyncio.ensure_future( cls.on_message( message ) )

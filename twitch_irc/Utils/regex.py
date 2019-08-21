@@ -8,7 +8,7 @@ ReChannelUpdate:"re.Pattern" = re.compile(r"^@.+:tmi\.twitch\.tv ROOMSTATE #.+")
 
 ReOnReady:"re.Pattern" = re.compile(r"^:tmi\.twitch\.tv 001.*")
 ReOnMemberJoin:"re.Pattern" = re.compile(r"^.+\.tmi\.twitch\.tv JOIN #.+")
-ReOnmemberLeft:"re.Pattern" = re.compile(r"^.+\.tmi\.twitch\.tv PART #.+")
+ReOnMemberLeft:"re.Pattern" = re.compile(r"^.+\.tmi\.twitch\.tv PART #.+")
 ReOnMessage:"re.Pattern" = re.compile(r"^@.+\.tmi\.twitch\.tv PRIVMSG #.+")
 
 class User(object):

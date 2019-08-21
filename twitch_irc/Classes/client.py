@@ -4,6 +4,7 @@ import traceback
 import re
 from .message import Message
 from .channel import Channel
+from .user import User
 from ..utils import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
@@ -173,10 +174,6 @@ class Client():
 			elif re.match(ReOnMemberLeft, payload) != None:
 				await handleOnMemberLeft(self, payload)
 
-			#wrong_auth
-			elif not self.auth_success:
-				if re.match(ReWrongAuth, payload) != None:
-					raise InvalidAuth( payload )
 			#onReady onReconnect
 			elif re.match(ReOnReady, payload) != None:
 				if self.auth_success:
@@ -184,6 +181,11 @@ class Client():
 					asyncio.ensure_future( self.onReconnect() )
 				self.auth_success = True
 				asyncio.ensure_future( self.onReady() )
+
+			#wrong_auth
+			elif not self.auth_success:
+				if re.match(ReWrongAuth, payload) != None:
+					raise InvalidAuth( payload )
 
 	async def sendContent(self, content:bytes or str, ignore_limit:bool=False):
 		"""
@@ -253,22 +255,16 @@ class Client():
 		"""
 		pass
 
-	async def on_member_join(self, user):
+	async def onMemberJoin(self, Us:User):
 		"""
-		Attributes:
-		`user` = object :: User
-
-		called when a user joined a twitch channel
-		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator joins) ]
+			called when a user joined a twitch channel
+			[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator joins) ]
 		"""
 		pass
 
-	async def on_member_left(self, user):
+	async def onMemberLeft(self, Us:User):
 		"""
-		Attributes:
-		`user` = object :: User
-
-		called when a user left a twitch channel
-		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
+			called when a user left a twitch channel
+			[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
 		"""
 		pass

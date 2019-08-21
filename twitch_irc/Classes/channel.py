@@ -1,5 +1,5 @@
 import re
-from .regex import Regex
+from ..Utils.regex import Channel as Regex
 from .message import Message
 
 class Channel(object):

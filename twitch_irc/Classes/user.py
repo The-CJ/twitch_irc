@@ -1,5 +1,5 @@
 import re
-from .regex import Regex
+from ..Utils.regex import User as Regex
 from .message import Message
 
 class User(object):
