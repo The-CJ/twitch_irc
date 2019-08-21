@@ -9,7 +9,7 @@ but usable to any purpose
 ## Usage
 
 ```
-import asyncio, twitch_irc
+import twitch_irc
 
 class MyBot(twitch_irc.Client):
 

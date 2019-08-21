@@ -1,27 +1,27 @@
+import re
 
+BadgeRe:"re.Pattern" = re.compile(r"^(?P<name>.+)/?(?P<version>\d+)?$")
 
 class Badge(object):
 	"""
-	There is a Emote class for every different emote in a message, so:
-
-	`badge_str` = type :: str
-
-	moderator/1
+		There is a Emote class for every different emote in a message
+		Example string:
+			moderator/1
 	"""
+	def __repr__(self):
+		return f"<name='{self.name}' version='{self.version}'>"
+
 	def __str__(self):
-		return str(self.name) + "/" + str(self.version)
+		return f"{self.name}/{self.version}"
 
-	def __init__(self, badge_str):
-		self.badge_str = badge_str
+	def __init__(self, badge_str:str):
+		self.name:str = None
+		self.version:int = 0
 
-		self.name = None			# str
-		self.version = 0			# int
+		self.build(badge_str)
 
-		self.process()
-		del self.badge_str
-
-	def process(self):
-		splited = self.badge_str.split('/')
-
-		self.name = str(splited[0]) if len(splited) > 0 else None
-		self.version = int(splited[1]) if len(splited) > 1 else None
+	def build(self, s:str) -> None:
+		Match:re.Match = re.match(BadgeRe, s)
+		if Match:
+			self.name = Match.group("name")
+			self.version = int( Match.group("version") )
