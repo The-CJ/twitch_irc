@@ -7,67 +7,68 @@ from ..Classes.channel import Channel
 from ..Classes.user import User
 from ..Classes.message import Message
 
-async def handleChannelUpdate(cls:"Client", payload):
+async def handleChannelUpdate(cls:"Client", payload:str) -> None:
 	"""
 		handles all channel update events,
 		calls onChannelUpdate(Channel) for custom user code
 	"""
-	chan = Channel(payload, generated_by="event")
-	chan = cls.update_channel_infos(chan)
-	asyncio.ensure_future( cls.on_channel_update( chan ) )
+	Chan:Channel = Channel(payload, emergency=True)
+	Chan = cls.update_channel_infos(Chan)
+	asyncio.ensure_future( cls.onChannelUpdate( Chan ) )
 
-async def handleOnMemberJoin(cls:"Client", payload):
+async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
 	"""
 		handles all user joins in a channel,
 		calls onMemberJoin(User) for custom user code
 	"""
-	user = User(payload, generated_by="event")
-	c = cls.get_channel(name=user.channel_name)
-	if c != None:
-		user.channel = c
-	cls.update_channel_viewer(user, 'add')
-	asyncio.ensure_future( cls.on_member_join( user ) )
+	JoinUser = User(payload, emergency=True)
+	Chan:Channel = cls.get_channel(name=JoinUser.channel_name)
+	if Chan:
+		JoinUser.Channel = Chan
+	cls.update_channel_viewer(JoinUser, 'add')
+	asyncio.ensure_future( cls.onMemberJoin( JoinUser ) )
 
-async def handleOnMemberLeft(cls:"Client", payload):
+async def handleOnMemberLeft(cls:"Client", payload:str) -> None:
 	"""
 		handles all user leaves in a channel,
 		calls onMemberLeft(User) for custom user code
 	"""
-	user = User(payload, generated_by="event")
-	c = cls.get_channel(name=user.channel_name)
-	if c != None:
-		user.channel = c
-	cls.update_channel_viewer(user, 'rem')
-	asyncio.ensure_future( cls.on_member_left( user ) )
+	LeftUser:User = User(payload, emergency=True)
+	Chan:Channel = cls.getChannel(name=LeftUser.channel_name)
+	if Chan:
+		LeftUser.Channel = Chan
+	cls.update_channel_viewer(LeftUser, 'rem')
+	asyncio.ensure_future( cls.onMemberLeft( LeftUser ) )
 
-async def handleOnMessage(cls:"Client", payload):
+async def handleOnMessage(cls:"Client", payload:str) -> None:
 	"""
 		handles all messages
 		calls onMessage(Message) for custom user code
 	"""
 
 	# generate message
-	message = Message(payload)
+	Msg:Message = Message(payload)
 
 	#get Channel
-	c = cls.channels.get(message.channel_id, None)
-	if c != None:
-		message.channel = c
+	Chan = cls.channels.get(Msg.channel_id, None)
+	if Chan:
+		Msg.Channel = Chan
 	else:
-		message.channel = Channel(None, generated_by="message", message=message)
+		Msg.Channel = Channel(None, emergency=True, Msg=Msg)
 
 	# get Author
-	user = message.channel.get_user(name=message.name)
-	if user != None:
-		if user.minimalistic:
-			full_user = User(message, generated_by="message", message=message)
-			user.update(full_user)
+	Author:User = Msg.Channel.getUser(id=Msg.user_id)
+	if Author:
+		if Author.minimalistic:
+			FullAuthor:User = User(None, emergency=False, Msg=Msg)
+			Author.update(FullAuthor)
 
-		message.author = user
+		Msg.Author = Author
 	else:
-		# get called when the user write a message befor twitch tells us the he joined, so we add it to viewer befor we get the join event
-		full_user = User(message, generated_by="message", message=message)
-		cls.update_channel_viewer(full_user, 'add')
-		message.author = full_user
+		# get called when the user write a message before twitch tells us the he joined,
+		# so we add it to viewer befor we get the join event
+		Alternative:User = User(payload, emergency=True)
+		cls.update_channel_viewer(Alternative, 'add')
+		Msg.Author = Alternative
 
-	asyncio.ensure_future( cls.on_message( message ) )
+	asyncio.ensure_future( cls.onMessage(Msg) )
