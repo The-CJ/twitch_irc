@@ -11,10 +11,6 @@ ReOnMemberJoin:"re.Pattern" = re.compile(r"^.+\.tmi\.twitch\.tv JOIN #.+")
 ReOnMemberLeft:"re.Pattern" = re.compile(r"^.+\.tmi\.twitch\.tv PART #.+")
 ReOnMessage:"re.Pattern" = re.compile(r"^@.+\.tmi\.twitch\.tv PRIVMSG #.+")
 
-class User(object):
-	name = re.compile(r"^:(.+?)!")
-	channel_name = re.compile(r"(JOIN|PART) #(\w+)")
-
 class Message(object):
 	badges_str = re.compile(r"badges=(.*?)[; ]")
 	color = re.compile(r"color=#(.*?)[; ]")
