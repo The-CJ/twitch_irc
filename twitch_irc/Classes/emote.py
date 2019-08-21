@@ -19,7 +19,7 @@ class Emote(object):
 
 		self.build(emote_str, message_content)
 
-	def process(self, emote_str:str, message_content:str) -> None:
+	def build(self, emote_str:str, message_content:str) -> None:
 		self.emote_id, pos_str = self.emote_str.split(':', 1)
 
 		for pos_str in pos_str.split(","):

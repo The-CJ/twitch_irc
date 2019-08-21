@@ -1,7 +1,25 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .channel import Channel as TwitchChannel
+    from .user import User as TwitchUser
+
 import re
-from ..Utils.regex import Message as Regex
 from .emote import Emote
 from .badge import Badge
+
+ReBadges:"re.Pattern" = re.compile(r"badges=(.*?)[; ]")
+ReColor:"re.Pattern" = re.compile(r"color=#(.*?)[; ]")
+ReDisplayName:"re.Pattern" = re.compile(r"display-name=(.+?)[; ]")
+ReName:"re.Pattern" = re.compile(r"!(.+?)@")
+ReEmotes:"re.Pattern" = re.compile(r"emotes=(.*?)[; ]")
+ReRoomID:"re.Pattern" = re.compile(r"room-id=(.+?)[; ]")
+ReRoomName:"re.Pattern" = re.compile(r"PRIVMSG #(.+?) :")
+ReUserID:"re.Pattern" = re.compile(r"user-id=(.+?)[; ]")
+ReUserType:"re.Pattern" = re.compile(r"user-type=(.*?)[; ]")
+ReSub:"re.Pattern" = re.compile(r"subscriber=(0|1)[; ]")
+ReMod:"re.Pattern" = re.compile(r"mod=(0|1)[; ]")
+ReTurbo:"re.Pattern" = re.compile(r"turbo=(0|1)[; ]")
+ReContent:"re.Pattern" = re.compile(r"PRIVMSG #.+? :(.+)")
 
 class Message(object):
 	"""
@@ -26,123 +44,118 @@ class Message(object):
 		into a usable class
 	"""
 	def __repr__(self):
-		return f"<Message user-id='{'messageid'}'>"
+		return f"<{self.__class__.__name__} channel='{self.name}' user='{self.channel_name}' id='{self.message_id}'>"
 
 	def __str__(self):
 		return self.content
 
-	def __init__(self, raw_data):
-		self.raw = raw_data.strip('@')				# str
+	def __init__(self, raw:str):
+		self.badges:list = list()
+		self.color:str = None
+		self.display_name:str = None
+		self.name:str = None
+		self.emotes:list = list()
+		self.channel_id:str = None
+		self.channel_name:str = None
+		self.user_id:str = None
+		self.user_type:str = None
+		self.sub:bool = False
+		self.mod:bool = False
+		self.turbo:bool = False
+		self.content:str = None
 
-		self.badges_str = None						# str
-		self.badges = [] 							# list :: Badge
-		self.color = None 							# str
-		self.display_name = None 					# str
-		self.name = None 							# str
-		self.emotes_str = None						# str
-		self.emotes = [] 							# list :: Emote
-		self.channel_id = None						# str
-		self.channel_name = None					# str
-		self.user_id = None 						# str
-		self.user_type = None 						# str
-		self.sub = False 							# bool
-		self.mod = False 							# bool
-		self.turbo = False 							# bool
-		self.content = None 						# str
+		self.Channel:"TwitchChannel" = None
+		self.Author:"TwitchUser" = None
 
-		self.channel = None							# object :: Channel
-		self.author = None							# object :: User
+		self.build(raw)
+		self.getEmotes()
+		self.getBadges()
 
-		self.process()
-		self.get_emotes()
-		self.get_badges()
-		del self.raw
-
-	def process(self):
-		#badges_str
-		search = re.search(Regex.Message.badges_str, self.raw)
+	def build(self, raw):
+		# badges
+		search = re.search(ReBadges, raw)
 		if search != None:
-			self.badges_str = search.group(1)
+			self.getBadges( search.group(1) )
 
 		#color
-		search = re.search(Regex.Message.color, self.raw)
+		search = re.search(ReColor, raw)
 		if search != None:
 			self.color = search.group(1)
 
 		#display_name
-		search = re.search(Regex.Message.display_name, self.raw)
+		search = re.search(ReDisplayName, raw)
 		if search != None:
 			self.display_name = search.group(1)
 
 		#name
-		search = re.search(Regex.Message.name, self.raw)
+		search = re.search(ReName, raw)
 		if search != None:
 			self.name = search.group(1)
 
-		#emotes_str
-		search = re.search(Regex.Message.emotes_str, self.raw)
+		#emotes
+		search = re.search(ReEmotes, raw)
 		if search != None:
-			self.emotes_str = search.group(1)
+			self.getEmotes( search.group(1) )
 
 		#room_id | channel_id
-		search = re.search(Regex.Message.room_id, self.raw)
+		search = re.search(ReRoomID, raw)
 		if search != None:
 			self.channel_id = search.group(1)
 
 		#room_name | channel_name
-		search = re.search(Regex.Message.room_name, self.raw)
+		search = re.search(ReRoomName, raw)
 		if search != None:
 			self.channel_name = search.group(1)
 
 		#user_id
-		search = re.search(Regex.Message.user_id, self.raw)
+		search = re.search(ReUserID, raw)
 		if search != None:
 			self.user_id = search.group(1)
 
 		#user_type
-		search = re.search(Regex.Message.user_type, self.raw)
+		search = re.search(ReUserType, raw)
 		if search != None:
 			self.user_type = search.group(1)
 
 		#sub
-		search = re.search(Regex.Message.sub, self.raw)
+		search = re.search(ReSub, raw)
 		if search != None:
 			self.sub = True if search.group(1) == "1" else False
 
 		#mod
-		search = re.search(Regex.Message.mod, self.raw)
+		search = re.search(ReMod, raw)
 		if search != None:
 			self.mod = True if search.group(1) == "1" else False
 
 		#turbo
-		search = re.search(Regex.Message.turbo, self.raw)
+		search = re.search(ReTurbo, raw)
 		if search != None:
 			self.turbo = True if search.group(1) == "1" else False
 
 		#content
-		search = re.search(Regex.Message.content, self.raw)
+		search = re.search(ReContent, raw)
 		if search != None:
 			self.content = search.group(1).strip('\r')
 
-	def get_emotes(self):
+	def getEmotes(self, emotes_str:str) -> None:
 		# 25:0-4,6-10,12-16,24-28/1902:18-22,30-34
 
-		if self.emotes_str in [None, ""]: return
+		if not emotes_str: return
 
-		emote_str_list = self.emotes_str.split("/")
+		emote_str_list:list = emotes_str.split("/")
 		for emote_str in emote_str_list:
-			e = Emote(emote_str, self.content)
-			self.emotes.append(e)
+			Emo = Emote(emote_str, self.content)
+			self.emotes.append( Emo )
 
-	def get_badges(self):
+	def getBadges(self, badges_str:str) -> None:
 		# moderator/1,premium/1
 
-		if self.badges_str in [None, ""]: return
+		if not badges_str: return
 
-		badge_str_list = self.badges_str.split(",")
+		badge_str_list:list = badges_str.split(",")
 		for badge_str in badge_str_list:
-			e = Badge(badge_str)
-			self.badges.append(e)
+			Bad = Badge( badge_str )
+			self.badges.append(Bad)
 
 
 
