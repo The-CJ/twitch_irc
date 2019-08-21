@@ -1,58 +1,30 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..Classes.client import Client
+
 import asyncio
-from .channel import Channel
 
-async def send_content(self, content, ignore_limit=False):
-	""" used to send content of any type to twitch """
-	#default request limit 20 / 30sec | even doh you can send 100 in channel with mod status
-	#offical bots may use: bot = twitch_irc.Client(request_limit=100)
-	#one channel mod bots: bot = twitch_irc.Client(request_limit=1000)
-	#others are not recommended, could bring u to a multi hour twitch timeout
-	if type(content) != bytes:
-		content = bytes(content, 'UTF-8')
-
-	if self.traffic <= self.request_limit or ignore_limit:
-		self.traffic += 1
-		asyncio.ensure_future( self.add_traffic() )
-		self.connection_writer.write(content)
-
-	else:
-		asyncio.ensure_future( self.on_limit(content) )
-		self.stored_traffic.append( content )
-
-async def add_traffic(self):
-	""" called after any send_content to reset the traffic """
+async def addTraffic(cls:"Client"):
+	"""
+		should be called after every write counting action (PRIVMSG, JOIN, MSG...)
+		Increases traffic value for 30 sec
+	"""
+	cls.traffic += 1
 	await asyncio.sleep(30)
-	if self.traffic <= 0: self.traffic = 0
-	else: self.traffic -= 1
+	cls.traffic -= 1
 
-async def send_query(self):
-	""" get started on Cient.run(), a coro thats takes all requests that would be over the limit and send them later """
-	while self.running and self.query_running:
-		if self.traffic <= (self.request_limit-1) and len(self.stored_traffic) > 0:
-			req = self.stored_traffic.pop(0)
-			await self.send_content( req )
+async def trafficQuery(cls:"Client"):
+	"""
+		get started on Cient.start(),
+		a coro thats takes all requests that would be over the limit
+		and send them later
+	"""
+	while cls.running and cls.query_running:
+		if cls.traffic <= (cls.request_limit-1) and len(cls.stored_traffic) > 0:
+			req = cls.stored_traffic.pop(0)
+			await cls.sendContent( req )
 		else:
 			await asyncio.sleep(0.05)
-
-# # # # #
-
-async def send_pong(self):
-	await self.send_content( "PONG :tmi.twitch.tv\r\n", ignore_limit=True )
-
-async def send_nick(self):
-	await self.send_content( "NICK {0}\r\n".format(self.nickname), ignore_limit=True )
-
-async def send_pass(self):
-	await self.send_content( "PASS {0}\r\n".format(self.token), ignore_limit=True )
-
-async def req_membership(self):
-	await self.send_content( "CAP REQ :twitch.tv/membership\r\n", ignore_limit=True )
-
-async def req_commands(self):
-	await self.send_content( "CAP REQ :twitch.tv/commands\r\n", ignore_limit=True )
-
-async def req_tags(self):
-	await self.send_content( "CAP REQ :twitch.tv/tags\r\n", ignore_limit=True )
 
 # # # # #
 

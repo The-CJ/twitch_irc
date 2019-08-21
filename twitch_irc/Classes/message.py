@@ -4,9 +4,8 @@ from .emote import Emote
 from .badge import Badge
 
 class Message(object):
-	""" This class is generated when a user is sending a message, it turns raw data like:
-
-		`raw_data` = type :: str
+	"""
+		This class is generated when a user is sending a message, it turns raw data like:
 
 		@
 		badges=moderator/1,premium/1;
@@ -26,6 +25,9 @@ class Message(object):
 
 		into a usable class
 	"""
+	def __repr__(self):
+		return f"<Message user-id='{'messageid'}'>"
+
 	def __str__(self):
 		return self.content
 
