@@ -1,5 +1,5 @@
 import re
-from .regex import Regex
+from ..Utils.regex import Message as Regex
 from .emote import Emote
 from .badge import Badge
 

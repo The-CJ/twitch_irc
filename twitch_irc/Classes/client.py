@@ -1,10 +1,21 @@
 import time
 import asyncio
 import traceback
+import re
+from .message import Message
+from .channel import Channel
 from ..utils import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
 from ..Utils.cmd import sendNick, sendPass, sendPong
+from ..Utils.handler import (
+	handleChannelUpdate, handleOnMemberJoin, handleOnMemberLeft,
+	handleOnMessage
+)
+from ..Utils.regex import (
+	RePing, ReWrongAuth, ReOnMessage, ReOnReady, ReChannelUpdate,
+	ReOnMemberJoin, ReOnMemberLeft
+)
 
 class Client():
 	def __init__(self, token:str=None, nickname:str=None, reconnect:bool=True, request_limit:int=19):
@@ -29,6 +40,7 @@ class Client():
 		self.stored_traffic:list = list()
 
 	def stop(self) -> None:
+		self.auth_success = False
 		self.running = False
 		self.query_running = False
 		self.ConnectionWriter.close()
@@ -129,47 +141,49 @@ class Client():
 		#listen to twitch
 		while self.running:
 
-			payload = await self.ConnectionReader.readline()
-			asyncio.ensure_future( self.on_raw_data(payload) )
-			payload = payload.decode('UTF-8').strip('\n').strip('\r')
+			payload:bytes = await self.ConnectionReader.readline()
+			asyncio.ensure_future( self.onRaw(payload) )
+			payload:str = payload.decode('UTF-8').strip('\n').strip('\r')
 
 			#just to be sure
-			if payload in ["", " ", None]: raise self.EmptyPayload()
+			if payload in ["", " ", None] or not payload: raise EmptyPayload()
 
 			# last ping is over 6min (way over twitch normal response)
-			if (time.time() - self.last_ping) > 60*6: raise self.PingTimeout()
+			if (time.time() - self.last_ping) > 60*6:
+				raise PingTimeout()
+
+			#onMessage
+			elif re.match(ReOnMessage, payload) != None:
+				await handleOnMessage(self, payload)
 
 			#response to PING
-			elif re.match(Regex.ping, payload) != None:
+			elif re.match(RePing, payload) != None:
 				self.last_ping = time.time()
-				await self.send_pong()
+				await sendPong(self)
+
+			#channelUpdate
+			elif re.match(ReChannelUpdate, payload) != None:
+				await handleChannelUpdate(self, payload)
+
+			#onMemberJoin
+			elif re.match(ReOnMemberJoin, payload) != None:
+				await handleOnMemberJoin(self, payload)
+
+			#onMemberLeft
+			elif re.match(ReOnMemberLeft, payload) != None:
+				await handleOnMemberLeft(self, payload)
 
 			#wrong_auth
-			elif not self.auth_success and re.match(Regex.wrong_auth, payload) != None:
-				raise self.InvalidAuth(str(payload))
-
-			#on_ready on_reconnect
-			elif re.match(Regex.on_ready, payload) != None:
-				if self.auth_success: #means we got a reconnect
-					asyncio.ensure_future( self.on_reconnect() )
+			elif not self.auth_success:
+				if re.match(ReWrongAuth, payload) != None:
+					raise InvalidAuth( payload )
+			#onReady onReconnect
+			elif re.match(ReOnReady, payload) != None:
+				if self.auth_success:
+					#means we got a reconnect
+					asyncio.ensure_future( self.onReconnect() )
 				self.auth_success = True
-				asyncio.ensure_future( self.on_ready() )
-
-			#channel_update
-			elif re.match(Regex.channel_update, payload) != None:
-				await self.handle_channel_update(payload)
-
-			#on_member_join
-			elif re.match(Regex.on_member_join, payload) != None:
-				await self.handle_on_member_join(payload)
-
-			#on_member_left
-			elif re.match(Regex.on_member_left, payload) != None:
-				await self.handle_on_member_left(payload)
-
-			#on_message
-			elif re.match(Regex.on_message, payload) != None:
-				await self.handle_on_message(payload)
+				asyncio.ensure_future( self.onReady() )
 
 	async def sendContent(self, content:bytes or str, ignore_limit:bool=False):
 		"""
@@ -201,7 +215,7 @@ class Client():
 		print(Ex)
 		traceback.print_exc()
 
-	async def onLimit(self, payload):
+	async def onLimit(self, payload:bytes):
 		"""
 			called every time a request was not send because it hit the twitch limit,
 			the request is stored and send as soon as possible
@@ -220,25 +234,22 @@ class Client():
 		"""
 		pass
 
-	async def on_reconnect(self):
+	async def onReconnect(self):
 		"""
 			called when the client was already connected but was/had to reconnect
-			always called with onReady
+			if already connected a onReconnect and onReady fire at the same time
 		"""
 		pass
 
-	async def on_message(self, message):
+	async def onMessage(self, Msg:Message):
 		"""
 			called when the client received a message in a channel
 		"""
 		pass
 
-	async def on_channel_update(self, channel):
+	async def onChannelUpdate(self, Chan:Channel):
 		"""
-		Attributes:
-		`channel` = object :: Channel
-
-		called when the bot joines a new channel or attributes on a channel are changed like slowmode etc...
+			called when the bot joines a new channel or attributes on a channel are changed like slowmode etc...
 		"""
 		pass
 
