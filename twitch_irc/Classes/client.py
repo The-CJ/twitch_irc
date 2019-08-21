@@ -209,6 +209,9 @@ class Client():
 			asyncio.ensure_future( self.onLimit(content) )
 			self.stored_traffic.append( content )
 
+	# commands
+	from ..Utils.commands import sendMessage, joinChannel, partChannel
+
 	#events
 	async def onError(self, Ex:Exception) -> None:
 		"""
