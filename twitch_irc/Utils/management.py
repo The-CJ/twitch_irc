@@ -3,6 +3,7 @@ if TYPE_CHECKING:
     from ..Classes.client import Client
 
 from ..Classes.channel import Channel
+from ..Classes.user import User
 
 def updateChannelInfos(cls:"Client", NewChannelInfo:Channel) -> Channel:
 	"""
@@ -25,30 +26,26 @@ def updateChannelInfos(cls:"Client", NewChannelInfo:Channel) -> Channel:
 
 	return cls.channels[NewChannelInfo.room_id]
 
-def update_channel_viewer(self, user, operation=None):
+def updateChannelViewer(cls:"Client", Viewer:User, add:bool=False, rem:bool=False) -> None:
 	"""
-	used to add or remove user in a channel.users object from self.channels
-	- for some reason twitch sends joins double or don't send a leave
-	  so it's not 100% clear that channel.users contains all viewers
-	  #ThanksTwitch
+		used to add or remove user/viewer in Channel.users object from Client.channels
+		- for some reason twitch sends joins double or don't send a leave
+		  so it's not 100% clear that Channel.users contains all viewers
+		  #ThanksTwitch
 	"""
 
-	if operation not in ['add', 'rem']:
-		raise AttributeError('only supports "add" and "rem"')
+	if not (add or rem) or (add and rem):
+		raise AttributeError("only one of 'add' or 'rem' must be True")
 
-	if user.channel != None:
-		chan = user.channel
+	if Viewer.Channel:
+		CurrentChannel:Channel = Viewer.Channel
 	else:
-		chan = self.get_channel(name = user.channel_name)
+		CurrentChannel:Channel = cls.getChannel(name = Viewer.channel_name)
 
-	if chan == None: return
+	if not CurrentChannel: return
 
-	if operation == 'add':
-		if chan.users.get(user.name, None) != None:
-			return
-		chan.users[user.name] = user
+	if add:
+		CurrentChannel.users[Viewer.name] = Viewer
 
-	if operation == 'rem':
-		if chan.users.get(user.name, None) == None:
-			return
-		del chan.users[user.name]
+	elif rem:
+		CurrentChannel.users.pop(Viewer.name, None)

@@ -6,7 +6,7 @@ import asyncio
 from ..Classes.channel import Channel
 from ..Classes.user import User
 from ..Classes.message import Message
-from .management import updateChannelInfos
+from .management import updateChannelInfos, updateChannelViewer
 
 async def handleChannelUpdate(cls:"Client", payload:str) -> None:
 	"""
@@ -26,7 +26,7 @@ async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
 	Chan:Channel = cls.getChannel(name=JoinUser.channel_name)
 	if Chan:
 		JoinUser.Channel = Chan
-	cls.update_channel_viewer(JoinUser, 'add')
+	updateChannelViewer(cls, JoinUser, add=True)
 	asyncio.ensure_future( cls.onMemberJoin( JoinUser ) )
 
 async def handleOnMemberLeft(cls:"Client", payload:str) -> None:
@@ -38,7 +38,7 @@ async def handleOnMemberLeft(cls:"Client", payload:str) -> None:
 	Chan:Channel = cls.getChannel(name=LeftUser.channel_name)
 	if Chan:
 		LeftUser.Channel = Chan
-	cls.update_channel_viewer(LeftUser, 'rem')
+	updateChannelViewer(cls, LeftUser, rem=True)
 	asyncio.ensure_future( cls.onMemberLeft( LeftUser ) )
 
 async def handleOnMessage(cls:"Client", payload:str) -> None:
