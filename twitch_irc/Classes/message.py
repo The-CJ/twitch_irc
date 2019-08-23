@@ -44,7 +44,7 @@ class Message(object):
 		into a usable class
 	"""
 	def __repr__(self):
-		return f"<{self.__class__.__name__} channel='{self.name}' user='{self.channel_name}' id='{self.message_id}'>"
+		return f"<{self.__class__.__name__} channel='{self.channel_name}' user='{self.name}'>"
 
 	def __str__(self):
 		return self.content
@@ -55,12 +55,12 @@ class Message(object):
 		self.display_name:str = None
 		self.name:str = None
 		self.emotes:list = list()
+		self.mod:bool = False
+		self.sub:bool = False
 		self.channel_id:str = None
 		self.channel_name:str = None
 		self.user_id:str = None
 		self.user_type:str = None
-		self.sub:bool = False
-		self.mod:bool = False
 		self.turbo:bool = False
 		self.content:str = None
 
