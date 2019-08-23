@@ -19,6 +19,10 @@ from ..Utils.regex import (
 )
 
 class Client():
+	"""
+		Main class for everything.
+		Init and call .run()
+	"""
 	def __init__(self, token:str=None, nickname:str=None, reconnect:bool=True, request_limit:int=19):
 
 		self.running:bool = False
@@ -208,6 +212,25 @@ class Client():
 		else:
 			asyncio.ensure_future( self.onLimit(content) )
 			self.stored_traffic.append( content )
+
+	def getChannel(self, **search:dict) -> Channel or None:
+		"""
+			get a channel based on the given kwargs,
+			returns the first channel all kwargs are valid, or None if 0 valid
+		"""
+		for chan_id in self.channels:
+			Chan:Channel = self.channels[chan_id]
+
+			valid:bool = True
+
+			for key in search:
+				if getattr(Chan, key, object) != search[key]:
+					valid = False
+					break
+
+			if valid: return Chan
+
+		return None
 
 	# commands
 	from ..Utils.commands import sendMessage, joinChannel, partChannel

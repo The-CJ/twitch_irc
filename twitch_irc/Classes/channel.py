@@ -135,7 +135,7 @@ class Channel(object):
 				if new_value != None:
 					setattr(self, attr, new_value)
 
-	def getUser(self, **search) -> User or None:
+	def getUser(self, **search:dict) -> User or None:
 		"""
 			get a user from the channel viewers based on the given kwargs,
 			returns the first user all kwargs are valid, or None if 0 valid
@@ -143,16 +143,15 @@ class Channel(object):
 
 		# yeah name based, because its the only thing we always get, no matter if message, join or leave
 		for user_name in self.users:
-			Us:User = self.users[user_name]
+			Viewer:User = self.users[user_name]
 
 			valid:bool = True
 
 			for key in search:
-				if getattr(Us, key, object) != search[key]:
+				if getattr(Viewer, key, object) != search[key]:
 					valid = False
 					break
 
-			if valid:
-				return Us
+			if valid: return Viewer
 
 		return None

@@ -55,21 +55,3 @@ def update_channel_viewer(self, user, operation=None):
 		if chan.users.get(user.name, None) == None:
 			return
 		del chan.users[user.name]
-
-def get_channel(self, **search):
-	""" get a channel based on the given kwargs, returns the first channel all kwargs are valid, or None if 0 valid"""
-	for chan_id in self.channels:
-		chan = self.channels[chan_id]
-
-		valid = True
-
-		for key in search:
-			if getattr(chan, key, object) != search[key]:
-				valid = False
-				break
-
-		if valid:
-			return chan
-
-
-	return None
