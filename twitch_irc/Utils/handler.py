@@ -13,8 +13,8 @@ async def handleChannelUpdate(cls:"Client", payload:str) -> None:
 		handles all channel update events,
 		calls onChannelUpdate(Channel) for custom user code
 	"""
-	Chan:Channel = Channel(payload, emergency=True)
-	Chan = updateChannelInfos(Chan)
+	Chan:Channel = Channel(payload, emergency=False)
+	Chan = updateChannelInfos(cls, Chan)
 	asyncio.ensure_future( cls.onChannelUpdate( Chan ) )
 
 async def handleOnMemberJoin(cls:"Client", payload:str) -> None:

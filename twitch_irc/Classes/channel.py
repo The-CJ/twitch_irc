@@ -103,7 +103,7 @@ class Channel(object):
 			self.subs_only = True if search.group(1) == "1" else False
 
 		#room_name | name
-		search = re.search(ReRoomName, self.raw)
+		search = re.search(ReRoomName, raw)
 		if search != None:
 			self.name = search.group(1)
 
