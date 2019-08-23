@@ -21,8 +21,15 @@ async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
 	"""
 		handles all user joins in a channel,
 		calls onMemberJoin(User) for custom user code
+
+		because twitch is strange, it may happen that join is called twice,
+		without a onLeft before
 	"""
 	JoinUser = User(payload, emergency=True)
+
+	# ignore self
+	if JoinUser.name.lower() == cls.nickname.lower(): return
+
 	Chan:Channel = cls.getChannel(name=JoinUser.channel_name)
 	if Chan:
 		JoinUser.Channel = Chan
@@ -33,8 +40,15 @@ async def handleOnMemberLeft(cls:"Client", payload:str) -> None:
 	"""
 		handles all user leaves in a channel,
 		calls onMemberLeft(User) for custom user code
+
+		because twitch is strange, it may happen that left is called,
+		without a onJoin before
 	"""
 	LeftUser:User = User(payload, emergency=True)
+
+	# ignore self
+	if LeftUser.name.lower() == cls.nickname.lower(): return
+
 	Chan:Channel = cls.getChannel(name=LeftUser.channel_name)
 	if Chan:
 		LeftUser.Channel = Chan
