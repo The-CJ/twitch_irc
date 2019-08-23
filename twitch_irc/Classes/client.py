@@ -5,7 +5,7 @@ import re
 from .message import Message
 from .channel import Channel
 from .user import User
-from ..utils import addTraffic, trafficQuery
+from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
 from ..Utils.cmd import sendNick, sendPass, sendPong
@@ -174,7 +174,7 @@ class Client():
 			elif re.match(ReOnMemberLeft, payload) != None:
 				await handleOnMemberLeft(self, payload)
 
-			#onReady onReconnect
+			#onReady, onReconnect
 			elif re.match(ReOnReady, payload) != None:
 				if self.auth_success:
 					#means we got a reconnect
