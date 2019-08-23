@@ -45,7 +45,8 @@ def updateChannelViewer(cls:"Client", Viewer:User, add:bool=False, rem:bool=Fals
 	if not CurrentChannel: return
 
 	if add:
-		CurrentChannel.users[Viewer.name] = Viewer
+		if not CurrentChannel.users.get(Viewer.name, None):
+			CurrentChannel.users[Viewer.name] = Viewer
 
 	elif rem:
 		CurrentChannel.users.pop(Viewer.name, None)
