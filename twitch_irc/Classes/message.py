@@ -68,8 +68,6 @@ class Message(object):
 		self.Author:"TwitchUser" = None
 
 		self.build(raw)
-		self.getEmotes()
-		self.getBadges()
 
 	def build(self, raw):
 		# badges

@@ -1,6 +1,6 @@
 import re
 
-BadgeRe:"re.Pattern" = re.compile(r"^(?P<name>.+)/?(?P<version>\d+)?$")
+BadgeRe:"re.Pattern" = re.compile(r"^(?P<name>[^/]+)/?(?P<version>\d+)?$")
 
 class Badge(object):
 	"""

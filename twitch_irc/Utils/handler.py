@@ -69,7 +69,7 @@ async def handleOnMessage(cls:"Client", payload:str) -> None:
 		# get called when the user write a message before twitch tells us the he joined,
 		# so we add it to viewer befor we get the join event
 		Alternative:User = User(payload, emergency=True)
-		cls.update_channel_viewer(Alternative, 'add')
+		updateChannelViewer(cls, Alternative, add=True)
 		Msg.Author = Alternative
 
 	asyncio.ensure_future( cls.onMessage(Msg) )
