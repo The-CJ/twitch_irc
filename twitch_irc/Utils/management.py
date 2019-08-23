@@ -4,29 +4,26 @@ if TYPE_CHECKING:
 
 from ..Classes.channel import Channel
 
-def update_channel_infos(self:"Client", channel):
+def updateChannelInfos(cls:"Client", NewChannelInfo:Channel) -> Channel:
 	"""
-	used to update channel infos in self.channels
-	it will update all non None attributes in a existing object or create a new entry in self.channels
+		used to update channel infos in Client.channels
+		it will update all non None attributes in a existing object or create a new entry in self.channels
 
-	returns updated channel
+		returns updated channel
 	"""
 
-	if type(channel) != Channel:
-		raise AttributeError(f'channel must be "{str(Channel)}" not "{type(channel)}"')
+	if type(NewChannelInfo) != Channel:
+		raise AttributeError(f"channel must be '{str(Channel)}' not '{type(NewChannelInfo)}'")
 
-	if type(channel.id) != str:
-		raise AttributeError(f'channel id "{str(channel.id)}" type "{type(channel.id)}" is invalid')
-
-	current_state = self.channels.get( channel.id, None )
-	if current_state == None:
-		self.channels[channel.id] = channel
-		return self.channels[channel.id]
+	CurrentChannelInfo:Channel = cls.channels.get(NewChannelInfo.room_id, None)
+	if not CurrentChannelInfo:
+		cls.channels[NewChannelInfo.room_id] = NewChannelInfo
+		return cls.channels[NewChannelInfo.room_id]
 
 	else:
-		self.channels[channel.id].update( channel )
+		CurrentChannelInfo.update( NewChannelInfo )
 
-	return self.channels[channel.id]
+	return cls.channels[NewChannelInfo.room_id]
 
 def update_channel_viewer(self, user, operation=None):
 	"""

@@ -6,6 +6,7 @@ import asyncio
 from ..Classes.channel import Channel
 from ..Classes.user import User
 from ..Classes.message import Message
+from .management import updateChannelInfos
 
 async def handleChannelUpdate(cls:"Client", payload:str) -> None:
 	"""
@@ -13,7 +14,7 @@ async def handleChannelUpdate(cls:"Client", payload:str) -> None:
 		calls onChannelUpdate(Channel) for custom user code
 	"""
 	Chan:Channel = Channel(payload, emergency=True)
-	Chan = cls.update_channel_infos(Chan)
+	Chan = updateChannelInfos(Chan)
 	asyncio.ensure_future( cls.onChannelUpdate( Chan ) )
 
 async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
@@ -22,7 +23,7 @@ async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
 		calls onMemberJoin(User) for custom user code
 	"""
 	JoinUser = User(payload, emergency=True)
-	Chan:Channel = cls.get_channel(name=JoinUser.channel_name)
+	Chan:Channel = cls.getChannel(name=JoinUser.channel_name)
 	if Chan:
 		JoinUser.Channel = Chan
 	cls.update_channel_viewer(JoinUser, 'add')
