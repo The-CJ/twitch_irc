@@ -72,7 +72,7 @@ async def handleOnMessage(cls:"Client", payload:str) -> None:
 		Msg.Channel = Channel(None, emergency=True, Msg=Msg)
 
 	# get Author
-	Author:User = Msg.Channel.getUser(name=Msg.name)
+	Author:User = Msg.Channel.getUser(name=Msg.user_name)
 	if Author:
 		if Author.minimalistic:
 			FullAuthor:User = User(None, emergency=False, Msg=Msg)

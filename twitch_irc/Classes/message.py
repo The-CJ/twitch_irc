@@ -44,7 +44,7 @@ class Message(object):
 		into a usable class
 	"""
 	def __repr__(self):
-		return f"<{self.__class__.__name__} channel='{self.channel_name}' user='{self.name}'>"
+		return f"<{self.__class__.__name__} channel='{self.channel_name}' user='{self.user_name}'>"
 
 	def __str__(self):
 		return self.content
@@ -52,8 +52,8 @@ class Message(object):
 	def __init__(self, raw:str):
 		self.badges:list = list()
 		self.color:str = None
-		self.display_name:str = None
-		self.name:str = None
+		self.user_name:str = None
+		self.user_display_name:str = None
 		self.emotes:list = list()
 		self.mod:bool = False
 		self.sub:bool = False
@@ -80,15 +80,15 @@ class Message(object):
 		if search != None:
 			self.color = search.group(1)
 
-		#display_name
+		#user_display_name
 		search = re.search(ReDisplayName, raw)
 		if search != None:
-			self.display_name = search.group(1)
+			self.user_display_name = search.group(1)
 
-		#name
+		#user_name
 		search = re.search(ReName, raw)
 		if search != None:
-			self.name = search.group(1)
+			self.user_name = search.group(1)
 
 		#emotes
 		search = re.search(ReEmotes, raw)
