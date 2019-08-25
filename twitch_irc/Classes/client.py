@@ -93,6 +93,8 @@ class Client():
 			self.last_ping = time.time()
 			self.traffic = 0
 			self.channels = dict()
+			self.query_running = True
+			self.auth_success = False
 			# not resetting self.stored_traffic, maybe there is something inside
 
 			try:
@@ -107,11 +109,6 @@ class Client():
 				await reqMembership(self)
 				await reqCommands(self)
 				await reqTags(self)
-
-				#reset vars
-				self.last_ping = time.time()
-				self.query_running = True
-				self.auth_success = False
 
 				#start listen
 				asyncio.ensure_future( trafficQuery(self) )

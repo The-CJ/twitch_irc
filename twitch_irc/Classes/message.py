@@ -69,7 +69,7 @@ class Message(object):
 
 		self.build(raw)
 
-	def build(self, raw):
+	def build(self, raw:str):
 		# badges
 		search = re.search(ReBadges, raw)
 		if search != None:
