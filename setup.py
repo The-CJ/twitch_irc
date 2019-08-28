@@ -24,7 +24,7 @@ setuptools.setup(
 	url="https://github.com/The-CJ/twitch_irc.py",
 	license="MIT",
 	install_requires=requirements,
-	packages=setuptools.find_packages(),
+	packages=["twitch_irc", "twitch_irc.Classes", "twitch_irc.Utils"],
 	classifiers=[
 		"Programming Language :: Python :: 3.5",
 		"License :: OSI Approved :: MIT License",
