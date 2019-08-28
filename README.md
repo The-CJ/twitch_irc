@@ -13,10 +13,10 @@ import twitch_irc
 
 class MyBot(twitch_irc.Client):
 
-  async def on_ready(self):
-    await self.join_channel('my_channel_name')
+  async def onReady(self):
+    await self.joinChannel('my_channel_name')
 
-  async def on_message(self, message):
+  async def onMessage(self, message):
     print(message.content)
 
     # do more with your code
