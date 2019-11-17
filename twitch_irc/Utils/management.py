@@ -34,7 +34,7 @@ def updateChannelViewer(cls:"Client", Viewer:User, add:bool=False, rem:bool=Fals
 		  #ThanksTwitch
 	"""
 
-	if not (add or rem) or (add and rem):
+	if add ^ rem:
 		raise AttributeError("only one of 'add' or 'rem' must be True")
 
 	if Viewer.Channel:
