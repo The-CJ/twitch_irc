@@ -1,7 +1,9 @@
+from typing import List, Dict
+
+import re
 import time
 import asyncio
 import traceback
-import re
 from .message import Message
 from .channel import Channel
 from .user import User
@@ -14,14 +16,15 @@ from ..Utils.handler import (
 	handleOnMessage
 )
 from ..Utils.regex import (
-	RePing, ReWrongAuth, ReOnMessage, ReOnReady, ReChannelUpdate,
-	ReOnMemberJoin, ReOnMemberLeft
+	RePing, ReWrongAuth, ReOnMessage,
+	ReOnReady, ReChannelUpdate,	ReOnMemberJoin,
+	ReOnMemberLeft
 )
 
 class Client():
 	"""
-		Main class for everything.
-		Init and call .run()
+	Main class for everything.
+	Init and call .run()
 	"""
 	def __init__(self, token:str=None, nickname:str=None, reconnect:bool=True, request_limit:int=19):
 
@@ -34,7 +37,7 @@ class Client():
 		self.nickname:str = nickname
 		self.host:str = "irc.twitch.tv"
 		self.port:int = 6667
-		self.last_ping:int = time.time()
+		self.last_ping:float = time.time()
 
 		self.ConnectionReader:asyncio.StreamReader = None
 		self.ConnectionWriter:asyncio.StreamWriter = None
@@ -52,17 +55,17 @@ class Client():
 
 	def run(self, **kwargs:dict) -> None:
 		"""
-			start the bot, this function will wrap self.start() into a asyncio loop.
-			- This function is blocking, it only returns after stop is called
+		start the bot, this function will wrap self.start() into a asyncio loop.
+		- This function is blocking, it only returns after stop is called
 		"""
 		loop:asyncio.AbstractEventLoop = asyncio.new_event_loop()
 		loop.run_until_complete( self.start(**kwargs) )
 
 	async def start(self, **kwargs:dict) -> None:
 		"""
-			nearly the same as self.run()
-			except its not going to create a loop.
-			- This function is blocking, it only returns after stop is called
+		nearly the same as self.run()
+		except its not going to create a loop.
+		- This function is blocking, it only returns after stop is called
 		"""
 		if self.running:
 			raise RuntimeError("already running")
@@ -82,10 +85,10 @@ class Client():
 
 	async def main(self) -> None:
 		"""
-			a loop that creates the connections a and proceed all events
-			if self.reconnect is active, it handles critical errors with a restart of the bot
-			will run forever until self.stop() is called
-			or a critical error without reconnect
+		a loop that creates the connections a and proceed all events
+		if self.reconnect is active, it handles critical errors with a restart of the bot
+		will run forever until self.stop() is called
+		or a critical error without reconnect
 		"""
 		while self.running:
 

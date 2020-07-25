@@ -1,3 +1,5 @@
+from typing import List
+
 class Emote(object):
 	""" There is a Emote class for every different emote in a message, so:
 
@@ -15,7 +17,7 @@ class Emote(object):
 		self.emote_id:str = None
 		self.count:int = 0
 		self.name:str = None
-		self.positions:list = list()
+		self.positions:List[dict] = []
 
 		self.build(emote_str, message_content)
 
@@ -25,7 +27,7 @@ class Emote(object):
 		for pos_str in pos_str.split(","):
 			self.count += 1
 			start, end = pos_str.split("-")
-			self.positions.append( dict(start=start, end=end) )
+			self.positions.append( {"start":start, "end":end} )
 
 		first_emote_pos:dict = self.positions[0]
 

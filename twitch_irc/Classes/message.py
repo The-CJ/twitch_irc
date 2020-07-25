@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from .channel import Channel as TwitchChannel
     from .user import User as TwitchUser
@@ -13,6 +13,7 @@ ReDisplayName:"re.Pattern" = re.compile(r"display-name=(.+?)[; ]")
 ReName:"re.Pattern" = re.compile(r"!(.+?)@")
 ReEmotes:"re.Pattern" = re.compile(r"emotes=(.*?)[; ]")
 ReRoomID:"re.Pattern" = re.compile(r"room-id=(.+?)[; ]")
+ReMsgID:"re.Pattern" = re.compile(r"id=(.+?)[; ]")
 ReRoomName:"re.Pattern" = re.compile(r"PRIVMSG #(.+?) :")
 ReUserID:"re.Pattern" = re.compile(r"user-id=(.+?)[; ]")
 ReUserType:"re.Pattern" = re.compile(r"user-type=(.*?)[; ]")
@@ -50,11 +51,12 @@ class Message(object):
 		return self.content
 
 	def __init__(self, raw:str):
-		self.badges:list = list()
+		self.badges:List[Badge] = []
+		self.msg_id:str = None
 		self.color:str = None
 		self.user_name:str = None
 		self.user_display_name:str = None
-		self.emotes:list = list()
+		self.emotes:List[Emote] = []
 		self.mod:bool = False
 		self.sub:bool = False
 		self.channel_id:str = None
@@ -71,7 +73,7 @@ class Message(object):
 
 	def build(self, raw:str):
 		# badges
-		search = re.search(ReBadges, raw)
+		search:re.Match = re.search(ReBadges, raw)
 		if search != None:
 			self.getBadges( search.group(1) )
 
@@ -79,6 +81,11 @@ class Message(object):
 		search = re.search(ReColor, raw)
 		if search != None:
 			self.color = search.group(1)
+
+		# msg_id
+		search = re.search(ReMsgID, raw)
+		if search != None:
+			self.msg_id = search.group(1)
 
 		#user_display_name
 		search = re.search(ReDisplayName, raw)
@@ -140,9 +147,9 @@ class Message(object):
 
 		if not emotes_str: return
 
-		emote_str_list:list = emotes_str.split("/")
+		emote_str_list:List[str] = emotes_str.split("/")
 		for emote_str in emote_str_list:
-			Emo = Emote(emote_str, self.content)
+			Emo:Emote = Emote(emote_str, self.content)
 			self.emotes.append( Emo )
 
 	def getBadges(self, badges_str:str) -> None:
@@ -150,10 +157,7 @@ class Message(object):
 
 		if not badges_str: return
 
-		badge_str_list:list = badges_str.split(",")
+		badge_str_list:List[str] = badges_str.split(",")
 		for badge_str in badge_str_list:
-			Bad = Badge( badge_str )
-			self.badges.append(Bad)
-
-
-
+			Bad:Badge = Badge( badge_str )
+			self.badges.append( Bad )

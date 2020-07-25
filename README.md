@@ -1,6 +1,6 @@
 # Twitch irc Client
 
-Simple to use IRC connection for Twitch optimited for the PhaazeOS project
+Simple to use IRC connection for Twitch optimized for the PhaazeOS project
 but usable to any purpose
 
 
@@ -8,7 +8,7 @@ but usable to any purpose
 
 ## Usage
 
-```
+```py
 import twitch_irc
 
 class MyBot(twitch_irc.Client):
