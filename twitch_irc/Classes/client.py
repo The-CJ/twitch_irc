@@ -35,7 +35,7 @@ class Client():
 
 		self.token:str = token
 		self.nickname:str = nickname
-		self.host:str = "irc.twitch.tv"
+		self.host:str = "irc.chat.twitch.tv"
 		self.port:int = 6667
 		self.last_ping:float = time.time()
 
@@ -118,7 +118,7 @@ class Client():
 
 				#start listen
 				asyncio.ensure_future( trafficQuery(self) )
-				await self.listen()
+				await self.listen() # <- that processess stuff
 
 			except InvalidAuth as E:
 				self.stop()
