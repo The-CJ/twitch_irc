@@ -45,9 +45,12 @@ class Client():
 
 		self.request_limit:int = request_limit
 		self.traffic:int = 0
-		self.stored_traffic:list = list()
+		self.stored_traffic:List[str or bytes] = []
 
 	def stop(self) -> None:
+		"""
+		gracefully shuts down the bot, .start and .run will be no longer blocking
+		"""
 		self.auth_success = False
 		self.running = False
 		self.query_running = False
