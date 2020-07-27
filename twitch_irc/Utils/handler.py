@@ -10,8 +10,8 @@ from .management import updateChannelInfos, updateChannelViewer
 
 async def handleChannelUpdate(cls:"Client", payload:str) -> None:
 	"""
-		handles all channel update events,
-		calls onChannelUpdate(Channel) for custom user code
+	handles all channel update events,
+	calls onChannelUpdate(Channel) for custom user code
 	"""
 	Chan:Channel = Channel(payload, emergency=False)
 	Chan = updateChannelInfos(cls, Chan)
@@ -19,11 +19,11 @@ async def handleChannelUpdate(cls:"Client", payload:str) -> None:
 
 async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
 	"""
-		handles all user joins in a channel,
-		calls onMemberJoin(User) for custom user code
+	handles all user joins in a channel,
+	calls onMemberJoin(User) for custom user code
 
-		because twitch is strange, it may happen that join is called twice,
-		without a onLeft before
+	because twitch is strange, it may happen that join is called twice,
+	without a onLeft before
 	"""
 	JoinUser = User(payload, emergency=True)
 
@@ -38,11 +38,11 @@ async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
 
 async def handleOnMemberLeft(cls:"Client", payload:str) -> None:
 	"""
-		handles all user leaves in a channel,
-		calls onMemberLeft(User) for custom user code
+	handles all user leaves in a channel,
+	calls onMemberLeft(User) for custom user code
 
-		because twitch is strange, it may happen that left is called,
-		without a onJoin before
+	because twitch is strange, it may happen that left is called,
+	without a onJoin before
 	"""
 	LeftUser:User = User(payload, emergency=True)
 
@@ -57,15 +57,15 @@ async def handleOnMemberLeft(cls:"Client", payload:str) -> None:
 
 async def handleOnMessage(cls:"Client", payload:str) -> None:
 	"""
-		handles all messages
-		calls onMessage(Message) for custom user code
+	handles all messages
+	calls onMessage(Message) for custom user code
 	"""
 
 	# generate message
 	Msg:Message = Message(payload)
 
 	#get Channel
-	Chan = cls.channels.get(Msg.channel_id, None)
+	Chan:Channel = cls.channels.get(Msg.channel_id, None)
 	if Chan:
 		Msg.Channel = Chan
 	else:

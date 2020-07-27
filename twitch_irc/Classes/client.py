@@ -41,7 +41,7 @@ class Client():
 
 		self.ConnectionReader:asyncio.StreamReader = None
 		self.ConnectionWriter:asyncio.StreamWriter = None
-		self.channels:dict = dict()
+		self.channels:Dict[str, Channel] = {}
 
 		self.request_limit:int = request_limit
 		self.traffic:int = 0
@@ -196,20 +196,21 @@ class Client():
 
 	async def sendContent(self, content:bytes or str, ignore_limit:bool=False) -> None:
 		"""
-			used to send content of any type to twitch
+		used to send content of any type to twitch
 
-			default request limit 20 / 30sec | even doh you can send 100 in channel with mod status
+		default request limit 20 / 30sec | even doh you can send 100 in channel with mod status
 
-			You can change the limit if needed:
-			- offical bots may use: bot = twitch_irc.Client(request_limit=1000)
-			- one channel mod bots: bot = twitch_irc.Client(request_limit=100)
-			-- others are not recommended, even could bring u to a multi hour twitch timeout
+		You can change the limit if needed:
+		- offical bots may use: bot = twitch_irc.Client(request_limit=1000)
+		- one channel mod bots: bot = twitch_irc.Client(request_limit=100)
+		-- others are not recommended, even could bring u to a multi hour twitch timeout
 		"""
 		if type(content) != bytes:
 			content = bytes(content, 'UTF-8')
 
 		if (self.traffic <= self.request_limit) or ignore_limit:
 			asyncio.ensure_future( addTraffic(self) )
+			asyncio.ensure_future( self.onSend(content) )
 			self.ConnectionWriter.write( content )
 
 		else:
@@ -241,59 +242,65 @@ class Client():
 	#events
 	async def onError(self, Ex:Exception) -> None:
 		"""
-			called every time something goes wrong
+		called every time something goes wrong
 		"""
 		print(Ex)
 		traceback.print_exc()
 
 	async def onLimit(self, payload:bytes) -> None:
 		"""
-			called every time a request was not send because it hit the twitch limit,
-			the request is stored and send as soon as possible
+		called every time a request was not send because it hit the twitch limit,
+		the request is stored and send as soon as possible
 		"""
 		pass
 
 	async def onRaw(self, raw:bytes) -> None:
 		"""
-			called every time some bytes of data get received by the client
+		called every time some bytes of data get received by the client
+		"""
+		pass
+
+	async def onSend(self, raw:bytes) -> None:
+		"""
+		called every time some bytes of data get send by the client
 		"""
 		pass
 
 	async def onReady(self) -> None:
 		"""
-			called when the client is connected to twitch and is ready to receive or send data
+		called when the client is connected to twitch and is ready to receive or send data
 		"""
 		pass
 
 	async def onReconnect(self) -> None:
 		"""
-			called when the client was already connected but was/had to reconnect
-			if already connected a onReconnect and onReady fire at the same time
+		called when the client was already connected but was/had to reconnect
+		if already connected a onReconnect and onReady fire at the same time
 		"""
 		pass
 
 	async def onMessage(self, Msg:Message) -> None:
 		"""
-			called when the client received a message in a channel
+		called when the client received a message in a channel
 		"""
 		pass
 
 	async def onChannelUpdate(self, Chan:Channel) -> None:
 		"""
-			called when the bot joines a new channel or attributes on a channel are changed like slowmode etc...
+		called when the bot joines a new channel or attributes on a channel are changed like slowmode etc...
 		"""
 		pass
 
 	async def onMemberJoin(self, Us:User) -> None:
 		"""
-			called when a user joined a twitch channel
-			[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator joins) ]
+		called when a user joined a twitch channel
+		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator joins) ]
 		"""
 		pass
 
 	async def onMemberLeft(self, Us:User) -> None:
 		"""
-			called when a user left a twitch channel
-			[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
+		called when a user left a twitch channel
+		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
 		"""
 		pass

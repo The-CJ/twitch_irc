@@ -18,13 +18,13 @@ def updateChannelInfos(cls:"Client", NewChannelInfo:Channel) -> Channel:
 
 	CurrentChannelInfo:Channel = cls.channels.get(NewChannelInfo.room_id, None)
 	if not CurrentChannelInfo:
-		cls.channels[NewChannelInfo.room_id] = NewChannelInfo
-		return cls.channels[NewChannelInfo.room_id]
+		cls.channels[str(NewChannelInfo.room_id)] = NewChannelInfo
+		return cls.channels[str(NewChannelInfo.room_id)]
 
 	else:
 		CurrentChannelInfo.update( NewChannelInfo )
 
-	return cls.channels[NewChannelInfo.room_id]
+	return cls.channels[str(NewChannelInfo.room_id)]
 
 def updateChannelViewer(cls:"Client", Viewer:User, add:bool=False, rem:bool=False) -> None:
 	"""
