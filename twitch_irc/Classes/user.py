@@ -70,8 +70,8 @@ class User(object):
 		and messages have all user informations so we use it to make a data full class and update it
 		"""
 
-		self.name = Msg.name
-		self.display_name = Msg.display_name
+		self.name = Msg.user_name
+		self.display_name = Msg.user_display_name
 		self.user_id = Msg.user_id
 		self.user_type = Msg.user_type
 		self.sub = Msg.sub

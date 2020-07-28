@@ -219,8 +219,8 @@ class Client():
 
 	def getChannel(self, **search:dict) -> Channel or None:
 		"""
-			get a channel based on the given kwargs,
-			returns the first channel all kwargs are valid, or None if 0 valid
+		get a channel based on the given kwargs,
+		returns the first channel all kwargs are valid, or None if 0 valid
 		"""
 		for chan_id in self.channels:
 			Chan:Channel = self.channels[chan_id]

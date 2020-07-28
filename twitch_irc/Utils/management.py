@@ -7,10 +7,10 @@ from ..Classes.user import User
 
 def updateChannelInfos(cls:"Client", NewChannelInfo:Channel) -> Channel:
 	"""
-		used to update channel infos in Client.channels
-		it will update all non None attributes in a existing object or create a new entry in self.channels
+	used to update channel infos in Client.channels
+	it will update all non None attributes in a existing object or create a new entry in self.channels
 
-		returns updated channel
+	returns updated channel
 	"""
 
 	if type(NewChannelInfo) != Channel:
@@ -28,13 +28,13 @@ def updateChannelInfos(cls:"Client", NewChannelInfo:Channel) -> Channel:
 
 def updateChannelViewer(cls:"Client", Viewer:User, add:bool=False, rem:bool=False) -> None:
 	"""
-		used to add or remove user/viewer in Channel.users object from Client.channels
-		- for some reason twitch sends joins double or don't send a leave
-		  so it's not 100% clear that Channel.users contains all viewers
-		  #ThanksTwitch
+	used to add or remove user/viewer in Channel.users object from Client.channels
+	- for some reason twitch sends joins double or don't send a leave
+	  so it's not 100% clear that Channel.users contains all viewers
+	  #ThanksTwitch
 	"""
 
-	if add ^ rem:
+	if not (add ^ rem):
 		raise AttributeError("only one of 'add' or 'rem' must be True")
 
 	if Viewer.Channel:

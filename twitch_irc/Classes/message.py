@@ -72,10 +72,6 @@ class Message(object):
 		self.build(raw)
 
 	def build(self, raw:str):
-		# badges
-		search:re.Match = re.search(ReBadges, raw)
-		if search != None:
-			self.getBadges( search.group(1) )
 
 		#color
 		search = re.search(ReColor, raw)
@@ -96,11 +92,6 @@ class Message(object):
 		search = re.search(ReName, raw)
 		if search != None:
 			self.user_name = search.group(1)
-
-		#emotes
-		search = re.search(ReEmotes, raw)
-		if search != None:
-			self.getEmotes( search.group(1) )
 
 		#room_id | channel_id
 		search = re.search(ReRoomID, raw)
@@ -141,6 +132,16 @@ class Message(object):
 		search = re.search(ReContent, raw)
 		if search != None:
 			self.content = search.group(1).strip('\r')
+
+		#emotes
+		search = re.search(ReEmotes, raw)
+		if search != None:
+			self.getEmotes( search.group(1) )
+
+		# badges
+		search:re.Match = re.search(ReBadges, raw)
+		if search != None:
+			self.getBadges( search.group(1) )
 
 	def getEmotes(self, emotes_str:str) -> None:
 		# 25:0-4,6-10,12-16,24-28/1902:18-22,30-34
