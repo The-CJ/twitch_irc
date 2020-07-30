@@ -126,23 +126,23 @@ class Client():
 
 			except EmptyPayload as E:
 				await self.onError(E)
-				break
+				continue
 
 			except PingTimeout as E:
 				await self.onError(E)
-				break
+				continue
 
 			except KeyboardInterrupt as E:
 				await self.onError(E)
 				self.stop()
-				break
+				continue
 
 			except Exception as E:
 				await self.onError(E)
 				if self.running:
 					await asyncio.sleep(5)
 				else:
-					break
+					continue
 
 	async def listen(self) -> None:
 
