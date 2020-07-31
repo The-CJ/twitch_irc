@@ -10,20 +10,23 @@ from .management import updateChannelInfos, updateChannelViewer
 
 async def handleReRoomState(cls:"Client", payload:str) -> None:
 	"""
-	handles all channel update events,
-	calls onChannelUpdate(Channel) for custom user code
+	handles all ROOMSTATE events
+	may calls the following events for custom code:
+	- onChannelUpdate(Channel)
 	"""
 	Chan:Channel = Channel(payload, emergency=False)
 	Chan = updateChannelInfos(cls, Chan)
 	asyncio.ensure_future( cls.onChannelUpdate( Chan ) )
 
-async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
+async def handleJoin(cls:"Client", payload:str) -> None:
 	"""
-	handles all user joins in a channel,
-	calls onMemberJoin(User) for custom user code
-
+	handles all JOIN events
 	because twitch is strange, it may happen that join is called twice,
 	without a onLeft before
+
+	may calls the following events for custom code:
+	- onMemberJoin(User)
+
 	"""
 	JoinUser = User(payload, emergency=True)
 
@@ -36,13 +39,15 @@ async def handleOnMemberJoin(cls:"Client", payload:str) -> None:
 	updateChannelViewer(cls, JoinUser, add=True)
 	asyncio.ensure_future( cls.onMemberJoin( JoinUser ) )
 
-async def handleOnMemberLeft(cls:"Client", payload:str) -> None:
+async def handlePart(cls:"Client", payload:str) -> None:
 	"""
-	handles all user leaves in a channel,
-	calls onMemberLeft(User) for custom user code
-
+	handles all PART events
 	because twitch is strange, it may happen that left is called,
 	without a onJoin before
+
+	may calls the following events for custom code:
+	- onMemberPart(User)
+
 	"""
 	LeftUser:User = User(payload, emergency=True)
 
@@ -53,12 +58,13 @@ async def handleOnMemberLeft(cls:"Client", payload:str) -> None:
 	if Chan:
 		LeftUser.Channel = Chan
 	updateChannelViewer(cls, LeftUser, rem=True)
-	asyncio.ensure_future( cls.onMemberLeft( LeftUser ) )
+	asyncio.ensure_future( cls.onMemberPart( LeftUser ) )
 
-async def handleOnMessage(cls:"Client", payload:str) -> None:
+async def handlePrivMessage(cls:"Client", payload:str) -> None:
 	"""
-	handles all messages
-	calls onMessage(Message) for custom user code
+	handles all PRIVMSG events
+	may calls the following events for custom code:
+	- onMessage(Message)
 	"""
 
 	# generate message

@@ -8,13 +8,13 @@ import asyncio
 from ..Utils.cmd import sendPong
 from ..Utils.errors import InvalidAuth
 from ..Utils.handler import (
-	handleReRoomState, handleOnMemberJoin, handleOnMemberLeft,
-	handleOnMessage
+	handleReRoomState, handleJoin, handlePart,
+	handlePrivMessage
 )
 from ..Utils.regex import (
-	RePing, ReWrongAuth, ReOnMessage,
-	ReOnReady, ReRoomState,	ReOnMemberJoin,
-	ReOnMemberLeft
+	RePing, ReWrongAuth, RePrivMessage,
+	ReOnReady, ReRoomState,	ReJoin,
+	RePart
 )
 
 async def mainEventDetector(cls:"Client", payload:str) -> bool:
@@ -30,8 +30,8 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 		return True
 
 	#onMessage
-	if re.match(ReOnMessage, payload) != None:
-		await handleOnMessage(cls, payload)
+	if re.match(RePrivMessage, payload) != None:
+		await handlePrivMessage(cls, payload)
 		return True
 
 	#onChannelUpdate
@@ -40,13 +40,13 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 		return True
 
 	#onMemberJoin
-	if re.match(ReOnMemberJoin, payload) != None:
-		await handleOnMemberJoin(cls, payload)
+	if re.match(ReJoin, payload) != None:
+		await handleJoin(cls, payload)
 		return True
 
-	#onMemberLeft
-	if re.match(ReOnMemberLeft, payload) != None:
-		await handleOnMemberLeft(cls, payload)
+	#onMemberPart
+	if re.match(RePart, payload) != None:
+		await handlePart(cls, payload)
 		return True
 
 	#onReady, onReconnect

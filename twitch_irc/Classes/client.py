@@ -261,7 +261,7 @@ class Client():
 		"""
 		pass
 
-	async def onMemberLeft(self, Us:User) -> None:
+	async def onMemberPart(self, Us:User) -> None:
 		"""
 		called when a user left a twitch channel
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
