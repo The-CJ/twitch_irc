@@ -8,7 +8,7 @@ import asyncio
 from ..Utils.cmd import sendPong
 from ..Utils.errors import InvalidAuth
 from ..Utils.handler import (
-	handleChannelUpdate, handleOnMemberJoin, handleOnMemberLeft,
+	handleReRoomState, handleOnMemberJoin, handleOnMemberLeft,
 	handleOnMessage
 )
 from ..Utils.regex import (
@@ -34,9 +34,9 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 		await handleOnMessage(cls, payload)
 		return True
 
-	#channelUpdate
+	#onChannelUpdate
 	if re.match(ReRoomState, payload) != None:
-		await handleChannelUpdate(cls, payload)
+		await handleReRoomState(cls, payload)
 		return True
 
 	#onMemberJoin

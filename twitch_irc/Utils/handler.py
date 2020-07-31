@@ -8,7 +8,7 @@ from ..Classes.user import User
 from ..Classes.message import Message
 from .management import updateChannelInfos, updateChannelViewer
 
-async def handleChannelUpdate(cls:"Client", payload:str) -> None:
+async def handleReRoomState(cls:"Client", payload:str) -> None:
 	"""
 	handles all channel update events,
 	calls onChannelUpdate(Channel) for custom user code
