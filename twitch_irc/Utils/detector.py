@@ -23,15 +23,15 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	If that happens the Client `cls` makes additional handling
 	"""
 
-	#onMessage
-	if re.match(ReOnMessage, payload) != None:
-		await handleOnMessage(cls, payload)
-		return True
-
 	#response to PING
 	if re.match(RePing, payload) != None:
 		cls.last_ping = time.time()
 		await sendPong(cls)
+		return True
+
+	#onMessage
+	if re.match(ReOnMessage, payload) != None:
+		await handleOnMessage(cls, payload)
 		return True
 
 	#channelUpdate
