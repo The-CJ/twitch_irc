@@ -1,6 +1,5 @@
 from typing import List, Dict
 
-import re
 import time
 import asyncio
 import traceback
@@ -10,16 +9,8 @@ from .user import User
 from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
-from ..Utils.cmd import sendNick, sendPass, sendPong
-from ..Utils.handler import (
-	handleChannelUpdate, handleOnMemberJoin, handleOnMemberLeft,
-	handleOnMessage
-)
-from ..Utils.regex import (
-	RePing, ReWrongAuth, ReOnMessage,
-	ReOnReady, ReRoomState,	ReOnMemberJoin,
-	ReOnMemberLeft
-)
+from ..Utils.cmd import sendNick, sendPass
+from ..Utils.detector import mainEventDetector
 
 class Client():
 	"""
@@ -161,42 +152,10 @@ class Client():
 			if (time.time() - self.last_ping) > 60*6:
 				raise PingTimeout()
 
-			#onMessage
-			elif re.match(ReOnMessage, payload) != None:
-				await handleOnMessage(self, payload)
+			processed:bool = await mainEventDetector(self, payload)
 
-			#response to PING
-			elif re.match(RePing, payload) != None:
-				self.last_ping = time.time()
-				await sendPong(self)
-
-			#channelUpdate
-			elif re.match(ReRoomState, payload) != None:
-				await handleChannelUpdate(self, payload)
-
-			#onMemberJoin
-			elif re.match(ReOnMemberJoin, payload) != None:
-				await handleOnMemberJoin(self, payload)
-
-			#onMemberLeft
-			elif re.match(ReOnMemberLeft, payload) != None:
-				await handleOnMemberLeft(self, payload)
-
-			#onReady, onReconnect
-			elif re.match(ReOnReady, payload) != None:
-				if self.auth_success:
-					#means we got a reconnect
-					asyncio.ensure_future( self.onReconnect() )
-				self.auth_success = True
-				asyncio.ensure_future( self.onReady() )
-
-			#wrong_auth
-			elif not self.auth_success:
-				if re.match(ReWrongAuth, payload) != None:
-					raise InvalidAuth( payload )
-
-			else:
-				await self.onUnknown( payload )
+			if not processed:
+				asyncio.ensure_future( self.onUnknown(payload) )
 
 	async def sendContent(self, content:bytes or str, ignore_limit:bool=False) -> None:
 		"""
