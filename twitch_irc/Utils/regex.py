@@ -4,7 +4,8 @@ import re
 
 RePing:"re.Pattern" = re.compile(r"^PING.*")
 ReWrongAuth:"re.Pattern" = re.compile(r'^:tmi\.twitch\.tv NOTICE \* :Login.*')
-ReChannelUpdate:"re.Pattern" = re.compile(r"^@.+:tmi\.twitch\.tv ROOMSTATE #.+")
+ReRoomState:"re.Pattern" = re.compile(r"^@.+:tmi\.twitch\.tv ROOMSTATE #.+")
+ReClearChat:"re.Pattern" = re.compile(r"^@.+:tmi\.twitch\.tv CLEARCHAT #.+")
 
 ReOnReady:"re.Pattern" = re.compile(r"^:tmi\.twitch\.tv 001.*")
 ReOnMemberJoin:"re.Pattern" = re.compile(r"^.+\.tmi\.twitch\.tv JOIN #.+")

@@ -17,7 +17,7 @@ from ..Utils.handler import (
 )
 from ..Utils.regex import (
 	RePing, ReWrongAuth, ReOnMessage,
-	ReOnReady, ReChannelUpdate,	ReOnMemberJoin,
+	ReOnReady, ReRoomState,	ReOnMemberJoin,
 	ReOnMemberLeft
 )
 
@@ -154,7 +154,8 @@ class Client():
 			payload:str = payload.decode('UTF-8').strip('\n').strip('\r')
 
 			#just to be sure
-			if payload in ["", " ", None] or not payload: raise EmptyPayload()
+			if payload in ["", " ", None] or not payload:
+				raise EmptyPayload()
 
 			# last ping is over 6min (way over twitch normal response)
 			if (time.time() - self.last_ping) > 60*6:
@@ -170,7 +171,7 @@ class Client():
 				await sendPong(self)
 
 			#channelUpdate
-			elif re.match(ReChannelUpdate, payload) != None:
+			elif re.match(ReRoomState, payload) != None:
 				await handleChannelUpdate(self, payload)
 
 			#onMemberJoin
@@ -193,6 +194,9 @@ class Client():
 			elif not self.auth_success:
 				if re.match(ReWrongAuth, payload) != None:
 					raise InvalidAuth( payload )
+
+			else:
+				await self.onUnknown( payload )
 
 	async def sendContent(self, content:bytes or str, ignore_limit:bool=False) -> None:
 		"""
@@ -302,5 +306,11 @@ class Client():
 		"""
 		called when a user left a twitch channel
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
+		"""
+		pass
+
+	async def onUnknown(self, raw:str) -> None:
+		"""
+		called every time some bytes of data could not be processed to another event
 		"""
 		pass
