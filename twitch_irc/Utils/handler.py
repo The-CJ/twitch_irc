@@ -8,6 +8,12 @@ from ..Classes.user import User
 from ..Classes.message import Message
 from .management import updateChannelInfos, updateChannelViewer
 
+async def handleClearChat(cls:"Client", payload:str) -> None:
+    print(F"TODO: {payload}")
+    R = open("clearchat.txt", "a")
+    R.write(payload+"\n")
+    R.close()
+
 async def handleReRoomState(cls:"Client", payload:str) -> None:
 	"""
 	handles all ROOMSTATE events

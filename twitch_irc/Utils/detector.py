@@ -9,12 +9,12 @@ from ..Utils.cmd import sendPong
 from ..Utils.errors import InvalidAuth
 from ..Utils.handler import (
 	handleReRoomState, handleJoin, handlePart,
-	handlePrivMessage
+	handlePrivMessage, handleClearChat
 )
 from ..Utils.regex import (
 	RePing, ReWrongAuth, RePrivMessage,
-	ReOnReady, ReRoomState,	ReJoin,
-	RePart
+	ReOnReady, ReRoomState,	ReClearChat,
+	ReJoin,	RePart
 )
 
 async def mainEventDetector(cls:"Client", payload:str) -> bool:
@@ -33,6 +33,11 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	if re.match(RePrivMessage, payload) != None:
 		await handlePrivMessage(cls, payload)
 		return True
+
+	# 
+	if re.match(ReClearChat, payload) != None:
+		await handleClearChat(cls, payload)
+		return False
 
 	#onChannelUpdate
 	if re.match(ReRoomState, payload) != None:
