@@ -16,10 +16,10 @@ ReRoomName:"re.Pattern" = re.compile(r"ROOMSTATE #(\w+)")
 
 class Channel(object):
 	"""
-		This class is generated when the bot join's a chat room or some kind of channel update happen,
-		into a usable class and adds it to the bots channels dict
+	This class is generated when the bot join's a chat room or some kind of channel update happen,
+	into a usable class and adds it to the bots channels dict
 
-		if emergency is True, a message must be given, to create a minimalistic channel class
+	if emergency is True, a message must be given, to create a minimalistic channel class
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} name='{self.name}'>"

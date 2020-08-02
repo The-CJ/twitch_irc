@@ -4,9 +4,9 @@ BadgeRe:"re.Pattern" = re.compile(r"^(?P<name>[^/]+)/?(?P<version>\d+)?$")
 
 class Badge(object):
 	"""
-		There is a Badge class for every different emote in a message
-		Example string:
-			moderator/1
+	There is a Badge class for every different emote in a message
+	Example string:
+		moderator/1
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} name='{self.name}' version='{self.version}'>"

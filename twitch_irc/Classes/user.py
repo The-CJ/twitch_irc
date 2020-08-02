@@ -10,11 +10,11 @@ ReChannelName:"re.Pattern" = re.compile(r"(JOIN|PART) #(\w+)")
 
 class User(object):
 	"""
-		This class represents a user from a channel for a viewer list,
-		aswell for join or left events,
-		in a usable class for the bot channel users list
+	This class represents a user from a channel for a viewer list,
+	aswell for join or left events,
+	in a usable class for the bot channel users list
 
-		if emergency is false a message must be given
+	if emergency is false a message must be given
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} name='{self.name}' channel='{self.channel_name}' minimalistic={self.minimalistic}>"

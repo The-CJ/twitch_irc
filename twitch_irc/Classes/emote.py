@@ -1,11 +1,12 @@
 from typing import List
 
 class Emote(object):
-	""" There is a Emote class for every different emote in a message, so:
+	"""
+	There is a Emote class for every different emote in a message, so:
 
-		25:0-4,6-10,12-16,24-28
+	25:0-4,6-10,12-16,24-28
 
-		4 emotes whould make 1 same in 4 positions
+	4 emotes whould make 1 same in 4 positions
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} name='{self.name}'>"

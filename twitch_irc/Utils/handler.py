@@ -9,10 +9,16 @@ from ..Classes.message import Message
 from .management import updateChannelInfos, updateChannelViewer
 
 async def handleClearChat(cls:"Client", payload:str) -> None:
-    print(F"TODO: {payload}")
-    R = open("clearchat.txt", "a")
-    R.write(payload+"\n")
-    R.close()
+	"""
+	handles all CLEARCHAT events
+	may calls the following events for custom code:
+	- onTimout(Timout)
+	- onBan(Ban)
+	"""
+	print(F"TODO: {payload}")
+	R = open("clearchat.txt", "a")
+	R.write(payload+"\n")
+	R.close()
 
 async def handleReRoomState(cls:"Client", payload:str) -> None:
 	"""
