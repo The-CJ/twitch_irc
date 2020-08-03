@@ -29,32 +29,32 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 		await sendPong(cls)
 		return True
 
-	#onMessage
+	# onMessage
 	if re.match(RePrivMessage, payload) != None:
 		await handlePrivMessage(cls, payload)
 		return True
 
-	# 
+	# onBan, onTimeout, onClear
 	if re.match(ReClearChat, payload) != None:
 		await handleClearChat(cls, payload)
-		return False
+		return True
 
-	#onChannelUpdate
+	# onChannelUpdate
 	if re.match(ReRoomState, payload) != None:
 		await handleReRoomState(cls, payload)
 		return True
 
-	#onMemberJoin
+	# onMemberJoin
 	if re.match(ReJoin, payload) != None:
 		await handleJoin(cls, payload)
 		return True
 
-	#onMemberPart
+	# onMemberPart
 	if re.match(RePart, payload) != None:
 		await handlePart(cls, payload)
 		return True
 
-	#onReady, onReconnect
+	# onReady, onReconnect
 	if re.match(ReOnReady, payload) != None:
 		if cls.auth_success:
 			#means we got a reconnect
@@ -63,7 +63,7 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 		asyncio.ensure_future( cls.onReady() )
 		return True
 
-	#wrong_auth
+	# wrong_auth
 	if not cls.auth_success:
 		if re.match(ReWrongAuth, payload) != None:
 			raise InvalidAuth( payload )
