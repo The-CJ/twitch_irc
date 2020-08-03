@@ -51,7 +51,7 @@ async def handleClearChat(cls:"Client", payload:str) -> None:
 	Detect.Channel = Chan
 	Detect.User = FoundUser
 
-	if Detect.duration == None:
+	if type(Detect) is Ban:
 		asyncio.ensure_future( cls.onBan(Detect) )
 	else:
 		asyncio.ensure_future( cls.onTimeout(Detect) )
@@ -126,7 +126,7 @@ async def handlePrivMessage(cls:"Client", payload:str) -> None:
 		Msg.Channel = Channel(None, emergency=True, Msg=Msg)
 
 	# get Author
-	Author:User = Msg.Channel.getUser(name=Msg.user_name)
+	Author:User = Msg.Channel.users.get(Msg.user_id, None)
 	if Author:
 		if Author.minimalistic:
 			FullAuthor:User = User(None, emergency=False, Msg=Msg)
