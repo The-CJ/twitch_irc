@@ -132,12 +132,14 @@ async def handlePrivMessage(cls:"Client", payload:str) -> None:
 			FullAuthor:User = User(None, emergency=False, Msg=Msg)
 			Author.update(FullAuthor)
 
+		Author.Channel = Chan
 		Msg.Author = Author
 	else:
 		# get called when the user write a message before twitch tells us the he joined,
 		# so we add it to viewer befor we get the join event
 		Alternative:User = User(None, emergency=False, Msg=Msg)
 		updateChannelViewer(cls, Alternative, add=True)
+		Alternative.Channel = Chan
 		Msg.Author = Alternative
 		asyncio.ensure_future( cls.onMemberJoin(Alternative) )
 
