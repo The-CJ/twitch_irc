@@ -3,6 +3,7 @@ from typing import Any, Dict
 import re
 from .message import Message
 from .user import User
+from .stores import UserStore
 
 ReBroadcasterLang:"re.Pattern" = re.compile(r"broadcaster-lang=(.*?)[; ]")
 ReEmoteOnly:"re.Pattern" = re.compile(r"emote-only=(1|0)[; ]")
@@ -39,7 +40,7 @@ class Channel(object):
 		self.subs_only:bool = False
 		self.name:str = None
 
-		self.users:UserStore = UserStore()
+		self.users:Dict[str, User] = UserStore()
 
 		if emergency:
 			self.buildFromMessage(Msg)
@@ -146,14 +147,3 @@ class Channel(object):
 			if valid: return Viewer
 
 		return None
-
-class UserStore(dict):
-	"""
-	This is just a small little class that should make vars(Channel) more readable... no more
-	"""
-	def __init__(self):
-		super().__init__()
-
-	def __repr__(self):
-		self.items
-		return f"<{self.__class__.__name__} amount={len(self)}>"

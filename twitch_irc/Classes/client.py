@@ -5,6 +5,7 @@ import asyncio
 import traceback
 from .message import Message
 from .channel import Channel
+from .stores import ChannelStore
 from .user import User
 from .timeout import Timeout, Ban
 from ..Utils.traffic import addTraffic, trafficQuery
@@ -33,7 +34,7 @@ class Client():
 
 		self.ConnectionReader:asyncio.StreamReader = None
 		self.ConnectionWriter:asyncio.StreamWriter = None
-		self.channels:Dict[str, Channel] = {}
+		self.channels:Dict[str, Channel] = ChannelStore()
 
 		self.request_limit:int = request_limit
 		self.traffic:int = 0
@@ -90,7 +91,7 @@ class Client():
 			#reset bot storage
 			self.last_ping = time.time()
 			self.traffic = 0
-			self.channels = dict()
+			self.channels = ChannelStore()
 			self.query_running = True
 			self.auth_success = False
 			# not resetting self.stored_traffic, maybe there is something inside
