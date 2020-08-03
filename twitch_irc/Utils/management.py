@@ -29,9 +29,10 @@ def updateChannelInfos(cls:"Client", NewChannelInfo:Channel) -> Channel:
 def updateChannelViewer(cls:"Client", Viewer:User, add:bool=False, rem:bool=False) -> None:
 	"""
 	used to add or remove user/viewer in Channel.users object from Client.channels
-	- for some reason twitch sends joins double or don't send a leave
-	  so it's not 100% clear that Channel.users contains all viewers
-	  #ThanksTwitch
+
+	for some reason twitch sends joins double or don't send a leave
+	so it's not 100% clear that Channel.users contains all viewers
+	#ThanksTwitch
 	"""
 
 	if not (add ^ rem):
