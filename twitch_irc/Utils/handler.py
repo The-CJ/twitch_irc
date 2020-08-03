@@ -6,19 +6,55 @@ import asyncio
 from ..Classes.channel import Channel
 from ..Classes.user import User
 from ..Classes.message import Message
+from ..Classes.timeout import Timeout, Ban
 from .management import updateChannelInfos, updateChannelViewer
 
 async def handleClearChat(cls:"Client", payload:str) -> None:
 	"""
 	handles all CLEARCHAT events
 	may calls the following events for custom code:
+	- onClear(Channel)
 	- onTimout(Timout)
 	- onBan(Ban)
 	"""
-	print(F"TODO: {payload}")
-	R = open("clearchat.txt", "a")
-	R.write(payload+"\n")
-	R.close()
+
+	# try getting a timeout class
+	Detect:Timeout = Timeout(payload)
+
+	# its a clear event
+	if Detect.target_user_id == None:
+		Chan:Channel = cls.channels.get(Detect.room_id, None)
+
+		# no channel found, lets make a very minimalistic class, hopefully that never happens
+		if not Chan:
+			Chan = Channel("")
+			Chan.room_id = Detect.room_id
+
+		asyncio.ensure_future( cls.onClear(Chan) )
+		return
+
+	# its actully a ban
+	if Detect.duration == None: Detect:Ban = Ban(Detect)
+
+	# get channel where that happens, lets hope, we always get one, because else its dudu
+	Chan:Channel = cls.channels.get(Detect.room_id, None)
+	if not Chan:
+		Chan = Channel("")
+		Chan.room_id = Detect.room_id
+
+	# get user that was ban/timeout, lets hope, we always get one, because else its dudu
+	FoundUser:User = Chan.users.get(Detect.target_user_id, None)
+	if not FoundUser:
+		FoundUser = User("", emergency=True)
+		FoundUser.user_id = Detect.target_user_id
+
+	Detect.Channel = Chan
+	Detect.User = FoundUser
+
+	if Detect.duration == None:
+		asyncio.ensure_future( cls.onBan(Detect) )
+	else:
+		asyncio.ensure_future( cls.onTimeout(Detect) )
 
 async def handleReRoomState(cls:"Client", payload:str) -> None:
 	"""
