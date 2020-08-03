@@ -6,6 +6,7 @@ import traceback
 from .message import Message
 from .channel import Channel
 from .user import User
+from .timeout import Timeout, Ban
 from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
@@ -245,6 +246,25 @@ class Client():
 	async def onMessage(self, Msg:Message) -> None:
 		"""
 		called when the client received a message in a channel
+		"""
+		pass
+
+	async def onClear(self, Chan:Channel) -> None:
+		"""
+		called when the a moderator (or other) uses a /clear in a channel
+		"""
+		pass
+
+	async def onTimeout(self, Time:Timeout) -> None:
+		"""
+		called when a user get a purge/timeout
+		"""
+		pass
+
+	async def onBan(self, Ba:Ban) -> None:
+		"""
+		called when a user gets banned
+		Sitenote: no there is not unban event
 		"""
 		pass
 
