@@ -9,12 +9,12 @@ from ..Utils.cmd import sendPong
 from ..Utils.errors import InvalidAuth
 from ..Utils.handler import (
 	handleRoomState, handleJoin, handlePart,
-	handlePrivMessage, handleClearChat
+	handlePrivMessage, handleClearChat, handleClearMsg
 )
 from ..Utils.regex import (
 	RePing, ReWrongAuth, RePrivMessage,
 	ReOnReady, ReRoomState,	ReClearChat,
-	ReJoin,	RePart, ReGarbage
+	ReJoin,	RePart, ReGarbage, ReClearMsg
 )
 
 async def garbageDetector(cls:"Client", payload:str) -> bool:
@@ -42,7 +42,7 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	if re.match(RePrivMessage, payload) != None:
 		return await handlePrivMessage(cls, payload)
 
-	# onBan, onTimeout, onClear
+	# onBan, onTimeout, onClearChat
 	if re.match(ReClearChat, payload) != None:
 		return await handleClearChat(cls, payload)
 
@@ -57,6 +57,10 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	# onMemberPart
 	if re.match(RePart, payload) != None:
 		return await handlePart(cls, payload)
+
+	# onClearMsg
+	if re.match(ReClearMsg, payload) != None:
+		return await handleClearMsg(cls, payload)
 
 	# onReady, onReconnect
 	if re.match(ReOnReady, payload) != None:

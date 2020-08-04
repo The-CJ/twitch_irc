@@ -67,8 +67,15 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 	whitch... well near to never happend but whatever
 
 	may calls the following events for custom code:
-	- onClearMsg(Channel)
+	- onClearMsg(Message)
 	"""
+
+	# lets try making a message of it...
+	Deleted:Message = Message(payload)
+	print(Deleted)
+	print(vars(Deleted))
+
+	# @login=the__cj;room-id=;target-msg-id=00960179-587a-496a-b5e5-1be4a166b7ad;tmi-sent-ts=1596558673781 :tmi.twitch.tv CLEARMSG #phaazebot :id
 
 async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 	"""
