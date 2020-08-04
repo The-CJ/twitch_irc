@@ -60,7 +60,47 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 
 	return False # will never be reached, but why not?
 
-async def handleReRoomState(cls:"Client", payload:str) -> bool:
+# CLEARMSG ?
+
+async def handlePrivMessage(cls:"Client", payload:str) -> bool:
+	"""
+	handles all PRIVMSG events
+	may calls the following events for custom code:
+	- onMessage(Message)
+	"""
+
+	# generate message
+	Msg:Message = Message(payload)
+
+	#get Channel
+	Chan:Channel = cls.channels.get(Msg.channel_id, None)
+	if Chan:
+		Msg.Channel = Chan
+	else:
+		Msg.Channel = Channel(None, emergency=True, Msg=Msg)
+
+	# get Author
+	Author:User = Msg.Channel.users.get(Msg.user_id, None)
+	if Author:
+		if Author.minimalistic:
+			FullAuthor:User = User(None, emergency=False, Msg=Msg)
+			Author.update(FullAuthor)
+
+		Author.Channel = Chan
+		Msg.Author = Author
+	else:
+		# get called when the user write a message before twitch tells us the he joined,
+		# so we add it to viewer befor we get the join event
+		Alternative:User = User(None, emergency=False, Msg=Msg)
+		updateChannelViewer(cls, Alternative, add=True)
+		Alternative.Channel = Chan
+		Msg.Author = Alternative
+		asyncio.ensure_future( cls.onMemberJoin(Alternative) )
+
+	asyncio.ensure_future( cls.onMessage(Msg) )
+	return True
+
+async def handleRoomState(cls:"Client", payload:str) -> bool:
 	"""
 	handles all ROOMSTATE events
 	may calls the following events for custom code:
@@ -117,40 +157,6 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 	asyncio.ensure_future( cls.onMemberPart( LeftUser ) )
 	return True
 
-async def handlePrivMessage(cls:"Client", payload:str) -> bool:
-	"""
-	handles all PRIVMSG events
-	may calls the following events for custom code:
-	- onMessage(Message)
-	"""
+# USERNOTICE
 
-	# generate message
-	Msg:Message = Message(payload)
-
-	#get Channel
-	Chan:Channel = cls.channels.get(Msg.channel_id, None)
-	if Chan:
-		Msg.Channel = Chan
-	else:
-		Msg.Channel = Channel(None, emergency=True, Msg=Msg)
-
-	# get Author
-	Author:User = Msg.Channel.users.get(Msg.user_id, None)
-	if Author:
-		if Author.minimalistic:
-			FullAuthor:User = User(None, emergency=False, Msg=Msg)
-			Author.update(FullAuthor)
-
-		Author.Channel = Chan
-		Msg.Author = Author
-	else:
-		# get called when the user write a message before twitch tells us the he joined,
-		# so we add it to viewer befor we get the join event
-		Alternative:User = User(None, emergency=False, Msg=Msg)
-		updateChannelViewer(cls, Alternative, add=True)
-		Alternative.Channel = Chan
-		Msg.Author = Alternative
-		asyncio.ensure_future( cls.onMemberJoin(Alternative) )
-
-	asyncio.ensure_future( cls.onMessage(Msg) )
-	return True
+# USERSTATE
