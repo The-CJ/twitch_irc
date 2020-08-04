@@ -23,5 +23,5 @@ class Badge(object):
 	def build(self, s:str) -> None:
 		Match:re.Match = re.match(BadgeRe, s)
 		if Match:
-			self.name = Match.group("name")
-			self.version = int( Match.group("version") )
+			self.name = Match.group("name") or ""
+			self.version = int( Match.group("version") or 1 )

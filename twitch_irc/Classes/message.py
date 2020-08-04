@@ -138,14 +138,14 @@ class Message(object):
 		# _emotes
 		search = re.search(ReEmotes, raw)
 		if search != None:
-			self.getEmotes( search.group(1) )
+			self.buildEmotes( search.group(1) )
 
 		# _badges
 		search:re.Match = re.search(ReBadges, raw)
 		if search != None:
-			self.getBadges( search.group(1) )
+			self.buildBadges( search.group(1) )
 
-	def getEmotes(self, emotes_str:str) -> None:
+	def buildEmotes(self, emotes_str:str) -> None:
 		# 25:0-4,6-10,12-16,24-28/1902:18-22,30-34
 
 		if not emotes_str: return
@@ -156,7 +156,7 @@ class Message(object):
 			Emo:Emote = Emote(emote_str, self.content)
 			self._emotes.append( Emo )
 
-	def getBadges(self, badges_str:str) -> None:
+	def buildBadges(self, badges_str:str) -> None:
 		# moderator/1,premium/1
 
 		if not badges_str: return
