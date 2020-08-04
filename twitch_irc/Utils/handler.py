@@ -9,7 +9,7 @@ from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
 from .management import updateChannelInfos, updateChannelViewer
 
-async def handleClearChat(cls:"Client", payload:str) -> None:
+async def handleClearChat(cls:"Client", payload:str) -> bool:
 	"""
 	handles all CLEARCHAT events
 	may calls the following events for custom code:
@@ -31,7 +31,7 @@ async def handleClearChat(cls:"Client", payload:str) -> None:
 			Chan.room_id = Detect.room_id
 
 		asyncio.ensure_future( cls.onClear(Chan) )
-		return
+		return True
 
 	# its actully a ban
 	if Detect.duration == None: Detect:Ban = Ban(Detect)
@@ -53,10 +53,14 @@ async def handleClearChat(cls:"Client", payload:str) -> None:
 
 	if type(Detect) is Ban:
 		asyncio.ensure_future( cls.onBan(Detect) )
+		return True
 	else:
 		asyncio.ensure_future( cls.onTimeout(Detect) )
+		return True
 
-async def handleReRoomState(cls:"Client", payload:str) -> None:
+	return False # will never be reached, but why not?
+
+async def handleReRoomState(cls:"Client", payload:str) -> bool:
 	"""
 	handles all ROOMSTATE events
 	may calls the following events for custom code:
@@ -65,8 +69,9 @@ async def handleReRoomState(cls:"Client", payload:str) -> None:
 	Chan:Channel = Channel(payload, emergency=False)
 	Chan = updateChannelInfos(cls, Chan)
 	asyncio.ensure_future( cls.onChannelUpdate( Chan ) )
+	return True
 
-async def handleJoin(cls:"Client", payload:str) -> None:
+async def handleJoin(cls:"Client", payload:str) -> bool:
 	"""
 	handles all JOIN events
 	because twitch is strange, it may happen that join is called twice,
@@ -79,15 +84,17 @@ async def handleJoin(cls:"Client", payload:str) -> None:
 	JoinUser = User(payload, emergency=True)
 
 	# ignore self
-	if JoinUser.name.lower() == cls.nickname.lower(): return
+	if JoinUser.name.lower() == cls.nickname.lower():
+		return False
 
 	Chan:Channel = cls.getChannel(name=JoinUser.channel_name)
 	if Chan:
 		JoinUser.Channel = Chan
 	updateChannelViewer(cls, JoinUser, add=True)
 	asyncio.ensure_future( cls.onMemberJoin( JoinUser ) )
+	return True
 
-async def handlePart(cls:"Client", payload:str) -> None:
+async def handlePart(cls:"Client", payload:str) -> bool:
 	"""
 	handles all PART events
 	because twitch is strange, it may happen that left is called,
@@ -100,15 +107,17 @@ async def handlePart(cls:"Client", payload:str) -> None:
 	LeftUser:User = User(payload, emergency=True)
 
 	# ignore self
-	if LeftUser.name.lower() == cls.nickname.lower(): return
+	if LeftUser.name.lower() == cls.nickname.lower():
+		return False
 
 	Chan:Channel = cls.getChannel(name=LeftUser.channel_name)
 	if Chan:
 		LeftUser.Channel = Chan
 	updateChannelViewer(cls, LeftUser, rem=True)
 	asyncio.ensure_future( cls.onMemberPart( LeftUser ) )
+	return True
 
-async def handlePrivMessage(cls:"Client", payload:str) -> None:
+async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 	"""
 	handles all PRIVMSG events
 	may calls the following events for custom code:
@@ -144,3 +153,4 @@ async def handlePrivMessage(cls:"Client", payload:str) -> None:
 		asyncio.ensure_future( cls.onMemberJoin(Alternative) )
 
 	asyncio.ensure_future( cls.onMessage(Msg) )
+	return True

@@ -36,33 +36,27 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	#response to PING
 	if re.match(RePing, payload) != None:
 		cls.last_ping = time.time()
-		await sendPong(cls)
-		return True
+		return await sendPong(cls)
 
 	# onMessage
 	if re.match(RePrivMessage, payload) != None:
-		await handlePrivMessage(cls, payload)
-		return True
+		return await handlePrivMessage(cls, payload)
 
 	# onBan, onTimeout, onClear
 	if re.match(ReClearChat, payload) != None:
-		await handleClearChat(cls, payload)
-		return True
+		return await handleClearChat(cls, payload)
 
 	# onChannelUpdate
 	if re.match(ReRoomState, payload) != None:
-		await handleReRoomState(cls, payload)
-		return True
+		return await handleReRoomState(cls, payload)
 
 	# onMemberJoin
 	if re.match(ReJoin, payload) != None:
-		await handleJoin(cls, payload)
-		return True
+		return await handleJoin(cls, payload)
 
 	# onMemberPart
 	if re.match(RePart, payload) != None:
-		await handlePart(cls, payload)
-		return True
+		return await handlePart(cls, payload)
 
 	# onReady, onReconnect
 	if re.match(ReOnReady, payload) != None:
