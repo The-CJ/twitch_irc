@@ -6,6 +6,7 @@ class Undefined():
 	def __init__(self): pass
 
 	def __str__(self): return ""
+	def __repr__(self): return "<UNDEFINED>"
 	def __int__(self): return 0
 
 	# ==

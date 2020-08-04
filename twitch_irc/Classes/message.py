@@ -14,7 +14,7 @@ ReBadges:"re.Pattern" = re.compile(r"[@; ]badges=(\S*?)[; ]")
 ReBits:"re.Pattern" = re.compile(r"") # TODO
 ReColor:"re.Pattern" = re.compile(r"[@; ]color=#([0-9a-fA-F]*?)[; ]")
 ReDisplayName:"re.Pattern" = re.compile(r"[@; ]display-name=(\S*?)[; ]")
-ReEmotes:"re.Pattern" = re.compile(r"[@; ]emotes=([0-9;,]*?)[; ]")
+ReEmotes:"re.Pattern" = re.compile(r"[@; ]emotes=([0-9:,-]*?)[; ]")
 ReMsgID:"re.Pattern" = re.compile(r"[@; ]id=([A-Za-z0-9-]*?)[; ]")
 ReMod:"re.Pattern" = re.compile(r"[@; ]mod=(0|1)[; ]")
 ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
@@ -230,6 +230,9 @@ class Message(object):
 
 	@property
 	def room_name(self) -> str:
+		return str(self._room_name or "")
+	@property
+	def channel_name(self) -> str:
 		return str(self._room_name or "")
 
 	@property
