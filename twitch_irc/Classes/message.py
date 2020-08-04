@@ -69,7 +69,7 @@ class Message(object):
 		self._badge_str:str = UNDEFINED
 
 		try: self.build(raw)
-		except: raise AttributeError(raw[:10])
+		except: raise AttributeError(raw)
 
 	# utils
 	def build(self, raw:str):
