@@ -14,8 +14,18 @@ from ..Utils.handler import (
 from ..Utils.regex import (
 	RePing, ReWrongAuth, RePrivMessage,
 	ReOnReady, ReRoomState,	ReClearChat,
-	ReJoin,	RePart
+	ReJoin,	RePart, ReGarbage
 )
+
+async def garbageDetector(cls:"Client", payload:str) -> bool:
+	"""
+	This detector is suppost to catch all known patterns that are also known as trash.
+	Like this: :tmi.twitch.tv 002 phaazebot :Your host is tmi.twitch.tv
+	"""
+	if re.match(ReGarbage, payload) != None:
+		return True
+
+	return False
 
 async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	"""

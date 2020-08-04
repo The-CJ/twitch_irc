@@ -12,7 +12,7 @@ from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
 from ..Utils.cmd import sendNick, sendPass
-from ..Utils.detector import mainEventDetector
+from ..Utils.detector import mainEventDetector, garbageDetector
 
 class Client():
 	"""
@@ -140,6 +140,7 @@ class Client():
 	async def listen(self) -> None:
 
 		#listen to twitch
+		# async for payload in OrderedAsyncLoop(self):
 		while self.running:
 
 			payload:bytes = await self.ConnectionReader.readline()
@@ -154,10 +155,17 @@ class Client():
 			if (time.time() - self.last_ping) > 60*6:
 				raise PingTimeout()
 
-			processed:bool = await mainEventDetector(self, payload)
+			# check if the content is known garbage
+			garbage:bool = await garbageDetector(self, payload)
+			if garbage:
+				asyncio.ensure_future( self.onGarbage(payload) )
+				continue
 
+			# check if there is something usefully we know
+			processed:bool = await mainEventDetector(self, payload)
 			if not processed:
 				asyncio.ensure_future( self.onUnknown(payload) )
+				continue
 
 	async def sendContent(self, content:bytes or str, ignore_limit:bool=False) -> None:
 		"""
@@ -289,8 +297,28 @@ class Client():
 		"""
 		pass
 
+	async def onGarbage(self, raw:str) -> None:
+		"""
+		called every time some bytes of data are known garbage that is no useful event
+		"""
+		pass
+
 	async def onUnknown(self, raw:str) -> None:
 		"""
 		called every time some bytes of data could not be processed to another event
 		"""
 		pass
+
+class OrderedAsyncLoop(object):
+	"""
+
+	"""
+	def __init__(self, Bot):
+		self.Bot:Client = Bot
+
+	def __aiter__(self):
+		return self
+
+	def __anext__(self):
+		if self.Bot.running: return asyncio.sleep(1/1000)
+		raise StopIteration
