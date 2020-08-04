@@ -12,8 +12,9 @@ from .management import updateChannelInfos, updateChannelViewer
 async def handleClearChat(cls:"Client", payload:str) -> bool:
 	"""
 	handles all CLEARCHAT events
+
 	may calls the following events for custom code:
-	- onClear(Channel)
+	- onClearChat(Channel)
 	- onTimout(Timout)
 	- onBan(Ban)
 	"""
@@ -30,7 +31,7 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 			Chan = Channel("")
 			Chan.room_id = Detect.room_id
 
-		asyncio.ensure_future( cls.onClear(Chan) )
+		asyncio.ensure_future( cls.onClearChat(Chan) )
 		return True
 
 	# its actully a ban
@@ -60,11 +61,19 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 
 	return False # will never be reached, but why not?
 
-# CLEARMSG ?
+async def handleClearMsg(cls:"Client", payload:str) -> bool:
+	"""
+	handles all CLEARMSG events
+	whitch... well near to never happend but whatever
+
+	may calls the following events for custom code:
+	- onClearMsg(Channel)
+	"""
 
 async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 	"""
 	handles all PRIVMSG events
+
 	may calls the following events for custom code:
 	- onMessage(Message)
 	"""
@@ -103,6 +112,7 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 async def handleRoomState(cls:"Client", payload:str) -> bool:
 	"""
 	handles all ROOMSTATE events
+
 	may calls the following events for custom code:
 	- onChannelUpdate(Channel)
 	"""

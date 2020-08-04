@@ -258,7 +258,7 @@ class Client():
 		"""
 		pass
 
-	async def onClear(self, Chan:Channel) -> None:
+	async def onClearChat(self, Chan:Channel) -> None:
 		"""
 		called when the a moderator (or other) uses a /clear in a channel
 		"""
