@@ -5,7 +5,7 @@ import asyncio
 import traceback
 from .message import Message
 from .channel import Channel
-from .stores import ChannelStore
+from .stores import ChannelStore, UserStore
 from .user import User
 from .timeout import Timeout, Ban
 from ..Utils.traffic import addTraffic, trafficQuery
@@ -34,7 +34,9 @@ class Client():
 
 		self.ConnectionReader:asyncio.StreamReader = None
 		self.ConnectionWriter:asyncio.StreamWriter = None
+
 		self.channels:Dict[str, Channel] = ChannelStore()
+		self.users:Dict[str, User] = UserStore()
 
 		self.request_limit:int = request_limit
 		self.traffic:int = 0
