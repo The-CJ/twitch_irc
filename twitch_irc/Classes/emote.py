@@ -1,4 +1,5 @@
 from typing import List
+from .undefined import UNDEFINED
 
 class Emote(object):
 	"""
@@ -15,24 +16,48 @@ class Emote(object):
 		return self.name
 
 	def __init__(self, emote_str:str, message_content:str):
-		self.emote_id:str = None
-		self.count:int = 0
-		self.name:str = None
-		self.positions:List[dict] = []
+		self._emote_id:str = UNDEFINED
+		self._count:int = 0
+		self._name:str = UNDEFINED
+		self._positions:List[dict] = []
 
 		self.build(emote_str, message_content)
 
+	# utils
 	def build(self, emote_str:str, message_content:str) -> None:
-		self.emote_id, pos_str = emote_str.split(':', 1)
+		self._emote_id, position_str = emote_str.split(':', 1)
 
-		for pos_str in pos_str.split(","):
-			self.count += 1
-			start, end = pos_str.split("-")
-			self.positions.append( {"start":start, "end":end} )
+		for single_position_str in position_str.split(","):
+			self._count += 1
+			start, end = single_position_str.split("-")
+			self._positions.append( {"start":start, "end":end} )
 
 		first_emote_pos:dict = self.positions[0]
 
 		start:int = int(first_emote_pos["start"])
 		end:int = int(first_emote_pos["end"])
 
-		self.name = message_content[ start:end+1]
+		self._name = message_content[ start:end+1 ]
+
+	# props
+	@property
+	def id(self) -> str:
+		return str(self._emote_id or "")
+	@property
+	def emote_id(self) -> str:
+		return str(self._emote_id or "")
+
+	@property
+	def count(self) -> int:
+		return int(self._count or 1)
+
+	@property
+	def name(self) -> str:
+		return str(self._name or "")
+
+	@property
+	def pos(self) -> List[dict]:
+		return self._positions
+	@property
+	def positions(self) -> List[dict]:
+		return self._positions
