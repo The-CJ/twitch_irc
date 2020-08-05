@@ -1,4 +1,5 @@
 import re
+from .undefined import UNDEFINED
 
 BadgeRe:"re.Pattern" = re.compile(r"^(?P<name>[^/]+)/?(?P<version>\d+)?$")
 
@@ -15,13 +16,29 @@ class Badge(object):
 		return f"{self.name}/{self.version}"
 
 	def __init__(self, badge_str:str):
-		self.name:str = None
-		self.version:int = 0
+		self._name:str = UNDEFINED
+		self._version:str = UNDEFINED
 
 		self.build(badge_str)
 
+	# utils
 	def build(self, s:str) -> None:
 		Match:re.Match = re.match(BadgeRe, s)
 		if Match:
-			self.name = Match.group("name") or ""
-			self.version = int( Match.group("version") or 1 )
+			self._name = Match.group("name") or ""
+			self._version = Match.group("version") or ""
+
+	# props
+	@property
+	def name(self) -> str:
+		return str(self._name or "")
+
+	@property
+	def version(self) -> int:
+		if not self._version:
+			return 1
+
+		if not self._version.isdigit():
+			return 1
+
+		return int(self._version)
