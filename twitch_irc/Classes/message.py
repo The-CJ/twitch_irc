@@ -32,8 +32,10 @@ class Message(object):
 	"""
 	This class is generated when a user is sending a message, it turns raw data like:
 
-	@badges=moderator/1,premium/1;color=#696969;display-name=The__CJ;emotes=25:6-10;id=13e484e8-1d0d-44c0-8b1e-03d76b636688;mod=1;room-id=94638902;subscriber=0;tmi-sent-ts=1525706672840;turbo=0;user-id=67664971;user-type=mod :the__cj!the__cj@the__cj.tmi.twitch.tv	PRIVMSG #phaazebot :Hello Kappa /
-
+	```
+	@badges=moderator/1,premium/1;color=#696969;display-name=The__CJ;emotes=25:6-10;id=13e484e8-1d0d-44c0-8b1e-03d76b636688;mod=1;room-id=94638902;subscriber=0;tmi-sent-ts=1525706672840;turbo=0;user-id=67664971;user-type=mod :the__cj!the__cj@the__cj.tmi.twitch.tv PRIVMSG #phaazebot :Hello Kappa /
+	```
+	
 	into a usable class
 	"""
 	def __repr__(self):
@@ -55,6 +57,7 @@ class Message(object):
 		self._mod:bool = False
 		self._room_id:str = UNDEFINED
 		self._sub:bool = False
+		self._tmi_sent_ts:str = UNDEFINED
 		self._turbo:bool = False
 		self._user_id:str = UNDEFINED
 		self._user_type:str = UNDEFINED
@@ -124,6 +127,11 @@ class Message(object):
 		search = re.search(ReSub, raw)
 		if search != None:
 			self._sub = True if search.group(1) == "1" else False
+
+		# _tmi_sent_ts
+		search = re.search(ReTMISendTS, raw)
+		if search != None:
+			self._tmi_sent_ts = search.group(1)
 
 		# _mod
 		search = re.search(ReMod, raw)
@@ -211,6 +219,10 @@ class Message(object):
 	@property
 	def sub(self) -> bool:
 		return bool(self._sub)
+
+	@property
+	def tmi_sent_ts(self) -> str:
+		return str(self._tmi_sent_ts or "")
 
 	@property
 	def turbo(self) -> bool:
