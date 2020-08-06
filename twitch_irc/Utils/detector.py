@@ -36,7 +36,8 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	#response to PING
 	if re.match(RePing, payload) != None:
 		cls.last_ping = time.time()
-		return await sendPong(cls)
+		await sendPong(cls)
+		return True 
 
 	# onMessage
 	if re.match(RePrivMessage, payload) != None:
