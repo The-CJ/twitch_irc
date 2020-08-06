@@ -25,7 +25,7 @@ class Timeout(object):
 
 	def __init__(self, raw:str):
 
-		self._duration:int = 0
+		self._duration:int = UNDEFINED
 		self._room_id:str = UNDEFINED
 		self._target_user_id:str = UNDEFINED
 		self._tmi_sent_ts:str = UNDEFINED

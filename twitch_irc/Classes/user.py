@@ -1,4 +1,7 @@
-from typing import Any, List
+from typing import TYPE_CHECKING, Any, List, Set, Dict
+if TYPE_CHECKING:
+	from .client import Client
+	from .channel import Channel
 
 import re
 from .message import Message
@@ -28,6 +31,7 @@ class User(object):
 		self._user_id:str = UNDEFINED # *
 
 		self.minimalistic:bool = True
+		self.found_in:Set[str] = set()
 
 		# * = added at the first message of user (means it's not given on join/part)
 
@@ -68,20 +72,49 @@ class User(object):
 
 		self.minimalistic = False
 
-	def update(self, New:"User") -> None:
+	def update(self, New:"User") -> Dict[str, Any]:
 		"""
 		together with a new user object, it updates all attributes that are not None
 		"""
 		if type(New) != User:
 			raise AttributeError( f'new user must be "{self.__class__.__name__}" not "{type(New)}"' )
 
+		changes:Dict[str, Any] = {}
 		changeable:List[str] = [attr for attr in dir(New) if attr.startswith('_') and not attr.startswith("__")]
 		for attr in changeable:
 
 			new_value:Any = getattr(New, attr, None)
 			if (new_value == None) or (new_value == UNDEFINED): continue
+			old_value:Any = getattr(self, attr, None)
+
+			if new_value == old_value: continue
 
 			setattr(self, attr, new_value)
+			changes[attr.lstrip('_')] = new_value
+
+		return changes
+
+	# func
+	def foundInChannels(self, cls:"Client") -> List["Channel"]:
+		"""
+		Returns a list of channels this user is currently in,
+		requires you to give this function the Client class, don't ask why...
+		Like this:
+		```
+		async def onUserJoin(self, NewChan, SomeUser):
+			channels_a_user_is_in = SomeUser.foundInChannels(self)
+			print(f"{SomeUser.name} is now in {len(channels_a_user_is_in)} different channels")
+		```
+		"""
+
+		ret:List["Channel"] = []
+
+		for channel_id in self.found_in:
+
+			Ch:"Channel" = cls.channels.get(channel_id, None)
+			if Ch: ret.append(Ch)
+
+		return ret
 
 	# props
 	@property

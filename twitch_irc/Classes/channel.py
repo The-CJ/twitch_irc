@@ -1,4 +1,5 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, NewType
+UserName = NewType("UserName", str)
 
 import re
 from .message import Message
@@ -31,16 +32,16 @@ class Channel(object):
 	def __init__(self, raw:str, emergency:bool=False, Msg:Message=None):
 
 		# self.broadcaster_lang:str = None
-		self._emote_only:bool = False
+		self._emote_only:bool = UNDEFINED
 		self._followers_only:int = UNDEFINED
-		self._r9k:bool = False
+		self._r9k:bool = UNDEFINED
 		self._rituals:int = UNDEFINED
 		self._room_id:str = UNDEFINED
 		self._slow:int = UNDEFINED
-		self._subs_only:bool = False
+		self._subs_only:bool = UNDEFINED
 		self._name:str = UNDEFINED
 
-		self._viewers:Dict[str, User] = UserStore()
+		self._viewers:Dict[UserName, User] = UserStore()
 
 		try:
 			if emergency: self.buildFromMessage(Msg)
@@ -107,20 +108,27 @@ class Channel(object):
 		self._channel_id = Msg.room_id
 		self._name = Msg.room_name
 
-	def update(self, New:"Channel") -> None:
+	def update(self, New:"Channel") -> Dict[str, Any]:
 		"""
 		together with a new channel object, it updates all attributes that are not None
 		"""
 		if type(New) != Channel:
 			raise AttributeError( f'channel must be "{self.__class__.__name__}" not "{type(New)}"' )
 
+		changes:Dict[str, Any] = {}
 		changeable:List[str] = [attr for attr in dir(New) if attr.startswith('_') and not attr.startswith("__")]
 		for attr in changeable:
 
 			new_value:Any = getattr(New, attr, None)
 			if (new_value == None) or (new_value == UNDEFINED): continue
+			old_value:Any = getattr(self, attr, None)
+
+			if new_value == old_value: continue
 
 			setattr(self, attr, new_value)
+			changes[attr.lstrip('_')] = new_value
+
+		return changes
 
 	def getViewer(self, **search:dict) -> User or None:
 		"""
