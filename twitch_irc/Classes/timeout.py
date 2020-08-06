@@ -7,7 +7,7 @@ ReBanDuration:"re.Pattern" = re.compile(r"[@; ]ban-duration=(\d*?)[; ]")
 ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
 ReTargetUserID:"re.Pattern" = re.compile(r"[@; ]target-user-id=(\d*?)[; ]")
 ReTMISendTS:"re.Pattern" = re.compile(r"[@; ]tmi-sent-ts=(\d*?)[; ]")
-ReRoomName:"re.Pattern" = re.compile(r"[@; ]CLEARCHAT #(\w*?)[; ]")
+ReRoomName:"re.Pattern" = re.compile(r"[@; ]CLEARCHAT #(\S*?)[; ]")
 
 class Timeout(object):
 	"""

@@ -14,7 +14,7 @@ ReRituals:"re.Pattern" = re.compile(r"[@; ]rituals=(1|0)[; ]")
 ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
 ReSlow:"re.Pattern" = re.compile(r"[@; ]slow=(\d*?)[; ]")
 ReSubsOnly:"re.Pattern" = re.compile(r"[@; ]subs-only=(1|0)[; ]")
-ReRoomName:"re.Pattern" = re.compile(r"[@; ]ROOMSTATE #(\w*)")
+ReRoomName:"re.Pattern" = re.compile(r"[@; ]ROOMSTATE #(\S*)")
 
 class Channel(object):
 	"""
