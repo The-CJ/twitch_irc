@@ -1,4 +1,6 @@
-from typing import List, Dict
+from typing import List, Dict, NewType
+ChannelID = NewType("ChannelID", str)
+UserName = NewType("UserName", str)
 
 import time
 import asyncio
@@ -21,6 +23,7 @@ class Client():
 	"""
 	def __init__(self, token:str=None, nickname:str=None, reconnect:bool=True, request_limit:int=19):
 
+		self.Loop:asyncio.AbstractEventLoop = None
 		self.running:bool = False
 		self.auth_success:bool = False
 		self.query_running:bool = False
@@ -35,8 +38,8 @@ class Client():
 		self.ConnectionReader:asyncio.StreamReader = None
 		self.ConnectionWriter:asyncio.StreamWriter = None
 
-		self.channels:Dict[str, Channel] = ChannelStore()
-		self.users:Dict[str, User] = UserStore()
+		self.channels:Dict[ChannelID, Channel] = ChannelStore()
+		self.users:Dict[UserName, User] = UserStore()
 
 		self.request_limit:int = request_limit
 		self.traffic:int = 0
@@ -56,8 +59,8 @@ class Client():
 		start the bot, this function will wrap self.start() into a asyncio loop.
 		- This function is blocking, it only returns after stop is called
 		"""
-		loop:asyncio.AbstractEventLoop = asyncio.new_event_loop()
-		loop.run_until_complete( self.start(**kwargs) )
+		self.Loop = asyncio.new_event_loop()
+		self.Loop.run_until_complete( self.start(**kwargs) )
 
 	async def start(self, **kwargs:dict) -> None:
 		"""
@@ -198,16 +201,35 @@ class Client():
 		returns the first channel all kwargs are valid, or None if 0 valid
 		"""
 		for chan_id in self.channels:
-			Chan:Channel = self.channels[chan_id]
+			Check:Channel = self.channels[chan_id]
 
 			valid:bool = True
 
 			for key in search:
-				if getattr(Chan, key, object) != search[key]:
+				if getattr(Check, key, object) != search[key]:
 					valid = False
 					break
 
-			if valid: return Chan
+			if valid: return Check
+
+		return None
+
+	def getUser(self, **search:dict) -> User or None:
+		"""
+		get a user based on the given kwargs,
+		returns the first user all kwargs are valid, or None if 0 valid
+		"""
+		for user_name in self.users:
+			Check:User = self.users[user_name]
+
+			valid:bool = True
+
+			for key in search:
+				if getattr(Check, key, object) != search[key]:
+					valid = False
+					break
+
+			if valid: return Check
 
 		return None
 
@@ -279,20 +301,21 @@ class Client():
 		"""
 		pass
 
-	async def onChannelUpdate(self, Chan:Channel) -> None:
+	async def onChannelUpdate(self, Chan:Channel, changes:dict) -> None:
 		"""
 		called when the bot joines a new channel or attributes on a channel are changed like slowmode etc...
+		remind that`changes` is empty on initial join
 		"""
 		pass
 
-	async def onMemberJoin(self, Us:User) -> None:
+	async def onMemberJoin(self, Chan:Channel, Us:User) -> None:
 		"""
 		called when a user joined a twitch channel
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator joins) ]
 		"""
 		pass
 
-	async def onMemberPart(self, Us:User) -> None:
+	async def onMemberPart(self, Chan:Channel, Us:User) -> None:
 		"""
 		called when a user left a twitch channel
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
@@ -310,17 +333,3 @@ class Client():
 		called every time some bytes of data could not be processed to another event
 		"""
 		pass
-
-class OrderedAsyncLoop(object):
-	"""
-
-	"""
-	def __init__(self, Bot):
-		self.Bot:Client = Bot
-
-	def __aiter__(self):
-		return self
-
-	def __anext__(self):
-		if self.Bot.running: return asyncio.sleep(1/1000)
-		raise StopIteration
