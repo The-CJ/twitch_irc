@@ -99,6 +99,8 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 		NewChan:Channel = Channel(None, emergency=True, Msg=Msg)
 		cls.channels[NewChan.room_id] = NewChan
 		Msg.Channel = NewChan
+		Chan = NewChan
+		del NewChan
 
 	# get Author
 	Author:User = cls.users.get(Msg.user_name, None)
@@ -184,7 +186,7 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 	# add add channel id to Users known channels
 	KnownUser.found_in.add(Chan.room_id)
 
-	asyncio.ensure_future( cls.onMemberJoin(Channel, KnownUser) )
+	asyncio.ensure_future( cls.onMemberJoin(Chan, KnownUser) )
 	return True
 
 async def handlePart(cls:"Client", payload:str) -> bool:
