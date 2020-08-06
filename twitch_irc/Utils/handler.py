@@ -115,12 +115,15 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 		# so we add it to viewer befor we get the join event
 		Alternative:User = User(None, emergency=False, Msg=Msg)
 
-		# as usual, add channl to new users "found_in" and Client's users dict
-		Alternative.found_in.add(Chan.room_id)
+		# add new user to client's user dict
 		cls.users[Alternative.name] = Alternative
 
 		Msg.Author = Alternative
 		asyncio.ensure_future( cls.onMemberJoin(Chan, Alternative) )
+
+	# safty step, add author to channels viewer list, and channel to viewer
+	Msg.Channel.viewers[Msg.Author.name] = Msg.Author
+	Msg.Author.found_in.add(Msg.Channel.room_id)
 
 	asyncio.ensure_future( cls.onMessage(Msg) )
 	return True
