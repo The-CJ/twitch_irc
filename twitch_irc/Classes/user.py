@@ -8,6 +8,7 @@ from .message import Message
 from .undefined import UNDEFINED
 
 ReName:"re.Pattern" = re.compile(r":(\S*?)!(\S*?)@(\S*?)\.tmi\.twitch\.tv[; ]")
+ReRoomName:"re.Pattern" = re.compile(r"[; ](JOIN|PART) #(\w*)")
 
 class User(object):
 	"""
@@ -29,6 +30,7 @@ class User(object):
 		self._name:str = UNDEFINED
 		self._display_name:str = UNDEFINED # *
 		self._user_id:str = UNDEFINED # *
+		self._generated_via_channel:str = UNDEFINED
 
 		self.minimalistic:bool = True
 		self.found_in:Set[str] = set()
@@ -60,6 +62,11 @@ class User(object):
 		if search != None:
 			self._name = search.group(1)
 
+		# _generated_via_channel
+		search = re.search(ReRoomName, raw)
+		if search != None:
+			self._generated_via_channel = search.group(2)
+
 		# has not many data in it, will be completed with the first message
 		self.minimalistic = True
 
@@ -72,6 +79,7 @@ class User(object):
 		self._name = Msg.user_name
 		self._display_name = Msg.user_display_name
 		self._user_id = Msg.user_id
+		self._generated_via_channel = Msg.room_name
 
 		self.minimalistic = False
 

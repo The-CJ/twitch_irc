@@ -1,7 +1,7 @@
 class Undefined():
 	"""
-		This class is never (un)equal, bigger, smaller und else to everything, its nothing
-		this is btw, stolen from the Phaazebot Projekt LUL
+	This class is never (un)equal, bigger, smaller und else to everything, its nothing
+	this is btw, stolen from the Phaazebot Projekt LUL
 	"""
 	def __init__(self): pass
 

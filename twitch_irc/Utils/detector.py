@@ -22,7 +22,7 @@ from ..Utils.regex import (
 async def garbageDetector(cls:"Client", payload:str) -> bool:
 	"""
 	This detector is suppost to catch all known patterns that are also known as trash.
-	Like this: :tmi.twitch.tv 002 phaazebot :Your host is tmi.twitch.tv
+	Like this: `:tmi.twitch.tv 002 phaazebot :Your host is tmi.twitch.tv`
 	"""
 	if re.match(ReGarbage, payload) != None:
 		return True
