@@ -182,10 +182,10 @@ class Channel(object):
 		return bool(self._subs_only)
 
 	@property
-	def users(self) -> Dict[str, User]:
+	def users(self) -> Dict[UserName, User]:
 		return self._viewers
 	@property
-	def viewers(self) -> Dict[str, User]:
+	def viewers(self) -> Dict[UserName, User]:
 		return self._viewers
 
 	@property

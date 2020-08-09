@@ -97,6 +97,7 @@ class Client():
 			self.last_ping = time.time()
 			self.traffic = 0
 			self.channels = ChannelStore()
+			self.users = UserStore()
 			self.query_running = True
 			self.auth_success = False
 			# not resetting self.stored_traffic, maybe there is something inside
