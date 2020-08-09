@@ -5,6 +5,7 @@ import re
 from .message import Message
 from .user import User
 from .stores import UserStore
+from .userstate import UserState
 from .undefined import UNDEFINED
 
 ReEmoteOnly:"re.Pattern" = re.compile(r"[@; ]emote-only=(1|0)[; ]")
@@ -42,6 +43,7 @@ class Channel(object):
 		self._name:str = UNDEFINED
 
 		self._viewers:Dict[UserName, User] = UserStore()
+		self._me:UserState = UNDEFINED
 
 		if (raw != None) or (Msg != None):
 			try:
@@ -59,42 +61,42 @@ class Channel(object):
 		@emote-only=0;followers-only=-1;r9k=0;rituals=0;room-id=94638902;slow=0;subs-only=0 :tmi.twitch.tv ROOMSTATE #phaazebot
 		"""
 
-		#emote_only
+		# _emote_only
 		search = re.search(ReEmoteOnly, raw)
 		if search != None:
 			self._emote_only = True if search.group(1) == "1" else False
 
-		#followers_only
+		# _followers_only
 		search = re.search(ReFollowersOnly, raw)
 		if search != None:
 			self._followers_only = int( search.group(1) )
 
-		#r9k
+		# _r9k
 		search = re.search(ReR9k, raw)
 		if search != None:
 			self._r9k = True if search.group(1) == "1" else False
 
-		#rituals
+		# _rituals
 		search = re.search(ReRituals, raw)
 		if search != None:
 			self._rituals = True if search.group(1) == "1" else False
 
-		#room_id | id
+		# _room_id
 		search = re.search(ReRoomID, raw)
 		if search != None:
 			self._room_id = search.group(1)
 
-		#slow
+		# _slow
 		search = re.search(ReSlow, raw)
 		if search != None:
 			self._slow = int( search.group(1) )
 
-		#subs_only
+		# _subs_only
 		search = re.search(ReSubsOnly, raw)
 		if search != None:
 			self._subs_only = True if search.group(1) == "1" else False
 
-		#room_name | name
+		# _name
 		search = re.search(ReRoomName, raw)
 		if search != None:
 			self._name = search.group(1)
@@ -191,6 +193,13 @@ class Channel(object):
 	@property
 	def name(self) -> str:
 		return str(self._name or "")
+
+	@property
+	def me(self) -> UserState or None:
+		if self._me:
+			return self._me
+		else:
+			return None
 
 	@property
 	def broadcaster_lang(self) -> Exception: # depricated
