@@ -5,7 +5,8 @@ BadgeRe:"re.Pattern" = re.compile(r"^(?P<name>[^/]+)/?(?P<version>\d+)?$")
 
 class Badge(object):
 	"""
-	There is a Badge class for every different emote in a message
+	There is a Badge class for every different badge a user currently shows in a message
+	means a user can in theory have more badges, like Turbo and Prime, but only one is shown
 	Example string:
 		moderator/1
 	"""
