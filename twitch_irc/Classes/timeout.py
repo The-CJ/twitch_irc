@@ -8,6 +8,7 @@ ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
 ReTargetUserID:"re.Pattern" = re.compile(r"[@; ]target-user-id=(\d*?)[; ]")
 ReTMISendTS:"re.Pattern" = re.compile(r"[@; ]tmi-sent-ts=(\d*?)[; ]")
 ReRoomName:"re.Pattern" = re.compile(r"[@; ]CLEARCHAT #(\S*?)([; ]|$)")
+ReUserName:"re.Pattern" = re.compile(r"[@; ]CLEARCHAT #(\S+?) :(.+)")
 
 class Timeout(object):
 	"""
@@ -30,6 +31,7 @@ class Timeout(object):
 		self._target_user_id:str = UNDEFINED
 		self._tmi_sent_ts:str = UNDEFINED
 		self._room_name:str = UNDEFINED
+		self._user_name:str = UNDEFINED
 
 		self.User:User = None
 		self.Channel:Channel = None
@@ -75,6 +77,11 @@ class Timeout(object):
 		if search != None:
 			self._room_name = search.group(1)
 
+		# _user_name
+		search = re.search(ReUserName, raw)
+		if search != None:
+			self._user_name = search.group(2)
+
 	# props
 	@property
 	def duration(self) -> int:
@@ -90,6 +97,10 @@ class Timeout(object):
 	@property
 	def target_user_id(self) -> str:
 		return str(self._target_user_id or "")
+
+	@property
+	def user_name(self) -> str:
+		return str(self._user_name or "")
 
 	@property
 	def tmi_sent_ts(self) -> str:

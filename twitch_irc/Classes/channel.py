@@ -45,6 +45,8 @@ class Channel(object):
 		self._viewers:Dict[UserName, User] = UserStore()
 		self._me:UserState = UNDEFINED
 
+		self.minimalistic:bool = UNDEFINED
+
 		if (raw != None) or (Msg != None):
 			try:
 				if emergency: self.buildFromMessage(Msg)
