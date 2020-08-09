@@ -34,7 +34,11 @@ class Timeout(object):
 		self.User:User = None
 		self.Channel:Channel = None
 
-		self.build(raw)
+		if raw != None:
+			try:
+				self.build(raw)
+			except:
+				raise AttributeError(raw)
 
 	# utils
 	def build(self, raw:str) -> None:

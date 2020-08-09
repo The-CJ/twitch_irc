@@ -29,7 +29,7 @@ class Channel(object):
 	def __str__(self):
 		return self.name or ""
 
-	def __init__(self, raw:str, emergency:bool=False, Msg:Message=None):
+	def __init__(self, raw:str or None, emergency:bool=False, Msg:Message=None):
 
 		# self.broadcaster_lang:str = None
 		self._emote_only:bool = UNDEFINED
@@ -43,11 +43,13 @@ class Channel(object):
 
 		self._viewers:Dict[UserName, User] = UserStore()
 
-		try:
-			if emergency: self.buildFromMessage(Msg)
-			else: self.buildFromEvent(raw)
+		if (raw != None) or (Msg != None):
+			try:
+				if emergency: self.buildFromMessage(Msg)
+				else: self.buildFromEvent(raw)
 
-		except: raise AttributeError(raw)
+			except:
+				raise AttributeError(raw)
 
 	# utils
 	def buildFromEvent(self, raw:str) -> None:

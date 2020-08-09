@@ -35,10 +35,13 @@ class User(object):
 
 		# * = added at the first message of user (means it's not given on join/part)
 
-		if emergency:
-			self.buildFromEvent(raw)
-		else:
-			self.buildFromMessage(Msg)
+		if (raw != None) or (Msg != None):
+			try:
+				if emergency: self.buildFromEvent(raw)
+				else: self.buildFromMessage(Msg)
+
+			except:
+				raise AttributeError(raw)
 
 	# utils
 	def buildFromEvent(self, raw:str) -> None:

@@ -44,14 +44,12 @@ class Message(object):
 	def __str__(self):
 		return self.content or ""
 
-	def __init__(self, raw:str):
+	def __init__(self, raw:str or None):
 		# self.badge_info:str = None
-		self._badge_str:str = UNDEFINED
 		self._badges:List[Badge] = []
 		# self._bits:int = 0
 		self._color:str = UNDEFINED
 		self._user_display_name:str = UNDEFINED
-		self._emote_str:str = UNDEFINED
 		self._emotes:List[Emote] = []
 		self._msg_id:str = UNDEFINED
 		self._mod:bool = UNDEFINED
@@ -69,10 +67,14 @@ class Message(object):
 		self.Author:"TwitchUser" = None
 
 		# raw data / utils
+		self._emote_str:str = UNDEFINED
 		self._badge_str:str = UNDEFINED
 
-		try: self.build(raw)
-		except: raise AttributeError(raw)
+		if raw != None:
+			try:
+				self.build(raw)
+			except:
+				raise AttributeError(raw)
 
 	# utils
 	def build(self, raw:str):

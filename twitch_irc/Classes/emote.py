@@ -15,13 +15,17 @@ class Emote(object):
 	def __str__(self):
 		return self.name
 
-	def __init__(self, emote_str:str, message_content:str):
+	def __init__(self, emote_str:str or None, message_content:str or None):
 		self._emote_id:str = UNDEFINED
 		self._count:int = 0
 		self._name:str = UNDEFINED
 		self._positions:List[dict] = []
 
-		self.build(emote_str, message_content)
+		if (emote_str != None) and (message_content != None):
+			try:
+				self.build(emote_str, message_content)
+			except:
+				raise AttributeError(emote_str)
 
 	# utils
 	def build(self, emote_str:str, message_content:str) -> None:

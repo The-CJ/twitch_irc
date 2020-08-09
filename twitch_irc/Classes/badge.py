@@ -15,11 +15,15 @@ class Badge(object):
 	def __str__(self):
 		return f"{self.name}/{self.version}"
 
-	def __init__(self, badge_str:str):
+	def __init__(self, badge_str:str or None):
 		self._name:str = UNDEFINED
 		self._version:str = UNDEFINED
 
-		self.build(badge_str)
+		if badge_str != None:
+			try:
+				self.build(badge_str)
+			except:
+				raise AttributeError(badge_str)
 
 	# utils
 	def build(self, s:str) -> None:
