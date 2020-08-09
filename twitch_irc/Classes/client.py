@@ -288,6 +288,13 @@ class Client():
 		"""
 		pass
 
+	async def onClearMsg(self, Msg:Message) -> None:
+		"""
+		called when a moderator uses /delete <msg-id>
+		which, random fact, close to never happens, because twitch issn't even giving the room-id REEEEEEEEEE
+		"""
+		pass
+
 	async def onTimeout(self, Time:Timeout) -> None:
 		"""
 		called when a user get a purge/timeout

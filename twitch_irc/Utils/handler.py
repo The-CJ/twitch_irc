@@ -66,18 +66,53 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 async def handleClearMsg(cls:"Client", payload:str) -> bool:
 	"""
 	handles all CLEARMSG events
-	whitch... well near to never happend but whatever
+	which... well near to never happend but whatever
 
 	may calls the following events for custom code:
 	- onClearMsg(Message)
 	"""
 
-	# lets try making a message of it...
-	Deleted:Message = Message(payload)
-	print(Deleted)
-	print(vars(Deleted))
+	# NOTE: eee this is big dudu, because twitch is giving us a emptry room-id, soo yeah, that is performance my dick, BRUH
 
-	# @login=the__cj;room-id=;target-msg-id=00960179-587a-496a-b5e5-1be4a166b7ad;tmi-sent-ts=1596558673781 :tmi.twitch.tv CLEARMSG #phaazebot :id
+	ReClearChatMsgID:"re.Pattern" = re.compile(r"[@; ]target-msg-id=([A-Za-z0-9-]*?)[; ]")
+	ReClearChatTMISendTS:"re.Pattern" = re.compile(r"[@; ]tmi-sent-ts=(\d*?)[; ]")
+	ReClearChatLogin:"re.Pattern" = re.compile(r"[@; ]login=(\w*?)[; ]")
+	ReClearChatContent:"re.Pattern" = re.compile(r"[@; ]CLEARMSG #(\S+?) :(.+)")
+
+	MehMessage:Message = Message(None)
+
+	search:re.Match
+	search = re.search(ReClearChatMsgID, payload)
+	if search != None:
+		MehMessage._msg_id = search.group(1)
+
+	search = re.search(ReClearChatTMISendTS, payload)
+	if search != None:
+		MehMessage._tmi_sent_ts = search.group(1)
+
+	search = re.search(ReClearChatLogin, payload)
+	if search != None:
+		MehMessage._user_name = search.group(1)
+		WeKnowTheUser:User = cls.users.get(MehMessage.user_name, None)
+		if WeKnowTheUser:
+			MehMessage.Author = WeKnowTheUser
+			MehMessage._user_id = WeKnowTheUser.user_id
+			MehMessage._user_name = WeKnowTheUser.name
+			MehMessage._user_display_name = WeKnowTheUser.display_name
+
+	search = re.search(ReClearChatContent, payload)
+	if search != None:
+		MehMessage._content = search.group(2)
+		MehMessage._room_name = search.group(1)
+		WeKnowTheChan:Channel = cls.getChannel(name=MehMessage.room_name) # can't use direct cls.channels.get() because we dont the the channel id, thanks twitch
+		if WeKnowTheChan:
+			MehMessage.Channel = WeKnowTheChan
+			MehMessage._room_id = WeKnowTheChan.room_id
+			MehMessage._room_name = WeKnowTheChan.name
+
+	# welp thats all we can get, if we even get it, so take it or die i guess
+	asyncio.ensure_future( cls.onClearMsg(MehMessage) )
+	return True
 
 async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 	"""
