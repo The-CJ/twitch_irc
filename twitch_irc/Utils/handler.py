@@ -6,6 +6,7 @@ import re
 import asyncio
 from ..Classes.channel import Channel
 from ..Classes.user import User
+from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
 
@@ -273,6 +274,27 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 	asyncio.ensure_future( cls.onMemberPart(Chan, KnownUser) )
 	return True
 
-# USERNOTICE
+async def handleUserState(cls:"Client", payload:str) -> bool:
+	"""
+	handles all USERSTATE events
+	which is only needed for internal proccesses and for channel.Me
+	that represents the Client's user state in a channel
+
+	may calls the following events for custom code:
+	- None
+	"""
+
+	BotState:UserState = UserState(payload)
+
+	# get channel of event, thanks tiwtch for NOT giving me the room id,
+	# who needs direct access when you can iterate over it
+	StateChan:Channel = cls.getChannel(name=BotState.room_name)
+
+	if StateChan:
+		StateChan._me = BotState
+
+	return True
 
 # USERSTATE
+
+# USERNOTICE

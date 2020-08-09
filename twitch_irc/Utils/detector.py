@@ -9,12 +9,14 @@ from ..Utils.cmd import sendPong
 from ..Utils.errors import InvalidAuth
 from ..Utils.handler import (
 	handleRoomState, handleJoin, handlePart,
-	handlePrivMessage, handleClearChat, handleClearMsg
+	handlePrivMessage, handleClearChat, handleClearMsg,
+	handleUserState
 )
 from ..Utils.regex import (
 	RePing, ReWrongAuth, RePrivMessage,
 	ReOnReady, ReRoomState,	ReClearChat,
-	ReJoin,	RePart, ReGarbage, ReClearMsg
+	ReJoin,	RePart, ReGarbage,
+	ReClearMsg, ReUserState
 )
 
 async def garbageDetector(cls:"Client", payload:str) -> bool:
@@ -37,33 +39,37 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	if re.match(RePing, payload) != None:
 		cls.last_ping = time.time()
 		await sendPong(cls)
-		return True 
+		return True
 
-	# onMessage
+	# handels events: onMessage
 	if re.match(RePrivMessage, payload) != None:
 		return await handlePrivMessage(cls, payload)
 
-	# onBan, onTimeout, onClearChat
+	# handels events: No
+	if re.match(ReUserState, payload) != None:
+		return await handleUserState(cls, payload)
+
+	# handels events: onBan, onTimeout, onClearChat
 	if re.match(ReClearChat, payload) != None:
 		return await handleClearChat(cls, payload)
 
-	# onChannelUpdate
+	# handels events: onChannelUpdate
 	if re.match(ReRoomState, payload) != None:
 		return await handleRoomState(cls, payload)
 
-	# onMemberJoin
+	# handels events: onMemberJoin
 	if re.match(ReJoin, payload) != None:
 		return await handleJoin(cls, payload)
 
-	# onMemberPart
+	# handels events: onMemberPart
 	if re.match(RePart, payload) != None:
 		return await handlePart(cls, payload)
 
-	# onClearMsg
+	# handels events: onClearMsg
 	if re.match(ReClearMsg, payload) != None:
 		return await handleClearMsg(cls, payload)
 
-	# onReady, onReconnect
+	# handels events: onReady, onReconnect
 	if re.match(ReOnReady, payload) != None:
 		if cls.auth_success:
 			#means we got a reconnect
