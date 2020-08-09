@@ -10,8 +10,6 @@ from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
 
-ReRoomName:"re.Pattern" = re.compile(r"[; ](JOIN|PART) #(\w*)")
-
 async def handleClearChat(cls:"Client", payload:str) -> bool:
 	"""
 	handles all CLEARCHAT events
@@ -27,7 +25,7 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 
 	# its a clear event
 	if not Detect.target_user_id:
-		Chan:Channel = cls.channels.get(Detect.room_id, None)
+		Chan:Channel = cls.channels.get(Detect.room_name, None)
 
 		# no channel found, lets make a very minimalistic class, hopefully that never happens
 		if not Chan:
@@ -41,16 +39,17 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 	if Detect.duration == 0: Detect:Ban = Ban(Detect)
 
 	# get channel where that happens, lets hope, we always get one, because else its dudu
-	Chan:Channel = cls.channels.get(Detect.room_id, None)
+	Chan:Channel = cls.channels.get(Detect.room_name, None)
 	if not Chan:
 		Chan = Channel("")
 		Chan._room_id = Detect.room_id
 
 	# get user that was ban/timeout, lets hope, we always get one, because else its dudu
-	FoundUser:User = Chan.users.get(Detect.target_user_id, None)
+	FoundUser:User = Chan.users.get(Detect.user_name, None)
 	if not FoundUser:
-		FoundUser = User("", emergency=True)
+		FoundUser = User(None)
 		FoundUser._user_id = Detect.target_user_id
+		FoundUser._name = Detect.user_name
 
 	Detect.Channel = Chan
 	Detect.User = FoundUser
@@ -72,8 +71,6 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 	may calls the following events for custom code:
 	- onClearMsg(Message)
 	"""
-
-	# NOTE: eee this is big dudu, because twitch is giving us a emptry room-id, soo yeah, that is performance my dick, BRUH
 
 	ReClearChatMsgID:"re.Pattern" = re.compile(r"[@; ]target-msg-id=([A-Za-z0-9-]*?)[; ]")
 	ReClearChatTMISendTS:"re.Pattern" = re.compile(r"[@; ]tmi-sent-ts=(\d*?)[; ]")
@@ -105,7 +102,7 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 	if search != None:
 		MehMessage._content = search.group(2)
 		MehMessage._room_name = search.group(1)
-		WeKnowTheChan:Channel = cls.getChannel(name=MehMessage.room_name) # can't use direct cls.channels.get() because we dont the the channel id, thanks twitch
+		WeKnowTheChan:Channel = cls.channels.get(MehMessage.room_name, None)
 		if WeKnowTheChan:
 			MehMessage.Channel = WeKnowTheChan
 			MehMessage._room_id = WeKnowTheChan.room_id
@@ -127,13 +124,13 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 	Msg:Message = Message(payload)
 
 	#get Channel
-	Chan:Channel = cls.channels.get(Msg.room_id, None)
+	Chan:Channel = cls.channels.get(Msg.channel_name, None)
 	if Chan:
 		Msg.Channel = Chan
 	else:
 		# should never happen, but ok
 		NewChan:Channel = Channel(None, emergency=True, Msg=Msg)
-		cls.channels[NewChan.room_id] = NewChan
+		cls.channels[NewChan.name] = NewChan
 		Msg.Channel = NewChan
 		Chan = NewChan
 		del NewChan
@@ -144,6 +141,7 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 		if Author.minimalistic:
 			FullAuthor:User = User(None, emergency=False, Msg=Msg)
 			Author.update(FullAuthor)
+			Author.minimalistic = False
 
 		Msg.Author = Author
 	else:
@@ -159,7 +157,7 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 
 	# safty step, add author to channels viewer list, and channel to viewer
 	Msg.Channel.viewers[Msg.Author.name] = Msg.Author
-	Msg.Author.found_in.add(Msg.Channel.room_id)
+	Msg.Author.found_in.add(Msg.channel_name)
 
 	asyncio.ensure_future( cls.onMessage(Msg) )
 	return True
@@ -172,15 +170,19 @@ async def handleRoomState(cls:"Client", payload:str) -> bool:
 	- onChannelUpdate(Channel, changes)
 	"""
 	ChannelUpdate:Channel = Channel(payload, emergency=False)
-	CurrentChannel:Channel = cls.channels.get(ChannelUpdate.room_id, None)
+	CurrentChannel:Channel = cls.channels.get(ChannelUpdate.name, None)
 
-	# should never happen, except on the initial join event
+	# should never happen
 	if not CurrentChannel:
-		cls.channels[ChannelUpdate.room_id] = ChannelUpdate
+		cls.channels[ChannelUpdate.name] = ChannelUpdate
 		asyncio.ensure_future( cls.onChannelUpdate(ChannelUpdate, {}) )
 		return True
 
 	changes:dict = CurrentChannel.update(ChannelUpdate)
+	if CurrentChannel.minimalistic:
+		CurrentChannel.minimalistic = False
+		changes = {}
+
 	asyncio.ensure_future( cls.onChannelUpdate(CurrentChannel, changes) )
 	return True
 
@@ -195,9 +197,17 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 	"""
 	JoinUser = User(payload, emergency=True)
 
-	# ignore self
+	# ignore self, but use it to update the clients channels
 	if JoinUser.name.lower() == cls.nickname.lower():
-		return True # even duh, nothing happend, we proccessed the data successful
+
+		FreshChannel:Channel = Channel(None)
+		FreshChannel.minimalistic = True
+		FreshChannel._name = JoinUser._generated_via_channel
+
+		# add new channel to clients known channels
+		cls.channels[FreshChannel.name] = FreshChannel
+
+		return True
 
 	# let's see if we got this user already
 	KnownUser:User = cls.users.get(JoinUser.name, None)
@@ -205,17 +215,8 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 		# we never saw this user, add it
 		cls.users[JoinUser.name] = JoinUser
 		KnownUser = cls.users[JoinUser.name]
-	del JoinUser
 
-	# k then, lets get the channel user just joined
-	ReHit:re.Match = re.search(ReRoomName, payload)
-	if ReHit: room_name:str = ReHit.group(2)
-	else: room_name:str = ""
-
-	Chan:Channel = cls.getChannel(name=room_name)
-	# to my later self: yes, it must be done via a .getChannel
-	# because we don't get the id for cls.channels.get(id)
-
+	Chan:Channel = cls.channels.get(JoinUser._generated_via_channel, None)
 	if not Chan:
 		# that should never happen... but if it does... well fuck
 		return True
@@ -223,7 +224,7 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 	# add User to viewer dict of channel
 	Chan.viewers[KnownUser.name] = KnownUser
 	# add add channel id to Users known channels
-	KnownUser.found_in.add(Chan.room_id)
+	KnownUser.found_in.add(Chan.name)
 
 	asyncio.ensure_future( cls.onMemberJoin(Chan, KnownUser) )
 	return True
@@ -240,21 +241,21 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 	"""
 	PartUser:User = User(payload, emergency=True)
 
-	# ignore self
+	# ignore self but use it to update clients channel dict
 	if PartUser.name.lower() == cls.nickname.lower():
-		return True # even duh, nothing happend, we proccessed the data successful
+
+		# if we got a part for our user... well guess we can delete the channel then, right?
+		cls.channels.pop(PartUser._generated_via_channel, None)
+
+		return True
 
 	# let's see if we got this user already
 	KnownUser:User = cls.users.get(PartUser.name, None)
 	if not KnownUser:
 		# we never saw this user, even duh we got a leave.. twitch is strange issn't it?
 		KnownUser = PartUser
-	del PartUser
 
-	ReHit:re.Match = re.search(ReRoomName, payload)
-	if ReHit: room_name:str = ReHit.group(2)
-	else: room_name:str = ""
-	Chan:Channel = cls.getChannel(name=room_name)
+	Chan:Channel = cls.channels.get(PartUser._generated_via_channel, None)
 	# to my later self: yes, it must be done via a .getChannel
 	# because we don't get the id for cls.channels.get(id)
 
@@ -265,7 +266,7 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 	# remove User to viewer dict of channel
 	Chan.viewers.pop(KnownUser.name, None)
 	# and remove it from the Users known channels
-	KnownUser.found_in.discard(Chan.room_id)
+	KnownUser.found_in.discard(Chan.name)
 
 	# the user left the last channel we monitor, he now is useless for us
 	if len(KnownUser.found_in) == 0:
@@ -288,7 +289,7 @@ async def handleUserState(cls:"Client", payload:str) -> bool:
 
 	# get channel of event, thanks tiwtch for NOT giving me the room id,
 	# who needs direct access when you can iterate over it
-	StateChan:Channel = cls.getChannel(name=BotState.room_name)
+	StateChan:Channel = cls.channels.get(BotState.room_name, None)
 
 	if StateChan:
 		StateChan._me = BotState

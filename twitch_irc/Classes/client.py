@@ -1,5 +1,5 @@
 from typing import List, Dict, NewType
-ChannelID = NewType("ChannelID", str)
+ChannelName = NewType("ChannelName", str)
 UserName = NewType("UserName", str)
 
 import time
@@ -38,7 +38,7 @@ class Client():
 		self.ConnectionReader:asyncio.StreamReader = None
 		self.ConnectionWriter:asyncio.StreamWriter = None
 
-		self.channels:Dict[ChannelID, Channel] = ChannelStore()
+		self.channels:Dict[ChannelName, Channel] = ChannelStore()
 		self.users:Dict[UserName, User] = UserStore()
 
 		self.request_limit:int = request_limit
@@ -201,8 +201,8 @@ class Client():
 		get a channel based on the given kwargs,
 		returns the first channel all kwargs are valid, or None if 0 valid
 		"""
-		for chan_id in self.channels:
-			Check:Channel = self.channels[chan_id]
+		for channel_name in self.channels:
+			Check:Channel = self.channels[channel_name]
 
 			valid:bool = True
 
