@@ -2,6 +2,9 @@ from typing import List, Dict, NewType
 ChannelName = NewType("ChannelName", str)
 UserName = NewType("UserName", str)
 
+import logging
+Log:logging.Logger = logging.getLogger("twitch_irc")
+
 import time
 import asyncio
 import traceback
@@ -49,6 +52,7 @@ class Client():
 		"""
 		gracefully shuts down the bot, .start and .run will be no longer blocking
 		"""
+		Log.debug(f"Client.stop() has been called, shutting down")
 		self.auth_success = False
 		self.running = False
 		self.query_running = False
@@ -60,28 +64,38 @@ class Client():
 		start the bot, this function will wrap self.start() into a asyncio loop.
 		- This function is blocking, it only returns after stop is called
 		"""
+		Log.debug(f"Client.run() has been called, creating loop and wrapping future")
 		self.Loop = asyncio.new_event_loop()
 		MainFuture:asyncio.Future = asyncio.ensure_future( self.start(**kwargs), loop=self.Loop )
 		MainFuture.add_done_callback( self.stop )
 		try:
+			Log.debug(f"Client.run() starting Client.start() future")
 			self.Loop.run_forever()
 		except KeyboardInterrupt:
-			pass
+			Log.debug(f"Client.run() stopped by KeyboardInterrupt")
 		finally:
 			# everything where should be run after Client.stop() or when something breaks the Client.Loop
 
 			# Client.stop should be called once, if you break out via exceptions,
 			# since Client.stop also called the Loop to stop, we do some cleanup now
 			MainFuture.remove_done_callback( self.stop )
+			Log.debug(f"Removing MainFuture callback")
 
 			# gather all task of the loop (that will mostly be stuff like: addTraffic())
+			Log.debug(f"Collecting all Client.Loop tasks")
 			tasks:List[asyncio.Task] = [task for task in asyncio.Task.all_tasks(self.Loop) if not task.done()]
+			Log.debug(f"Canceling {len(tasks)} tasks...")
 			for task in tasks:
 				task.cancel() # set all task to be cancelled
 
+			Log.debug(f"Cancelled all tasks")
+
 			# and now start the loop again, which will result that all tasks are instantly finished and done
+			Log.debug(f"Restarting loop to discard tasks")
 			self.Loop.run_until_complete( asyncio.gather(*tasks, return_exceptions=True) )
+
 			# then close it... and i dunno, get a coffee or so
+			Log.debug(f"All task discarded, closing loop")
 			self.Loop.close()
 
 	async def start(self, **kwargs:dict) -> None:
@@ -104,6 +118,7 @@ class Client():
 		if self.token == None or self.nickname == None:
 			raise AttributeError("'token' and 'nickname' must be provided")
 
+		Log.debug(f"Client.start() all required fields found, awaiting Client.main()")
 		await self.main()
 
 	async def main(self) -> None:
@@ -123,10 +138,12 @@ class Client():
 			self.query_running = True
 			self.auth_success = False
 			# not resetting self.stored_traffic, maybe there is something inside
+			Log.debug("Client resetted main attributes")
 
 			try:
 				#init connection
 				self.ConnectionReader, self.ConnectionWriter = await asyncio.open_connection(host=self.host, port=self.port)
+				Log.debug("Client successfull create connection Reader/Writer pair")
 
 				#login
 				await sendPass(self)
@@ -139,17 +156,21 @@ class Client():
 
 				#start listen
 				asyncio.ensure_future( trafficQuery(self) )
+				Log.debug("Client sended base data, continue to listen for response...")
 				await self.listen() # <- that processess stuff
 
 			except InvalidAuth as E:
+				Log.error("Invalid Auth for Twitch, please check `token` and `nickname`, not trying to reconnect")
 				self.stop()
 				await self.onError(E)
 
 			except EmptyPayload as E:
+				Log.error("Empty payload from twitch, trying reconnect")
 				await self.onError(E)
 				continue
 
 			except PingTimeout as E:
+				Log.error("Twitch don't give ping response, trying reconnect")
 				await self.onError(E)
 				continue
 
@@ -186,12 +207,14 @@ class Client():
 			# check if the content is known garbage
 			garbage:bool = await garbageDetector(self, payload)
 			if garbage:
+				Log.debug("Client got garbare response, launching: Client.onGarbage")
 				asyncio.ensure_future( self.onGarbage(payload) )
 				continue
 
 			# check if there is something usefully we know
 			processed:bool = await mainEventDetector(self, payload)
 			if not processed:
+				Log.debug("Client got unknown response, launching: Client.onUnknown")
 				asyncio.ensure_future( self.onUnknown(payload) )
 				continue
 

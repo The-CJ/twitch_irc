@@ -2,6 +2,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..Classes.client import Client
 
+import logging
+Log:logging.Logger = logging.getLogger("twitch_irc")
+
 import asyncio
 
 async def addTraffic(cls:"Client"):
@@ -19,9 +22,11 @@ async def trafficQuery(cls:"Client"):
 	a coro thats takes all requests that would be over the limit
 	and send them later
 	"""
+	Log.debug("Client started .trafficQuery future")
 	while cls.running and cls.query_running:
 		if cls.traffic <= (cls.request_limit-1) and len(cls.stored_traffic) > 0:
 			req = cls.stored_traffic.pop(0)
+			Log.debug("trafficQuery resending timed-out content: " + str(req))
 			await cls.sendContent( req )
 		else:
 			await asyncio.sleep(0.05)
