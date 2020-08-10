@@ -192,7 +192,9 @@ class Client():
 		# async for payload in OrderedAsyncLoop(self):
 		while self.running:
 
+			Log.debug("Client awaiting response...")
 			payload:bytes = await self.ConnectionReader.readline()
+			Log.debug(f"Client received {len(payload)} bytes of data.")
 			asyncio.ensure_future( self.onRaw(payload) )
 			payload:str = payload.decode('UTF-8').strip('\n').strip('\r')
 
