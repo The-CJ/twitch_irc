@@ -1,5 +1,5 @@
 from typing import List, Dict, NewType
-ChannelID = NewType("ChannelID", str)
+ChannelName = NewType("ChannelName", str)
 UserName = NewType("UserName", str)
 
 import time
@@ -38,14 +38,14 @@ class Client():
 		self.ConnectionReader:asyncio.StreamReader = None
 		self.ConnectionWriter:asyncio.StreamWriter = None
 
-		self.channels:Dict[ChannelID, Channel] = ChannelStore()
+		self.channels:Dict[ChannelName, Channel] = ChannelStore()
 		self.users:Dict[UserName, User] = UserStore()
 
 		self.request_limit:int = request_limit
 		self.traffic:int = 0
 		self.stored_traffic:List[str or bytes] = []
 
-	def stop(self) -> None:
+	def stop(self, *x, **xx) -> None:
 		"""
 		gracefully shuts down the bot, .start and .run will be no longer blocking
 		"""
@@ -53,6 +53,7 @@ class Client():
 		self.running = False
 		self.query_running = False
 		self.ConnectionWriter.close()
+		self.Loop.stop()
 
 	def run(self, **kwargs:dict) -> None:
 		"""
@@ -60,7 +61,28 @@ class Client():
 		- This function is blocking, it only returns after stop is called
 		"""
 		self.Loop = asyncio.new_event_loop()
-		self.Loop.run_until_complete( self.start(**kwargs) )
+		MainFuture:asyncio.Future = asyncio.ensure_future( self.start(**kwargs), loop=self.Loop )
+		MainFuture.add_done_callback( self.stop )
+		try:
+			self.Loop.run_forever()
+		except KeyboardInterrupt:
+			pass
+		finally:
+			# everything where should be run after Client.stop() or when something breaks the Client.Loop
+
+			# Client.stop should be called once, if you break out via exceptions,
+			# since Client.stop also called the Loop to stop, we do some cleanup now
+			MainFuture.remove_done_callback( self.stop )
+
+			# gather all task of the loop (that will mostly be stuff like: addTraffic())
+			tasks:List[asyncio.Task] = [task for task in asyncio.Task.all_tasks(self.Loop) if not task.done()]
+			for task in tasks:
+				task.cancel() # set all task to be cancelled
+
+			# and now start the loop again, which will result that all tasks are instantly finished and done
+			self.Loop.run_until_complete( asyncio.gather(*tasks, return_exceptions=True) )
+			# then close it... and i dunno, get a coffee or so
+			self.Loop.close()
 
 	async def start(self, **kwargs:dict) -> None:
 		"""
@@ -201,8 +223,8 @@ class Client():
 		get a channel based on the given kwargs,
 		returns the first channel all kwargs are valid, or None if 0 valid
 		"""
-		for chan_id in self.channels:
-			Check:Channel = self.channels[chan_id]
+		for channel_name in self.channels:
+			Check:Channel = self.channels[channel_name]
 
 			valid:bool = True
 
