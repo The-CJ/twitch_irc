@@ -9,6 +9,9 @@ class Badge(object):
 	means a user can in theory have more badges, like Turbo and Prime, but only one is shown
 	Example string:
 		moderator/1
+
+	There is a special case for Tier 2 and 3 Subs, the version will be something like 3024
+	which means Tier 3, for 24 months, just split at the 0
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} name='{self.name}' version='{self.version}'>"

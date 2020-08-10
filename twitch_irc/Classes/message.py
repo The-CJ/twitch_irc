@@ -9,7 +9,7 @@ from .badge import Badge
 from .undefined import UNDEFINED
 
 # odered by twitch tag list (string position, which is also alphabetical)
-ReBadgeInfo:"re.Pattern" = re.compile(r"") # maybe TODO
+ReBadgeInfo:"re.Pattern" = re.compile(r"[@; ]badge-info=(\S*?)[; ]")
 ReBadges:"re.Pattern" = re.compile(r"[@; ]badges=(\S*?)[; ]")
 ReBits:"re.Pattern" = re.compile(r"") # TODO
 ReColor:"re.Pattern" = re.compile(r"[@; ]color=#([0-9a-fA-F]*?)[; ]")
@@ -45,7 +45,7 @@ class Message(object):
 		return self.content or ""
 
 	def __init__(self, raw:str or None):
-		# self.badge_info:str = None
+		self._badges_info:List[Badge] = []
 		self._badges:List[Badge] = []
 		# self._bits:int = 0
 		self._color:str = UNDEFINED
@@ -69,6 +69,7 @@ class Message(object):
 		# raw data / utils
 		self._emote_str:str = UNDEFINED
 		self._badge_str:str = UNDEFINED
+		self._badge_info_str:str = UNDEFINED
 
 		if raw != None:
 			try:
@@ -155,6 +156,11 @@ class Message(object):
 		if search != None:
 			self.buildBadges( search.group(1) )
 
+		# _badges_info
+		search:re.Match = re.search(ReBadgeInfo, raw)
+		if search != None:
+			self.buildBadgeInfo( search.group(1) )
+
 	def buildEmotes(self, emotes_str:str) -> None:
 		# 25:0-4,6-10,12-16,24-28/1902:18-22,30-34
 
@@ -177,7 +183,24 @@ class Message(object):
 			Bad:Badge = Badge( badge_str )
 			self._badges.append( Bad )
 
+	def buildBadgeInfo(self, badge_info_str:str) -> None:
+		# subscriber/15,somethingelse/5
+		# pretty much the same as a normal badge, except it's more detailed
+		# there is a badge for subscriber/24 and in info is the exact value like subscriber/26
+
+		if not badge_info_str: return
+		self._badge_info_str = badge_info_str
+
+		badge_str_list:List[str] = badge_info_str.split(",")
+		for badge_str in badge_str_list:
+			Bad:Badge = Badge( badge_str )
+			self._badges_info.append( Bad )
+
 	# props
+	@property
+	def badges_info(self) -> List[Badge]:
+		return self._badges_info
+
 	@property
 	def badges(self) -> List[Badge]:
 		return self._badges

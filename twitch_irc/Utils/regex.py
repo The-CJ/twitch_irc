@@ -4,7 +4,7 @@ import re
 
 RePing:"re.Pattern" = re.compile(r"^PING.*")
 ReOnReady:"re.Pattern" = re.compile(r"^:tmi\.twitch\.tv 001.*")
-ReGarbage:"re.Pattern" = re.compile(r"^:tmi\.twitch\.tv (002|003|004|366|372|375|376|CAP).*")
+ReGarbage:"re.Pattern" = re.compile(r"^.*tmi\.twitch\.tv (002|003|004|366|372|375|376|CAP).*")
 ReUserList:"re.Pattern" = re.compile(r"^.*tmi\.twitch\.tv 353.*")
 
 ReWrongAuth:"re.Pattern" = re.compile(r'^:tmi\.twitch\.tv NOTICE \* :Login.*')
