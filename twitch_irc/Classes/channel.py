@@ -125,6 +125,8 @@ class Channel(object):
 		changeable:List[str] = [attr for attr in dir(New) if attr.startswith('_') and not attr.startswith("__")]
 		for attr in changeable:
 
+			if attr in ["_viewers", "_me", "minimalistic"]: continue
+
 			new_value:Any = getattr(New, attr, None)
 			if (new_value == None) or (new_value == UNDEFINED): continue
 			old_value:Any = getattr(self, attr, None)
