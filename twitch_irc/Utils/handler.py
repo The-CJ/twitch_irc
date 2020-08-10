@@ -239,7 +239,7 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 	# add add channel id to Users known channels
 	KnownUser.found_in.add(Chan.name)
 
-	Log.debug(f"Client launching: Client.onMemberJoin: {str(vars(Chan))} {str(KnownUser)}")
+	Log.debug(f"Client launching: Client.onMemberJoin: {str(vars(Chan))} {str(vars(KnownUser))}")
 	asyncio.ensure_future( cls.onMemberJoin(Chan, KnownUser) )
 	return True
 
@@ -271,9 +271,6 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 		KnownUser = PartUser
 
 	Chan:Channel = cls.channels.get(PartUser._generated_via_channel, None)
-	# to my later self: yes, it must be done via a .getChannel
-	# because we don't get the id for cls.channels.get(id)
-
 	if not Chan:
 		# that should never happen... but if it does... well fuck
 		Log.error(f"Could not find channel for {PartUser._generated_via_channel}")
@@ -288,7 +285,7 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 	if len(KnownUser.found_in) == 0:
 		cls.users.pop(KnownUser, None)
 
-	Log.debug(f"Client launching: Client.onMemberPart: {str(vars(Chan))} {str(KnownUser)}")
+	Log.debug(f"Client launching: Client.onMemberPart: {str(vars(Chan))} {str(vars(KnownUser))}")
 	asyncio.ensure_future( cls.onMemberPart(Chan, KnownUser) )
 	return True
 
@@ -314,6 +311,43 @@ async def handleUserState(cls:"Client", payload:str) -> bool:
 
 	return True
 
-# USERSTATE
+async def handleUserList(cls:"Client", payload:str) -> bool:
+	"""
+	User-List aka, IRC Event: 353
+	which means a list of all users that already are in the channel when the Client joined.
+	(only given when user list is less than 1000, because then twitch don't sends join/part)
+
+	may calls the following events for custom code:
+	- None
+	"""
+
+	ReAlreadyInUserList:"re.Pattern" = re.compile(r".*353 .* = #(\S+?) :(.*)$")
+	# :phaazebot.tmi.twitch.tv 353 phaazebot = #phaazebot :the__cj someone someoneelse
+
+	search:re.Match = re.search(ReAlreadyInUserList, payload)
+	if search != None:
+		room_name:str = search.group(1)
+		ChannelToFill:Channel = cls.channels.get(room_name, None)
+		if not ChannelToFill: return True
+
+		full_user_list:str = search.group(2)
+		for user_name in full_user_list.split(' '):
+
+			if user_name.lower() == cls.nickname.lower(): continue
+
+			KnownUser:User = cls.users.get(user_name, None)
+			if not KnownUser:
+				KnownUser:User = User(None)
+				KnownUser._name = user_name
+				KnownUser.minimalistic = True
+
+				cls.users[KnownUser.name] = KnownUser
+
+			Log.debug(f"New Entry to `already-known-user-list`: {ChannelToFill.name} - {KnownUser.name}")
+			ChannelToFill.viewers[KnownUser.name] = KnownUser
+			KnownUser.found_in.add(ChannelToFill.name)
+
+	return True
+
 
 # USERNOTICE
