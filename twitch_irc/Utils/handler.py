@@ -2,6 +2,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..Classes.client import Client
 
+import logging
+Log:logging.Logger = logging.getLogger("twitch_irc")
+
 import re
 import asyncio
 from ..Classes.channel import Channel
@@ -32,6 +35,7 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 			Chan = Channel("")
 			Chan._room_id = Detect.room_id
 
+		Log.debug(f"Client launching: Client.onClearChat: {str(vars(Chan))}")
 		asyncio.ensure_future( cls.onClearChat(Chan) )
 		return True
 
@@ -55,9 +59,11 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 	Detect.User = FoundUser
 
 	if type(Detect) is Ban:
+		Log.debug(f"Client launching: Client.onBan: {str(vars(Detect))}")
 		asyncio.ensure_future( cls.onBan(Detect) )
 		return True
 	else:
+		Log.debug(f"Client launching: Client.onTimeout: {str(vars(Detect))}")
 		asyncio.ensure_future( cls.onTimeout(Detect) )
 		return True
 
@@ -109,6 +115,7 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 			MehMessage._room_name = WeKnowTheChan.name
 
 	# welp thats all we can get, if we even get it, so take it or die i guess
+	Log.debug(f"Client launching: Client.onClearMsg: {str(vars(MehMessage))}")
 	asyncio.ensure_future( cls.onClearMsg(MehMessage) )
 	return True
 
@@ -153,12 +160,14 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 		cls.users[Alternative.name] = Alternative
 
 		Msg.Author = Alternative
+		Log.debug(f"Client launching: Client.onMemberJoin: {str(vars(Chan))} {str(vars(Alternative))}")
 		asyncio.ensure_future( cls.onMemberJoin(Chan, Alternative) )
 
 	# safty step, add author to channels viewer list, and channel to viewer
 	Msg.Channel.viewers[Msg.Author.name] = Msg.Author
 	Msg.Author.found_in.add(Msg.channel_name)
 
+	Log.debug(f"Client launching: Client.onMessage: {str(vars(Msg))}")
 	asyncio.ensure_future( cls.onMessage(Msg) )
 	return True
 
@@ -175,6 +184,7 @@ async def handleRoomState(cls:"Client", payload:str) -> bool:
 	# should never happen
 	if not CurrentChannel:
 		cls.channels[ChannelUpdate.name] = ChannelUpdate
+		Log.debug(f"Client launching: Client.onChannelUpdate: {str(vars(ChannelUpdate))}")
 		asyncio.ensure_future( cls.onChannelUpdate(ChannelUpdate, {}) )
 		return True
 
@@ -183,6 +193,7 @@ async def handleRoomState(cls:"Client", payload:str) -> bool:
 		CurrentChannel.minimalistic = False
 		changes = {}
 
+	Log.debug(f"Client launching: Client.onChannelUpdate: {str(vars(CurrentChannel))} {str(changes)}")
 	asyncio.ensure_future( cls.onChannelUpdate(CurrentChannel, changes) )
 	return True
 
@@ -205,6 +216,7 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 		FreshChannel._name = JoinUser._generated_via_channel
 
 		# add new channel to clients known channels
+		Log.debug(f"Client joined a channel, adding {JoinUser._generated_via_channel}")
 		cls.channels[FreshChannel.name] = FreshChannel
 
 		return True
@@ -219,6 +231,7 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 	Chan:Channel = cls.channels.get(JoinUser._generated_via_channel, None)
 	if not Chan:
 		# that should never happen... but if it does... well fuck
+		Log.error(f"Could not find channel for {JoinUser._generated_via_channel}")
 		return True
 
 	# add User to viewer dict of channel
@@ -226,6 +239,7 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 	# add add channel id to Users known channels
 	KnownUser.found_in.add(Chan.name)
 
+	Log.debug(f"Client launching: Client.onMemberJoin: {str(vars(Chan))} {str(KnownUser)}")
 	asyncio.ensure_future( cls.onMemberJoin(Chan, KnownUser) )
 	return True
 
@@ -245,6 +259,7 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 	if PartUser.name.lower() == cls.nickname.lower():
 
 		# if we got a part for our user... well guess we can delete the channel then, right?
+		Log.debug(f"Client parted a channel, removing {PartUser._generated_via_channel}")
 		cls.channels.pop(PartUser._generated_via_channel, None)
 
 		return True
@@ -261,6 +276,7 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 
 	if not Chan:
 		# that should never happen... but if it does... well fuck
+		Log.error(f"Could not find channel for {PartUser._generated_via_channel}")
 		return True
 
 	# remove User to viewer dict of channel
@@ -272,6 +288,7 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 	if len(KnownUser.found_in) == 0:
 		cls.users.pop(KnownUser, None)
 
+	Log.debug(f"Client launching: Client.onMemberPart: {str(vars(Chan))} {str(KnownUser)}")
 	asyncio.ensure_future( cls.onMemberPart(Chan, KnownUser) )
 	return True
 
@@ -293,6 +310,7 @@ async def handleUserState(cls:"Client", payload:str) -> bool:
 
 	if StateChan:
 		StateChan._me = BotState
+		Log.debug(f"Updated UserState object for {StateChan}")
 
 	return True
 
