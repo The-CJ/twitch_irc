@@ -12,6 +12,7 @@ from ..Classes.user import User
 from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
+from ..Classes.sub import Sub
 
 async def handleClearChat(cls:"Client", payload:str) -> bool:
 	"""
@@ -349,5 +350,44 @@ async def handleUserList(cls:"Client", payload:str) -> bool:
 
 	return True
 
+async def handleUserNotice(cls:"Client", payload:str) -> bool:
+	"""
+	welcome to the bane of my existence, USERSTATE.
+	twitch uses this event to send (gift-)subs, resubs, raids and rituals
+	And we try to handle all of it... yeah
 
-# USERNOTICE
+	may calls the following events for custom code:
+	- onSub(Sub)
+	"""
+
+	ReEventType:"re.Pattern" = re.compile(r"[@; ]msg-id=(\w*?)[; ]")
+	# e.g: ...mod=0;msg-id=resub;msg-par...
+
+	found_event:str = None
+	search:re.Match = re.search(ReEventType, payload)
+	if search != None:
+		found_event = search.group(1)
+
+	if not found_event: return False
+
+	if found_event == "sub":
+		NewSub:Sub = Sub(payload)
+
+		NewSub.User = cls.users.get(NewSub.user_name, None)
+		NewSub.Channel = cls.channels.get(NewSub.room_name, None)
+
+		Log.debug(f"Client launching: Client.onSub: {str(vars(NewSub))}")
+		asyncio.ensure_future( cls.onSub(NewSub) )
+		return True
+
+	if found_event == "resub": print("TODO: resub")
+	if found_event == "subgift": print("TODO: subgift")
+	if found_event == "anonsubgift": print("TODO: anonsubgift")
+	if found_event == "submysterygift": print("TODO: submysterygift")
+	if found_event == "giftpaidupgrade": print("TODO: giftpaidupgrade")
+	if found_event == "rewardgift": print("TODO: rewardgift")
+	if found_event == "anongiftpaidupgrade": print("TODO: anongiftpaidupgrade")
+	if found_event == "raid": print("TODO: raid")
+	if found_event == "unraid": print("TODO: unraid")
+	if found_event == "ritual": print("TODO: ritual")
+	if found_event == "bitsbadgetier": print("TODO: bitsbadgetier")

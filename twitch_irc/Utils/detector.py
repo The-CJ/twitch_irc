@@ -10,13 +10,14 @@ from ..Utils.errors import InvalidAuth
 from ..Utils.handler import (
 	handleRoomState, handleJoin, handlePart,
 	handlePrivMessage, handleClearChat, handleClearMsg,
-	handleUserState, handleUserList
+	handleUserState, handleUserList, handleUserNotice
 )
 from ..Utils.regex import (
 	RePing, ReWrongAuth, RePrivMessage,
 	ReOnReady, ReRoomState,	ReClearChat,
 	ReJoin,	RePart, ReGarbage,
-	ReClearMsg, ReUserState, ReUserList
+	ReClearMsg, ReUserState, ReUserList,
+	ReUserNotice
 )
 
 async def garbageDetector(cls:"Client", payload:str) -> bool:
@@ -52,6 +53,10 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	# handels events: onBan, onTimeout, onClearChat
 	if re.match(ReClearChat, payload) != None:
 		return await handleClearChat(cls, payload)
+
+	# handles events:
+	if re.match(ReUserNotice, payload) != None:
+		return await handleUserNotice(cls, payload)
 
 	# handels events: onChannelUpdate
 	if re.match(ReRoomState, payload) != None:
