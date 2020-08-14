@@ -11,7 +11,7 @@ from .undefined import UNDEFINED
 # odered by twitch tag list (string position, which is also alphabetical)
 ReBadgeInfo:"re.Pattern" = re.compile(r"[@; ]badge-info=(\S*?)[; ]")
 ReBadges:"re.Pattern" = re.compile(r"[@; ]badges=(\S*?)[; ]")
-ReBits:"re.Pattern" = re.compile(r"") # TODO
+ReBits:"re.Pattern" = re.compile(r"[@; ]bits=(\S*?)[; ]")
 ReColor:"re.Pattern" = re.compile(r"[@; ]color=#([0-9a-fA-F]*?)[; ]")
 ReDisplayName:"re.Pattern" = re.compile(r"[@; ]display-name=(\S*?)[; ]")
 ReEmotes:"re.Pattern" = re.compile(r"[@; ]emotes=([0-9:,-]*?)[; ]")
@@ -47,7 +47,7 @@ class Message(object):
 	def __init__(self, raw:str or None):
 		self._badges_info:List[Badge] = []
 		self._badges:List[Badge] = []
-		# self._bits:int = 0
+		self._bits:int = UNDEFINED
 		self._color:str = UNDEFINED
 		self._user_display_name:str = UNDEFINED
 		self._emotes:List[Emote] = []
@@ -95,6 +95,11 @@ class Message(object):
 		search = re.search(ReName, raw)
 		if search != None:
 			self._user_name = search.group(1)
+
+		# _bits
+		search = re.search(ReBits, raw)
+		if search != None:
+			self._bits = search.group(1) # TODO
 
 		# _color
 		search = re.search(ReColor, raw)
@@ -204,6 +209,10 @@ class Message(object):
 	@property
 	def badges(self) -> List[Badge]:
 		return self._badges
+
+	@property
+	def bits(self) -> str:
+		return self._bits or ""
 
 	@property
 	def color(self) -> str or None:
