@@ -13,6 +13,7 @@ from .channel import Channel
 from .stores import ChannelStore, UserStore
 from .user import User
 from .timeout import Timeout, Ban
+from .sub import Sub
 from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
@@ -376,6 +377,11 @@ class Client():
 		[ issen't working on channel with more than 1000 user (twitch don't send normal events, only moderator lefts) ]
 		"""
 		pass
+
+	async def onSub(self, SubEvent:Sub) -> None:
+		"""
+		called every time someone subbes, has a .Channel and .User object attachted to it
+		"""
 
 	async def onGarbage(self, raw:str) -> None:
 		"""
