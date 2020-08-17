@@ -12,7 +12,7 @@ from ..Classes.user import User
 from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
-from ..Classes.sub import Sub
+from ..Classes.sub import Sub, ReSub
 
 async def handleClearChat(cls:"Client", payload:str) -> bool:
 	"""
@@ -33,7 +33,7 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 
 		# no channel found, lets make a very minimalistic class, hopefully that never happens
 		if not Chan:
-			Chan = Channel("")
+			Chan = Channel(None)
 			Chan._room_id = Detect.room_id
 
 		Log.debug(f"Client launching: Client.onClearChat: {str(vars(Chan))}")
@@ -46,7 +46,7 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 	# get channel where that happens, lets hope, we always get one, because else its dudu
 	Chan:Channel = cls.channels.get(Detect.room_name, None)
 	if not Chan:
-		Chan = Channel("")
+		Chan = Channel(None)
 		Chan._room_id = Detect.room_id
 
 	# get user that was ban/timeout, lets hope, we always get one, because else its dudu
@@ -378,6 +378,16 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 
 		Log.debug(f"Client launching: Client.onSub: {str(vars(NewSub))}")
 		asyncio.ensure_future( cls.onSub(NewSub) )
+		return True
+
+	if found_event == "resub":
+		NewReSub:ReSub = ReSub(payload)
+
+		NewReSub.User = cls.users.get(NewReSub.user_name, None)
+		NewReSub.Channel = cls.channels.get(NewReSub.room_name, None)
+
+		Log.debug(f"Client launching: Client.onReSub: {str(vars(NewReSub))}")
+		asyncio.ensure_future( cls.onReSub(NewReSub) )
 		return True
 
 	if found_event == "resub": print("TODO: resub")
