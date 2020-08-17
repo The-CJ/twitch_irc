@@ -1,14 +1,11 @@
 import re
 
-# Includes a precompiled re objects for every IRC event
-
+# IRC events
 RePing:"re.Pattern" = re.compile(r"^PING.*")
 ReOnReady:"re.Pattern" = re.compile(r"^:tmi\.twitch\.tv 001.*")
 ReGarbage:"re.Pattern" = re.compile(r"^.*tmi\.twitch\.tv (002|003|004|366|372|375|376|CAP).*")
 ReUserList:"re.Pattern" = re.compile(r"^.*tmi\.twitch\.tv 353.*")
-
 ReWrongAuth:"re.Pattern" = re.compile(r'^:tmi\.twitch\.tv NOTICE \* :Login.*$')
-
 ReJoin:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv JOIN #.+$")
 RePart:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv PART #.+$")
 ReRoomState:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv ROOMSTATE #.+$")
@@ -17,3 +14,30 @@ ReUserState:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv USERSTATE #.+$")
 ReClearMsg:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv CLEARMSG #.+$")
 RePrivMessage:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv PRIVMSG #.+$")
 ReUserNotice:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv USERNOTICE #.+$")
+
+# twitch tags
+ReBadgeInfo:"re.Pattern" = re.compile(r"[@; ]badge-info=(\S*?)[; ]")
+ReBadges:"re.Pattern" = re.compile(r"[@; ]badges=(\S*?)[; ]")
+ReColor:"re.Pattern" = re.compile(r"[@; ]color=#([0-9a-fA-F]*?)[; ]")
+ReDisplayName:"re.Pattern" = re.compile(r"[@; ]display-name=(\S*?)[; ]")
+ReEmotes:"re.Pattern" = re.compile(r"[@; ]emotes=([0-9:,-]*?)[; ]")
+ReID:"re.Pattern" = re.compile(r"[@; ]id=([A-Za-z0-9-]*?)[; ]")
+ReLogin:"re.Pattern" = re.compile(r"[@; ]login=(\S*?)[; ]")
+ReMod:"re.Pattern" = re.compile(r"[@; ]mod=(0|1)[; ]")
+ReMsgID:"re.Pattern" = re.compile(r"[@; ]msg-id=(\S*?)[; ]")
+ReMsgParamCumulativeMonths:"re.Pattern" = re.compile(r"[@; ]msg-param-cumulative-months=(\d*?)[; ]")
+ReMsgParamShouldShareStreak:"re.Pattern" = re.compile(r"[@; ]msg-param-should-share-streak=(\d*?)[; ]")
+ReMsgParamStreakMonths:"re.Pattern" = re.compile(r"[@; ]msg-param-streak-months=(\d*?)[; ]")
+ReMsgParamSubPlan:"re.Pattern" = re.compile(r"[@; ]msg-param-sub-plan=(\S*?)[; ]")
+ReMsgParamSubPlanName:"re.Pattern" = re.compile(r"[@; ]msg-param-sub-plan-name=(\S*?)[; ]")
+ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
+ReSubscriber:"re.Pattern" = re.compile(r"[@; ]subscriber=(0|1)[; ]")
+ReSystemMsg:"re.Pattern" = re.compile(r"[@; ]system-msg=(\S*?)[; ]")
+ReTMISendTS:"re.Pattern" = re.compile(r"[@; ]tmi-sent-ts=(\d*?)[; ]")
+ReTurbo:"re.Pattern" = re.compile(r"[@; ]turbo=(0|1)[; ]")
+ReUserID:"re.Pattern" = re.compile(r"[@; ]user-id=(\d*?)[; ]")
+ReUserType:"re.Pattern" = re.compile(r"[@; ]user-type=(\S*?)[; ]")
+
+# other
+ReRoomName:"re.Pattern" = re.compile(r"[@; ](JOIN|PART|CLEARMSG|CLEARCHAT|ROOMSTATE|USERSTATE|PRIVMSG|USERNOTICE) #(\S*?)([; ]|$)")
+ReContent:"re.Pattern" = re.compile(r"[@; ](JOIN|PART|CLEARMSG|CLEARCHAT|ROOMSTATE|USERSTATE|PRIVMSG|USERNOTICE) #\S+? :(.+)")

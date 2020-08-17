@@ -13,7 +13,7 @@ from .channel import Channel
 from .stores import ChannelStore, UserStore
 from .user import User
 from .timeout import Timeout, Ban
-from .sub import Sub
+from .sub import Sub, ReSub
 from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
@@ -383,6 +383,13 @@ class Client():
 		called every time someone subbes, has a .Channel and .User object attachted to it
 		please not that this is only triggered on a first time sub, everything else is a resub (or at least should be)
 		"""
+		pass
+
+	async def onReSub(self, SubEvent:ReSub) -> None:
+		"""
+		called every time someone resubs, has a .Channel and .User object attachted to it
+		"""
+		pass
 
 	async def onGarbage(self, raw:str) -> None:
 		"""
