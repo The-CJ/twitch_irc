@@ -3,12 +3,10 @@ from .channel import Channel
 from .user import User
 from .undefined import UNDEFINED
 
-ReBanDuration:"re.Pattern" = re.compile(r"[@; ]ban-duration=(\d*?)[; ]")
-ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
-ReTargetUserID:"re.Pattern" = re.compile(r"[@; ]target-user-id=(\d*?)[; ]")
-ReTMISendTS:"re.Pattern" = re.compile(r"[@; ]tmi-sent-ts=(\d*?)[; ]")
-ReRoomName:"re.Pattern" = re.compile(r"[@; ]CLEARCHAT #(\S*?)([; ]|$)")
-ReUserName:"re.Pattern" = re.compile(r"[@; ]CLEARCHAT #(\S+?) :(.+)")
+from ..Utils.regex import (
+	ReBanDuration, ReRoomID, ReTargetUserID,
+	ReTMISendTS, ReRoomName, ReContent
+)
 
 class Timeout(object):
 	"""
@@ -26,7 +24,7 @@ class Timeout(object):
 
 	def __init__(self, raw:str):
 
-		self._duration:int = UNDEFINED
+		self._ban_duration:int = UNDEFINED
 		self._room_id:str = UNDEFINED
 		self._target_user_id:str = UNDEFINED
 		self._tmi_sent_ts:str = UNDEFINED
@@ -42,6 +40,18 @@ class Timeout(object):
 			except:
 				raise AttributeError(raw)
 
+	def compact(self) -> dict:
+		d:dict = {}
+		d["ban_duration"] = self.ban_duration
+		d["room_id"] = self.room_id
+		d["target_user_id"] = self.target_user_id
+		d["user_name"] = self.user_name
+		d["tmi_sent_ts"] = self.tmi_sent_ts
+		d["room_name"] = self.room_name
+		d["User"] = self.User
+		d["Channel"] = self.Channel
+		return d
+
 	# utils
 	def build(self, raw:str) -> None:
 		"""
@@ -55,7 +65,7 @@ class Timeout(object):
 		# _ban_duration
 		search:re.Match = re.search(ReBanDuration, raw)
 		if search != None:
-			self._duration = int( search.group(1) )
+			self._ban_duration = int( search.group(1) )
 
 		# _room_id
 		search = re.search(ReRoomID, raw)
@@ -75,17 +85,20 @@ class Timeout(object):
 		# _room_name
 		search = re.search(ReRoomName, raw)
 		if search != None:
-			self._room_name = search.group(1)
+			self._room_name = search.group(2)
 
 		# _user_name
-		search = re.search(ReUserName, raw)
+		search = re.search(ReContent, raw)
 		if search != None:
 			self._user_name = search.group(2)
 
 	# props
 	@property
+	def ban_duration(self) -> int:
+		return int(self._ban_duration or 0)
+	@property
 	def duration(self) -> int:
-		return int(self._duration or 0)
+		return int(self._ban_duration or 0)
 
 	@property
 	def room_id(self) -> str:
@@ -122,15 +135,17 @@ class Ban(Timeout):
 
 	def __init__(self, Out:Timeout):
 
-		self._room_name:str = Out.room_name
+		self._ban_duration:int = UNDEFINED
 		self._room_id:str = Out.room_id
 		self._target_user_id:str = Out.target_user_id
 		self._tmi_sent_ts:str = Out.tmi_sent_ts
+		self._room_name:str = Out.room_name
 		self._user_name:str = Out.user_name
 
 		self.User:User = None
 		self.Channel:Channel = None
 
-	@property
-	def duration(self) -> int:
-		return int(self._duration or 0)
+	def compact(self) -> dict:
+		d:dict = super().compact()
+		d.pop("ban_duration", None)
+		return d

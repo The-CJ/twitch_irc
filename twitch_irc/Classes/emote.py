@@ -27,6 +27,14 @@ class Emote(object):
 			except:
 				raise AttributeError(emote_str)
 
+	def compact(self) -> dict:
+		d:dict = {}
+		d["emote_id"] = self.emote_id
+		d["count"] = self.count
+		d["name"] = self.name
+		d["positions"] = self.positions
+		return d
+
 	# utils
 	def build(self, emote_str:str, message_content:str) -> None:
 		self._emote_id, position_str = emote_str.split(':', 1)

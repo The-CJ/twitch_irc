@@ -7,8 +7,9 @@ import re
 from .message import Message
 from .undefined import UNDEFINED
 
-ReName:"re.Pattern" = re.compile(r":(\S*?)!(\S*?)@(\S*?)\.tmi\.twitch\.tv[; ]")
-ReRoomName:"re.Pattern" = re.compile(r"[; ](JOIN|PART) #(\w*)")
+from ..Utils.regex import (
+	ReUserName, ReRoomName
+)
 
 class User(object):
 	"""
@@ -45,6 +46,15 @@ class User(object):
 			except:
 				raise AttributeError(raw)
 
+	def compact(self) -> dict:
+		d:dict = {}
+		d["name"] = self.name
+		d["display_name"] = self.display_name
+		d["user_id"] = self.user_id
+		d["found_in"] = self.found_in
+		d["minimalistic"] = self.minimalistic
+		return d
+
 	# utils
 	def buildFromEvent(self, raw:str) -> None:
 		"""
@@ -58,7 +68,7 @@ class User(object):
 		"""
 
 		# _name
-		search = re.search(ReName, raw)
+		search = re.search(ReUserName, raw)
 		if search != None:
 			self._name = search.group(1)
 

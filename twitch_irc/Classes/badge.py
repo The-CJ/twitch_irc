@@ -1,7 +1,6 @@
 import re
 from .undefined import UNDEFINED
-
-BadgeRe:"re.Pattern" = re.compile(r"^(?P<name>[^/]+)/?(?P<version>\d+)?$")
+from ..Utils.regex import ReBadgeParts
 
 class Badge(object):
 	"""
@@ -29,12 +28,18 @@ class Badge(object):
 			except:
 				raise AttributeError(badge_str)
 
+	def compact(self) -> dict:
+		d:dict = {}
+		d["name"] = self.name
+		d["version"] = self.version
+		return d
+
 	# utils
 	def build(self, s:str) -> None:
-		Match:re.Match = re.match(BadgeRe, s)
+		Match:re.Match = re.match(ReBadgeParts, s)
 		if Match:
-			self._name = Match.group("name") or ""
-			self._version = Match.group("version") or ""
+			self._name = Match.group(1) or ""
+			self._version = Match.group(2) or ""
 
 	# props
 	@property

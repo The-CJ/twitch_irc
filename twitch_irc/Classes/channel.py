@@ -8,14 +8,11 @@ from .stores import UserStore
 from .userstate import UserState
 from .undefined import UNDEFINED
 
-ReEmoteOnly:"re.Pattern" = re.compile(r"[@; ]emote-only=(1|0)[; ]")
-ReFollowersOnly:"re.Pattern" = re.compile(r"[@; ]followers-only=(\d*?|-1)[; ]")
-ReR9k:"re.Pattern" = re.compile(r"[@; ]r9k=(1|0)[; ]")
-ReRituals:"re.Pattern" = re.compile(r"[@; ]rituals=(1|0)[; ]")
-ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
-ReSlow:"re.Pattern" = re.compile(r"[@; ]slow=(\d*?)[; ]")
-ReSubsOnly:"re.Pattern" = re.compile(r"[@; ]subs-only=(1|0)[; ]")
-ReRoomName:"re.Pattern" = re.compile(r"[@; ]ROOMSTATE #(\S*)")
+from ..Utils.regex import (
+	ReEmoteOnly, ReFollowersOnly, ReR9k,
+	ReRituals, ReRoomID, ReSlow,
+	ReSubsOnly, ReRoomName
+)
 
 class Channel(object):
 	"""
@@ -54,6 +51,20 @@ class Channel(object):
 
 			except:
 				raise AttributeError(raw)
+
+	def compact(self) -> dict:
+		d:dict = {}
+		d["emote_only"] = self.emote_only
+		d["followers_only"] = self.followers_only
+		d["rituals"] = self.rituals
+		d["room_id"] = self.room_id
+		d["slow"] = self.slow
+		d["subs_only"] = self.subs_only
+		d["viewers"] = self.viewers
+		d["name"] = self.name
+		d["me"] = self.me
+		d["minimalistic"] = self.minimalistic
+		return d
 
 	# utils
 	def buildFromEvent(self, raw:str) -> None:
@@ -203,7 +214,7 @@ class Channel(object):
 		if self._me:
 			return self._me
 		else:
-			return None
+			return UserState(None)
 
 	@property
 	def broadcaster_lang(self) -> Exception: # depricated

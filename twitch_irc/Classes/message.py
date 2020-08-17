@@ -8,25 +8,14 @@ from .emote import Emote
 from .badge import Badge
 from .undefined import UNDEFINED
 
-# odered by twitch tag list (string position, which is also alphabetical)
-ReBadgeInfo:"re.Pattern" = re.compile(r"[@; ]badge-info=(\S*?)[; ]")
-ReBadges:"re.Pattern" = re.compile(r"[@; ]badges=(\S*?)[; ]")
-ReBits:"re.Pattern" = re.compile(r"[@; ]bits=(\S*?)[; ]")
-ReColor:"re.Pattern" = re.compile(r"[@; ]color=#([0-9a-fA-F]*?)[; ]")
-ReDisplayName:"re.Pattern" = re.compile(r"[@; ]display-name=(\S*?)[; ]")
-ReEmotes:"re.Pattern" = re.compile(r"[@; ]emotes=([0-9:,-]*?)[; ]")
-ReMsgID:"re.Pattern" = re.compile(r"[@; ]id=([A-Za-z0-9-]*?)[; ]")
-ReMod:"re.Pattern" = re.compile(r"[@; ]mod=(0|1)[; ]")
-ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
-ReSub:"re.Pattern" = re.compile(r"[@; ]subscriber=(0|1)[; ]")
-ReTMISendTS:"re.Pattern" = re.compile(r"[@; ]tmi-sent-ts=(\d*?)[; ]")
-ReTurbo:"re.Pattern" = re.compile(r"[@; ]turbo=(0|1)[; ]")
-ReUserID:"re.Pattern" = re.compile(r"[@; ]user-id=(\d*?)[; ]")
-ReUserType:"re.Pattern" = re.compile(r"[@; ]user-type=(\S*?)[; ]")
-
-# the rest values we also get out of the message, but its not via twitch tags
-ReName:"re.Pattern" = re.compile(r"[@; ]:(\S*?)!(\S*?)@(\S*?)\.tmi\.twitch\.tv[; ]")
-ReContent:"re.Pattern" = re.compile(r"[@; ]PRIVMSG #(\S+?) :(.+)")
+from ..Utils.regex import (
+	ReBadgeInfo, ReBadges, ReBits,
+	ReColor, ReDisplayName, ReEmotes,
+	ReID, ReMod, ReRoomID,
+	ReSubscriber, ReTMISendTS, ReTurbo,
+	ReUserID, ReUserType, ReUserName,
+    ReRoomName, ReContent
+)
 
 class Message(object):
 	"""
@@ -45,24 +34,28 @@ class Message(object):
 		return self.content or ""
 
 	def __init__(self, raw:str or None):
+		# tags (ordered)
 		self._badges_info:List[Badge] = []
 		self._badges:List[Badge] = []
 		self._bits:int = UNDEFINED
 		self._color:str = UNDEFINED
-		self._user_display_name:str = UNDEFINED
+		self._display_name:str = UNDEFINED
 		self._emotes:List[Emote] = []
-		self._msg_id:str = UNDEFINED
+		self._id:str = UNDEFINED
 		self._mod:bool = UNDEFINED
 		self._room_id:str = UNDEFINED
-		self._sub:bool = UNDEFINED
+		self._subscriber:bool = UNDEFINED
 		self._tmi_sent_ts:str = UNDEFINED
 		self._turbo:bool = UNDEFINED
 		self._user_id:str = UNDEFINED
 		self._user_type:str = UNDEFINED
+
+		# others
 		self._user_name:str = UNDEFINED
 		self._room_name:str = UNDEFINED
 		self._content:str = UNDEFINED
 
+	    # classes
 		self.Channel:"TwitchChannel" = None
 		self.Author:"TwitchUser" = None
 
@@ -77,24 +70,42 @@ class Message(object):
 			except:
 				raise AttributeError(raw)
 
+	def compact(self) -> dict:
+		d:dict = {}
+		d["badges_info"] = self.badges_info
+		d["badges"] = self.badges
+		d["bits"] = self.bits
+		d["color"] = self.color
+		d["display_name"] = self.display_name
+		d["emotes"] = self.emotes
+		d["msg_id"] = self.msg_id
+		d["mod"] = self.mod
+		d["room_id"] = self.room_id
+		d["subscriber"] = self.subscriber
+		d["tmi_sent_ts"] = self.tmi_sent_ts
+		d["turbo"] = self.turbo
+		d["user_id"] = self.user_id
+		d["user_type"] = self.user_type
+		d["user_name"] = self.user_name
+		d["room_name"] = self.room_name
+		d["content"] = self.content
+		d["Channel"] = self.Channel
+		d["Author"] = self.Author
+		return d
+
 	# utils
 	def build(self, raw:str):
-		"""
-		That runs all the regex
-		we start with content because some things need content for a ref
-		"""
 		search:re.Match
 
-		# _content & _room_name
-		search = re.search(ReContent, raw)
+		# _badge_info_str
+		search = re.search(ReBadgeInfo, raw)
 		if search != None:
-			self._room_name = search.group(1)
-			self._content = search.group(2).strip('\r')
+			self._badge_info_str = search.group(1)
 
-		# _user_name
-		search = re.search(ReName, raw)
+		# _badge_str
+		search = re.search(ReBadges, raw)
 		if search != None:
-			self._user_name = search.group(1)
+			self._badge_str = search.group(1)
 
 		# _bits
 		search = re.search(ReBits, raw)
@@ -106,20 +117,45 @@ class Message(object):
 		if search != None:
 			self._color = search.group(1)
 
-		# _msg_id
-		search = re.search(ReMsgID, raw)
-		if search != None:
-			self._msg_id = search.group(1)
-
-		# _user_display_name
+		# _display_name
 		search = re.search(ReDisplayName, raw)
 		if search != None:
-			self._user_display_name = search.group(1)
+			self._display_name = search.group(1)
+
+		# _emote_str
+		search = re.search(ReEmotes, raw)
+		if search != None:
+			self._emote_str = search.group(1)
+
+		# _id
+		search = re.search(ReID, raw)
+		if search != None:
+			self._id = search.group(1)
+
+		# _mod
+		search = re.search(ReMod, raw)
+		if search != None:
+			self._mod = True if search.group(1) == "1" else False
 
 		# _room_id
 		search = re.search(ReRoomID, raw)
 		if search != None:
 			self._room_id = search.group(1)
+
+		# _subscriber
+		search = re.search(ReSubscriber, raw)
+		if search != None:
+			self._subscriber = True if search.group(1) == "1" else False
+
+		# _tmi_sent_ts
+		search = re.search(ReTMISendTS, raw)
+		if search != None:
+			self._tmi_sent_ts = search.group(1)
+
+		# _turbo
+		search = re.search(ReTurbo, raw)
+		if search != None:
+			self._turbo = True if search.group(1) == "1" else False
 
 		# _user_id
 		search = re.search(ReUserID, raw)
@@ -131,46 +167,30 @@ class Message(object):
 		if search != None:
 			self._user_type = search.group(1)
 
-		# _sub
-		search = re.search(ReSub, raw)
+		# _user_name
+		search = re.search(ReUserName, raw)
 		if search != None:
-			self._sub = True if search.group(1) == "1" else False
+			self._user_name = search.group(2)
 
-		# _tmi_sent_ts
-		search = re.search(ReTMISendTS, raw)
+		# _room_name
+		search = re.search(ReRoomName, raw)
 		if search != None:
-			self._tmi_sent_ts = search.group(1)
+			self._room_name = search.group(2)
 
-		# _mod
-		search = re.search(ReMod, raw)
+		# _content
+		search = re.search(ReContent, raw)
 		if search != None:
-			self._mod = True if search.group(1) == "1" else False
+			self._content = search.group(2)
 
-		# _turbo
-		search = re.search(ReTurbo, raw)
-		if search != None:
-			self._turbo = True if search.group(1) == "1" else False
-
-		# _emotes
-		search = re.search(ReEmotes, raw)
-		if search != None:
-			self.buildEmotes( search.group(1) )
-
-		# _badges
-		search:re.Match = re.search(ReBadges, raw)
-		if search != None:
-			self.buildBadges( search.group(1) )
-
-		# _badges_info
-		search:re.Match = re.search(ReBadgeInfo, raw)
-		if search != None:
-			self.buildBadgeInfo( search.group(1) )
+		# generate other data
+		self.buildEmotes(self._emote_str)
+		self.buildBadges(self._badge_str)
+		self.buildBadgeInfo(self._badge_info_str)
 
 	def buildEmotes(self, emotes_str:str) -> None:
 		# 25:0-4,6-10,12-16,24-28/1902:18-22,30-34
 
 		if not emotes_str: return
-		self._emote_str = emotes_str
 
 		emote_str_list:List[str] = emotes_str.split("/")
 		for emote_str in emote_str_list:
@@ -181,7 +201,6 @@ class Message(object):
 		# moderator/1,premium/1
 
 		if not badges_str: return
-		self._badge_str = badges_str
 
 		badge_str_list:List[str] = badges_str.split(",")
 		for badge_str in badge_str_list:
@@ -194,7 +213,6 @@ class Message(object):
 		# there is a badge for subscriber/24 and in info is the exact value like subscriber/26
 
 		if not badge_info_str: return
-		self._badge_info_str = badge_info_str
 
 		badge_str_list:List[str] = badge_info_str.split(",")
 		for badge_str in badge_str_list:
@@ -215,29 +233,26 @@ class Message(object):
 		return self._bits or ""
 
 	@property
-	def color(self) -> str or None:
-		if self._color is not UNDEFINED:
-			return str(self._color)
-		else:
-			return None
+	def color(self) -> str:
+		return str(self._color or "")
 
 	@property
-	def user_display_name(self) -> str:
-		return str(self._user_display_name or "")
-	@property
 	def display_name(self) -> str:
-		return str(self._user_display_name or "")
+		return str(self._display_name or "")
+	@property
+	def user_display_name(self) -> str:
+		return str(self._display_name or "")
 
 	@property
 	def emotes(self) -> List[Emote]:
 		return self._emotes
 
 	@property
-	def msg_id(self) -> str:
-		return str(self._msg_id or "")
-	@property
 	def id(self) -> str:
-		return str(self._msg_id or "")
+		return str(self._id or "")
+	@property
+	def msg_id(self) -> str:
+		return str(self._id or "")
 
 	@property
 	def mod(self) -> bool:
@@ -251,8 +266,8 @@ class Message(object):
 		return str(self._room_id or "")
 
 	@property
-	def sub(self) -> bool:
-		return bool(self._sub)
+	def subscriber(self) -> bool:
+		return bool(self._subscriber)
 
 	@property
 	def tmi_sent_ts(self) -> str:

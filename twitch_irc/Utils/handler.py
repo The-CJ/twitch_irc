@@ -14,6 +14,12 @@ from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
 from ..Classes.sub import Sub, ReSub
 
+from ..Utils.regex import (
+	ReTargetMsgID, ReTMISendTS, ReLogin,
+	ReContent, ReRoomName, ReMsgID,
+	ReUserListData
+)
+
 async def handleClearChat(cls:"Client", payload:str) -> bool:
 	"""
 	handles all CLEARCHAT events
@@ -79,23 +85,18 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 	- onClearMsg(Message)
 	"""
 
-	ReClearChatMsgID:"re.Pattern" = re.compile(r"[@; ]target-msg-id=([A-Za-z0-9-]*?)[; ]")
-	ReClearChatTMISendTS:"re.Pattern" = re.compile(r"[@; ]tmi-sent-ts=(\d*?)[; ]")
-	ReClearChatLogin:"re.Pattern" = re.compile(r"[@; ]login=(\w*?)[; ]")
-	ReClearChatContent:"re.Pattern" = re.compile(r"[@; ]CLEARMSG #(\S+?) :(.+)")
-
 	MehMessage:Message = Message(None)
 
 	search:re.Match
-	search = re.search(ReClearChatMsgID, payload)
+	search = re.search(ReTargetMsgID, payload)
 	if search != None:
 		MehMessage._msg_id = search.group(1)
 
-	search = re.search(ReClearChatTMISendTS, payload)
+	search = re.search(ReTMISendTS, payload)
 	if search != None:
 		MehMessage._tmi_sent_ts = search.group(1)
 
-	search = re.search(ReClearChatLogin, payload)
+	search = re.search(ReLogin, payload)
 	if search != None:
 		MehMessage._user_name = search.group(1)
 		WeKnowTheUser:User = cls.users.get(MehMessage.user_name, None)
@@ -105,10 +106,13 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 			MehMessage._user_name = WeKnowTheUser.name
 			MehMessage._user_display_name = WeKnowTheUser.display_name
 
-	search = re.search(ReClearChatContent, payload)
+	search = re.search(ReContent, payload)
 	if search != None:
 		MehMessage._content = search.group(2)
-		MehMessage._room_name = search.group(1)
+
+	search = re.search(ReRoomName, payload)
+	if search != None:
+		MehMessage._room_name = search.group(2)
 		WeKnowTheChan:Channel = cls.channels.get(MehMessage.room_name, None)
 		if WeKnowTheChan:
 			MehMessage.Channel = WeKnowTheChan
@@ -322,10 +326,8 @@ async def handleUserList(cls:"Client", payload:str) -> bool:
 	- None
 	"""
 
-	ReAlreadyInUserList:"re.Pattern" = re.compile(r".*353 .* = #(\S+?) :(.*)$")
-	# :phaazebot.tmi.twitch.tv 353 phaazebot = #phaazebot :the__cj someone someoneelse
-
-	search:re.Match = re.search(ReAlreadyInUserList, payload)
+	# e.g.: :phaazebot.tmi.twitch.tv 353 phaazebot = #phaazebot :the__cj someone someoneelse
+	search:re.Match = re.search(ReUserListData, payload)
 	if search != None:
 		room_name:str = search.group(1)
 		ChannelToFill:Channel = cls.channels.get(room_name, None)
@@ -360,11 +362,8 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	- onSub(Sub)
 	"""
 
-	ReEventType:"re.Pattern" = re.compile(r"[@; ]msg-id=(\w*?)[; ]")
-	# e.g: ...mod=0;msg-id=resub;msg-par...
-
 	found_event:str = None
-	search:re.Match = re.search(ReEventType, payload)
+	search:re.Match = re.search(ReMsgID, payload)
 	if search != None:
 		found_event = search.group(1)
 

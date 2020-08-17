@@ -66,6 +66,32 @@ class Sub(object):
 			except:
 				raise AttributeError(raw)
 
+	def compact(self) -> dict:
+		d:dict = {}
+		d["badges_info"] = self.badges_info
+		d["badges"] = self.badges
+		d["color"] = self.color
+		d["display_name"] = self.display_name
+		d["emotes"] = self.emotes
+		d["msg_id"] = self.msg_id
+		d["login"] = self.login
+		d["mod"] = self.mod
+		d["cumulative_months"] = self.cumulative_months
+		d["streak_months"] = self.streak_months
+		d["should_share_streak"] = self.should_share_streak
+		d["sub_plan"] = self.sub_plan
+		d["sub_plan_name"] = self.sub_plan_name
+		d["room_id"] = self.room_id
+		d["subscriber"] = self.subscriber
+		d["tmi_sent_ts"] = self.tmi_sent_ts
+		d["turbo"] = self.turbo
+		d["user_id"] = self.user_id
+		d["user_type"] = self.user_type
+		d["room_name"] = self.room_name
+		d["Channel"] = self.Channel
+		d["User"] = self.User
+		return d
+
 	# utils
 	def build(self, raw:str):
 		search:re.Match
@@ -333,6 +359,11 @@ class ReSub(Sub):
 		self._content:str = UNDEFINED
 
 		self.extraBuild(raw)
+
+	def compact(self) -> dict:
+		d:dict = super().compact()
+		d["content"] = self.content
+		return d
 
 	# utils
 	def extraBuild(self, raw:str):
