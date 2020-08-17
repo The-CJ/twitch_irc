@@ -381,6 +381,7 @@ class Client():
 	async def onSub(self, SubEvent:Sub) -> None:
 		"""
 		called every time someone subbes, has a .Channel and .User object attachted to it
+		please not that this is only triggered on a first time sub, everything else is a resub (or at least should be)
 		"""
 
 	async def onGarbage(self, raw:str) -> None:

@@ -170,7 +170,7 @@ class Sub(object):
 		# _sub_plan_name
 		search = re.search(ReSubPlanName, raw)
 		if search != None:
-			self._sub_plan_name = search.group(1)
+			self._sub_plan_name = self.removeTagChars(search.group(1))
 
 		# _sub_plan
 		search = re.search(ReSubPlan, raw)
@@ -180,10 +180,7 @@ class Sub(object):
 		# _system_msg
 		search = re.search(ReSystemMsg, raw)
 		if search != None:
-			self._system_msg = search.group(1)
-			self._system_msg = self._system_msg.replace("\:", ';')
-			self._system_msg = self._system_msg.replace("\s", ' ')
-			self._system_msg = self._system_msg.replace("\\\\", '\\')
+			self._system_msg = self.removeTagChars(search.group(1))
 
 		# _emotes
 		search = re.search(ReEmotes, raw)
@@ -234,6 +231,15 @@ class Sub(object):
 		for badge_str in badge_str_list:
 			Bad:Badge = Badge( badge_str )
 			self._badges_info.append( Bad )
+
+	def removeTagChars(self, tag_value:str) -> str:
+		"""
+		removes all things that twitch replaces from tag values
+		"""
+		tag_value = tag_value.replace("\:", ';')
+		tag_value = tag_value.replace("\s", ' ')
+		tag_value = tag_value.replace("\\\\", '\\')
+		return tag_value
 
 	# props
 	@property

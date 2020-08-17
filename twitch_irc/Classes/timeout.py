@@ -125,6 +125,12 @@ class Ban(Timeout):
 		self._room_name:str = Out.room_name
 		self._room_id:str = Out.room_id
 		self._target_user_id:str = Out.target_user_id
+		self._tmi_sent_ts:str = Out.tmi_sent_ts
+		self._user_name:str = Out.user_name
 
 		self.User:User = None
 		self.Channel:Channel = None
+
+	@property
+	def duration(self) -> int:
+		return int(self._duration or 0)
