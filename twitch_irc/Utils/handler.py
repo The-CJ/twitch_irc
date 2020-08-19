@@ -13,6 +13,7 @@ from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
 from ..Classes.sub import Sub, ReSub
+from ..Classes.giftsub import GiftSub
 
 from ..Utils.regex import (
 	ReTargetMsgID, ReTMISendTS, ReLogin,
@@ -389,9 +390,22 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		asyncio.ensure_future( cls.onReSub(NewReSub) )
 		return True
 
-	if found_event == "resub": print("TODO: resub")
-	if found_event == "subgift": print("TODO: subgift")
-	if found_event == "anonsubgift": print("TODO: anonsubgift")
+	if found_event == "subgift":
+		NewGiftSub:GiftSub = GiftSub(payload)
+
+		NewGiftSub.Channel = cls.channels.get(NewGiftSub.room_name, None)
+		NewGiftSub.Gifter = cls.users.get(NewGiftSub.user_name, None)
+		NewGiftSub.Recipient = cls.users.get(NewGiftSub.recipient_user_name, None)
+
+		Log.debug(f"Client launching: Client.onGiftSub: {str(vars(NewGiftSub))}")
+		asyncio.ensure_future( cls.onGiftSub(NewGiftSub) )
+		return True
+
+	if found_event == "anonsubgift":
+		print("+++")
+		print(payload)
+		print("+++")
+
 	if found_event == "submysterygift": print("TODO: submysterygift")
 	if found_event == "giftpaidupgrade": print("TODO: giftpaidupgrade")
 	if found_event == "rewardgift": print("TODO: rewardgift")

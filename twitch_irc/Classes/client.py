@@ -14,6 +14,7 @@ from .stores import ChannelStore, UserStore
 from .user import User
 from .timeout import Timeout, Ban
 from .sub import Sub, ReSub
+from .giftsub import GiftSub
 from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
@@ -388,6 +389,12 @@ class Client():
 	async def onReSub(self, SubEvent:ReSub) -> None:
 		"""
 		called every time someone resubs, has a .Channel and .User object attachted to it
+		"""
+		pass
+
+	async def onGiftSub(self, SubEvent:GiftSub) -> None:
+		"""
+		called every time someone gifts a sub to someone, has a .Channel, .Gifter and .Recipient object attachted to it
 		"""
 		pass
 
