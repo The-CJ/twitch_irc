@@ -4,26 +4,26 @@ if TYPE_CHECKING:
     from .user import User as TwitchUser
 
 import re
-from .emote import Emote
 from .badge import Badge
 from .undefined import UNDEFINED
 
 from ..Utils.regex import (
 	ReBadgeInfo, ReBadges, ReColor,
-	ReDisplayName, ReEmotes, ReID,
-	ReLogin, ReMod, ReMsgParamCumulativeMonths,
-	ReMsgParamStreakMonths, ReMsgParamShouldShareStreak, ReMsgParamSubPlan,
-	ReMsgParamSubPlanName, ReRoomID, ReSubscriber,
-	ReSystemMsg, ReTMISendTS, ReTurbo,
-	ReUserID, ReUserType, ReRoomName, ReContent
+	ReDisplayName, ReID, ReLogin,
+    ReMod, ReMsgParamGiftMounths, ReMsgParamMounths,
+    ReMsgParamRecipientDisplayName, ReMsgParamRecipientID, ReMsgParamRecipientUserName,
+    ReMsgParamSubPlan, ReMsgParamSubPlanName, ReMsgParamSenderCount,
+    ReRoomID, ReSubscriber, ReSystemMsg,
+    ReTMISendTS, ReTurbo, ReUserID,
+    ReUserType, ReRoomName, ReContent
 )
 
-class Sub(object):
+class GiftSub(object):
 	"""
-	This Class represents a sub, for simpler use there is also a ReSub class, because duh
+	This Class represents a giftsub, for simpler use there is also a AnonymousGiftSub class, because duh
 	"""
 	def __repr__(self):
-		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.user_name}'>"
+		return f"<{self.__class__.__name__} channel='{self.room_name}' from='{self.user_name}' to='{self.recipient_user_name}'>"
 
 	def __init__(self, raw:str or None):
 		# tags (ordered)
@@ -31,13 +31,15 @@ class Sub(object):
 		self._badges:List[Badge] = []
 		self._color:str = UNDEFINED
 		self._display_name:str = UNDEFINED
-		self._emotes:List[Emote] = []
 		self._id:str = UNDEFINED
 		self._login:str = UNDEFINED
 		self._mod:bool = UNDEFINED
-		self._msg_param_cumulative_months:int = UNDEFINED
-		self._msg_param_streak_months:int = UNDEFINED
-		self._msg_param_should_share_streak:bool = UNDEFINED
+		self._msg_param_gift_months:int = UNDEFINED
+		self._msg_param_months:int = UNDEFINED
+		self._msg_param_recipient_display_name:str = UNDEFINED
+		self._msg_param_recipient_id:str = UNDEFINED
+		self._msg_param_recipient_user_name:str = UNDEFINED
+		self._msg_param_sender_count:int = UNDEFINED
 		self._msg_param_sub_plan:str = UNDEFINED
 		self._msg_param_sub_plan_name:str = UNDEFINED
 		self._room_id:str = UNDEFINED
@@ -53,10 +55,10 @@ class Sub(object):
 
 		# classes
 		self.Channel:"TwitchChannel" = None
-		self.User:"TwitchUser" = None
+		self.Gifter:"TwitchUser" = None
+		self.Recipient:"TwitchUser" = None
 
 		# raw data / utils
-		self._emote_str:str = UNDEFINED
 		self._badge_str:str = UNDEFINED
 		self._badge_info_str:str = UNDEFINED
 
@@ -72,13 +74,15 @@ class Sub(object):
 		d["badges"] = self.badges
 		d["color"] = self.color
 		d["display_name"] = self.display_name
-		d["emotes"] = self.emotes
 		d["msg_id"] = self.msg_id
 		d["login"] = self.login
 		d["mod"] = self.mod
-		d["cumulative_months"] = self.cumulative_months
-		d["streak_months"] = self.streak_months
-		d["should_share_streak"] = self.should_share_streak
+		d["gift_months"] = self.gift_months
+		d["months"] = self.months
+		d["recipient_display_name"] = self.recipient_display_name
+		d["recipient_id"] = self.recipient_id
+		d["recipient_user_name"] = self.recipient_user_name
+		d["sender_count"] = self.sender_count
 		d["sub_plan"] = self.sub_plan
 		d["sub_plan_name"] = self.sub_plan_name
 		d["room_id"] = self.room_id
@@ -89,7 +93,8 @@ class Sub(object):
 		d["user_type"] = self.user_type
 		d["room_name"] = self.room_name
 		d["Channel"] = self.Channel
-		d["User"] = self.User
+		d["Gifter"] = self.Gifter
+		d["Recipient"] = self.Recipient
 		return d
 
 	# utils
@@ -116,11 +121,6 @@ class Sub(object):
 		if search != None:
 			self._display_name = search.group(1)
 
-		# _emote_str
-		search = re.search(ReEmotes, raw)
-		if search != None:
-			self._emote_str = search.group(1)
-
 		# _id
 		search = re.search(ReID, raw)
 		if search != None:
@@ -136,20 +136,35 @@ class Sub(object):
 		if search != None:
 			self._mod = True if search.group(1) == "1" else False
 
-		# _msg_param_cumulative_months
-		search = re.search(ReMsgParamCumulativeMonths, raw)
+		# _msg_param_gift_months
+		search = re.search(ReMsgParamGiftMounths, raw)
 		if search != None:
-			self._msg_param_cumulative_months = search.group(1)
+			self._msg_param_gift_months = search.group(1)
 
-		# _msg_param_streak_months
-		search = re.search(ReMsgParamStreakMonths, raw)
+		# _msg_param_months
+		search = re.search(ReMsgParamMounths, raw)
 		if search != None:
-			self._msg_param_streak_months = search.group(1)
+			self._msg_param_months = search.group(1)
 
-		# _msg_param_should_share_streak
-		search = re.search(ReMsgParamShouldShareStreak, raw)
+		# _msg_param_recipient_display_name
+		search = re.search(ReMsgParamRecipientDisplayName, raw)
 		if search != None:
-			self._msg_param_should_share_streak = True if search.group(1) == "1" else False
+			self._msg_param_recipient_display_name = search.group(1)
+
+		# _msg_param_recipient_id
+		search = re.search(ReMsgParamRecipientID, raw)
+		if search != None:
+			self._msg_param_recipient_id = search.group(1)
+
+		# _msg_param_recipient_user_name
+		search = re.search(ReMsgParamRecipientUserName, raw)
+		if search != None:
+			self._msg_param_recipient_user_name = search.group(1)
+
+		# _msg_param_sender_count
+		search = re.search(ReMsgParamSenderCount, raw)
+		if search != None:
+			self._msg_param_sender_count = search.group(1)
 
 		# _msg_param_sub_plan
 		search = re.search(ReMsgParamSubPlan, raw)
@@ -207,19 +222,8 @@ class Sub(object):
 			self._content = search.group(2)
 
 		# generate other data
-		self.buildEmotes(self._emote_str)
 		self.buildBadges(self._badge_str)
 		self.buildBadgeInfo(self._badge_info_str)
-
-	def buildEmotes(self, emotes_str:str) -> None:
-		# 25:0-4,6-10,12-16,24-28/1902:18-22,30-34
-
-		if not emotes_str: return
-
-		emote_str_list:List[str] = emotes_str.split("/")
-		for emote_str in emote_str_list:
-			Emo:Emote = Emote(emote_str, self.content)
-			self._emotes.append( Emo )
 
 	def buildBadges(self, badges_str:str) -> None:
 		# moderator/1,premium/1
@@ -273,10 +277,6 @@ class Sub(object):
 		return str(self._display_name or "")
 
 	@property
-	def emotes(self) -> List[Emote]:
-		return self._emotes
-
-	@property
 	def id(self) -> str:
 		return str(self._id or "")
 	@property
@@ -295,16 +295,28 @@ class Sub(object):
 		return bool(self._mod)
 
 	@property
-	def cumulative_months(self) -> int:
-		return int(self._msg_param_cumulative_months or 0)
+	def gift_months(self) -> int:
+		return int(self._msg_param_months or 0)
 
 	@property
-	def streak_months(self) -> int:
-		return int(self._msg_param_streak_months)
+	def months(self) -> int:
+		return int(self._msg_param_months or 0)
 
 	@property
-	def should_share_streak(self) -> bool:
-		return bool(self._msg_param_should_share_streak)
+	def recipient_display_name(self) -> str:
+		return str(self._msg_param_recipient_display_name or "")
+
+	@property
+	def recipient_id(self) -> str:
+		return str(self._msg_param_recipient_id or "")
+
+	@property
+	def recipient_user_name(self) -> str:
+		return str(self._msg_param_recipient_user_name or "")
+
+	@property
+	def sender_count(self) -> int:
+		return int(self._msg_param_sender_count or 0)
 
 	@property
 	def sub_plan(self) -> str:
@@ -351,29 +363,3 @@ class Sub(object):
 	@property
 	def channel_name(self) -> str:
 		return str(self._room_name or "")
-
-class ReSub(Sub):
-	def __init__(self, raw:str or None):
-		super().__init__(raw)
-
-		self._content:str = UNDEFINED
-
-		self.extraBuild(raw)
-
-	def compact(self) -> dict:
-		d:dict = super().compact()
-		d["content"] = self.content
-		return d
-
-	# utils
-	def extraBuild(self, raw:str):
-		search:re.Match
-
-		# _content
-		search = re.search(ReContent, raw)
-		if search != None:
-			self._content = search.group(2)
-
-	@property
-	def content(self) -> str:
-		return str(self._content or "")
