@@ -15,6 +15,7 @@ from ..Classes.timeout import Timeout, Ban
 from ..Classes.sub import Sub, ReSub
 from ..Classes.giftsub import GiftSub
 from ..Classes.mysterygiftsub import MysteryGiftSub
+from ..Classes.reward import Reward
 
 from ..Utils.regex import (
 	ReTargetMsgID, ReTMISendTS, ReLogin,
@@ -362,6 +363,9 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 
 	may calls the following events for custom code:
 	- onSub(Sub)
+	- onReSub(ReSub)
+	- onGiftSub(GiftSub)
+    - onMysteryGiftSub(MysteryGiftSub)
 	"""
 
 	found_event:str = None
@@ -417,8 +421,17 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		asyncio.ensure_future( cls.onMysteryGiftSub(NewMassSub) )
 		return True
 
+	if found_event == "rewardgift":
+		NewReward:Reward = Reward(payload)
+
+		NewReward.Gifter = cls.users.get(NewReward.user_name, None)
+		NewReward.Channel = cls.channels.get(NewReward.room_name, None)
+
+		Log.debug(f"Client launching: Client.onReward: {str(vars(NewReward))}")
+		asyncio.ensure_future( cls.onReward(NewReward) )
+		return True
+
 	if found_event == "giftpaidupgrade": print("TODO: giftpaidupgrade")
-	if found_event == "rewardgift": print("TODO: rewardgift")
 	if found_event == "anongiftpaidupgrade": print("TODO: anongiftpaidupgrade")
 	if found_event == "raid": print("TODO: raid")
 	if found_event == "unraid": print("TODO: unraid")
