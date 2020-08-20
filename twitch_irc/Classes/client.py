@@ -15,6 +15,7 @@ from .user import User
 from .timeout import Timeout, Ban
 from .sub import Sub, ReSub
 from .giftsub import GiftSub
+from .mysterygiftsub import MysteryGiftSub
 from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
@@ -395,6 +396,14 @@ class Client():
 	async def onGiftSub(self, SubEvent:GiftSub) -> None:
 		"""
 		called every time someone gifts a sub to someone, has a .Channel, .Gifter and .Recipient object attachted to it
+		"""
+		pass
+
+	async def onMysteryGiftSub(self, SubEvent:MysteryGiftSub) -> None:
+		"""
+		called every time someone gifts sub(s) to random people in chat,
+		u may wanna use .mass_gift_count to get the number on how many (.sub_plan) subs have been gifted
+		has a .Channel and .Gifter object attachted to it
 		"""
 		pass
 
