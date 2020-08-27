@@ -16,6 +16,7 @@ from ..Classes.sub import Sub, ReSub, GiftPaidUpgrade
 from ..Classes.giftsub import GiftSub
 from ..Classes.mysterygiftsub import MysteryGiftSub
 from ..Classes.reward import Reward
+from ..Classes.ritual import Ritual
 
 from ..Utils.regex import (
 	ReTargetMsgID, ReTMISendTS, ReLogin,
@@ -367,6 +368,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	- onGiftSub(GiftSub)
     - onMysteryGiftSub(MysteryGiftSub)
 	- onGiftPaidUpgrade(GiftPaidUpgrade)
+	- onRitual(Ritual)
 	"""
 
 	found_event:str = None
@@ -436,6 +438,16 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 
 		Log.debug(f"Client launching: Client.onGiftPaidUpgrade: {str(vars(NewGiftUpgrade))}")
 		asyncio.ensure_future( cls.onGiftPaidUpgrade(NewGiftUpgrade) )
+		return True
+
+	if found_event == "ritual":
+		NewRitual:Ritual = Ritual(payload)
+
+		NewRitual.Channel = cls.channels.get(NewRitual.room_name, None)
+		NewRitual.User = cls.users.get(NewRitual.user_name)
+
+		Log.debug(f"Client launching: Client.onRitual: {str(vars(NewRitual))}")
+		asyncio.ensure_future( cls.onRitual(NewRitual) )
 		return True
 
 	print('#'*32)
