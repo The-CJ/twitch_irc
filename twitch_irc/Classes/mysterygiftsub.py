@@ -75,6 +75,7 @@ class MysteryGiftSub(object):
 		d["sub_plan"] = self.sub_plan
 		d["room_id"] = self.room_id
 		d["subscriber"] = self.subscriber
+		d["system_msg"] = self.system_msg
 		d["tmi_sent_ts"] = self.tmi_sent_ts
 		d["turbo"] = self.turbo
 		d["user_id"] = self.user_id
