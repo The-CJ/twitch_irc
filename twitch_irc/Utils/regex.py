@@ -40,6 +40,7 @@ ReMsgParamCumulativeMonths:"re.Pattern" = re.compile(r"[@; ]msg-param-cumulative
 ReMsgParamRecipientDisplayName:"re.Pattern" = re.compile(r"[@; ]msg-param-recipient-display-name=(\S*?)[; ]")
 ReMsgParamRecipientID:"re.Pattern" = re.compile(r"[@; ]msg-param-recipient-id=(\d*?)[; ]")
 ReMsgParamRecipientUserName:"re.Pattern" = re.compile(r"[@; ]msg-param-recipient-user-name=(\S*?)[; ]")
+ReMsgParamRitualName:"re.Pattern" = re.compile(r"[@; ]msg-param-ritual-name=(\S*?)[; ]")
 ReMsgParamSelectedCount:"re.Pattern" = re.compile(r"[@; ]msg-param-selected-count=(\d*?)[; ]")
 ReMsgParamShouldShareStreak:"re.Pattern" = re.compile(r"[@; ]msg-param-should-share-streak=(0|1)[; ]")
 ReMsgParamStreakMonths:"re.Pattern" = re.compile(r"[@; ]msg-param-streak-months=(\d*?)[; ]")
