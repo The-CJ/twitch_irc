@@ -12,7 +12,7 @@ from ..Classes.user import User
 from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
-from ..Classes.sub import Sub, ReSub
+from ..Classes.sub import Sub, ReSub, GiftPaidUpgrade
 from ..Classes.giftsub import GiftSub
 from ..Classes.mysterygiftsub import MysteryGiftSub
 from ..Classes.reward import Reward
@@ -366,6 +366,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	- onReSub(ReSub)
 	- onGiftSub(GiftSub)
     - onMysteryGiftSub(MysteryGiftSub)
+	- onGiftPaidUpgrade(GiftPaidUpgrade)
 	"""
 
 	found_event:str = None
@@ -406,11 +407,6 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		asyncio.ensure_future( cls.onGiftSub(NewGiftSub) )
 		return True
 
-	if found_event == "anonsubgift":
-		print("+++")
-		print(payload) # TODO: mmm good question, it never happens...
-		print("+++")
-
 	if found_event == "submysterygift":
 		NewMassSub:MysteryGiftSub = MysteryGiftSub(payload)
 
@@ -431,9 +427,17 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		asyncio.ensure_future( cls.onReward(NewReward) )
 		return True
 
-	if found_event == "giftpaidupgrade": print("TODO: giftpaidupgrade")
-	if found_event == "anongiftpaidupgrade": print("TODO: anongiftpaidupgrade")
-	if found_event == "raid": print("TODO: raid")
-	if found_event == "unraid": print("TODO: unraid")
-	if found_event == "ritual": print("TODO: ritual")
-	if found_event == "bitsbadgetier": print("TODO: bitsbadgetier")
+	if found_event == "giftpaidupgrade":
+		NewGiftUpgrade:GiftPaidUpgrade = GiftPaidUpgrade(payload)
+
+		NewGiftUpgrade.Channel = cls.channels.get(NewGiftUpgrade.room_name, None)
+		NewGiftUpgrade.User = cls.users.get(NewGiftUpgrade.user_name, None)
+		NewGiftUpgrade.Gifter = cls.users.get(NewGiftUpgrade.sender_login, None)
+
+		Log.debug(f"Client launching: Client.onGiftPaidUpgrade: {str(vars(NewGiftUpgrade))}")
+		asyncio.ensure_future( cls.onGiftPaidUpgrade(NewGiftUpgrade) )
+		return True
+
+	print('#'*32)
+	print(f"# {found_event} #")
+	print(payload)
