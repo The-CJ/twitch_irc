@@ -44,6 +44,8 @@ ReMsgParamSelectedCount:"re.Pattern" = re.compile(r"[@; ]msg-param-selected-coun
 ReMsgParamShouldShareStreak:"re.Pattern" = re.compile(r"[@; ]msg-param-should-share-streak=(0|1)[; ]")
 ReMsgParamStreakMonths:"re.Pattern" = re.compile(r"[@; ]msg-param-streak-months=(\d*?)[; ]")
 ReMsgParamSenderCount:"re.Pattern" = re.compile(r"[@; ]msg-param-sender-count=(\d*?)[; ]")
+ReMsgParamSenderLogin:"re.Pattern" = re.compile(r"[@; ]msg-param-sender-login=(\S*?)[; ]")
+ReMsgParamSenderName:"re.Pattern" = re.compile(r"[@; ]msg-param-sender-name=(\S*?)[; ]")
 ReMsgParamSubPlan:"re.Pattern" = re.compile(r"[@; ]msg-param-sub-plan=(\S*?)[; ]")
 ReMsgParamSubPlanName:"re.Pattern" = re.compile(r"[@; ]msg-param-sub-plan-name=(\S*?)[; ]")
 ReMsgParamTotalRewardCount:"re.Pattern" = re.compile(r"[@; ]msg-param-total-reward-count=(\d*?)[; ]")
