@@ -13,7 +13,7 @@ from .channel import Channel
 from .stores import ChannelStore, UserStore
 from .user import User
 from .timeout import Timeout, Ban
-from .sub import Sub, ReSub
+from .sub import Sub, ReSub, GiftPaidUpgrade
 from .giftsub import GiftSub
 from .mysterygiftsub import MysteryGiftSub
 from .reward import Reward
@@ -391,6 +391,13 @@ class Client():
 	async def onReSub(self, ReSubEvent:ReSub) -> None:
 		"""
 		called every time someone resubs, has a .Channel and .User object attachted to it
+		"""
+		pass
+
+	async def onGiftPaidUpgrade(self, GiftUpgrade:GiftPaidUpgrade) -> None:
+		"""
+		called every time someone resubs/upgrades from a gifted sub... yeah thats a extra case,
+		has a .Channel .User and a .Gifter object attachted to it
 		"""
 		pass
 
