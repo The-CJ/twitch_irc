@@ -75,7 +75,7 @@ class User(object):
 		# _generated_via_channel
 		search = re.search(ReRoomName, raw)
 		if search != None:
-			self._generated_via_channel = search.group(2)
+			self._generated_via_channel = search.group(1)
 
 		# has not many data in it, will be completed with the first message
 		self.minimalistic = True

@@ -175,12 +175,12 @@ class Message(object):
 		# _room_name
 		search = re.search(ReRoomName, raw)
 		if search != None:
-			self._room_name = search.group(2)
+			self._room_name = search.group(1)
 
 		# _content
 		search = re.search(ReContent, raw)
 		if search != None:
-			self._content = search.group(2)
+			self._content = search.group(1)
 
 		# generate other data
 		self.buildEmotes(self._emote_str)
