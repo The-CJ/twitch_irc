@@ -126,12 +126,14 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		d["msg_id"] = self.msg_id
 		d["login"] = self.login
 		d["mod"] = self.mod
+		d["partner"] = self.partner
 		d["room_id"] = self.room_id
 		d["subscriber"] = self.subscriber
 		d["system_msg"] = self.system_msg
 		d["tmi_sent_ts"] = self.tmi_sent_ts
 		d["turbo"] = self.turbo
 		d["user_id"] = self.user_id
+		d["vip"] = self.vip
 		d["room_name"] = self.room_name
 		return d
 
@@ -295,7 +297,7 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		return str(self._user_id or "")
 
 	@property
-	def vip(self) -> str:
+	def vip(self) -> bool:
 		if self.hasBadge(self.badges, "vip"): return True
 		return False
 
