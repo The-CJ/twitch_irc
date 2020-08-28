@@ -8,9 +8,9 @@ from .undefined import UNDEFINED
 from ..Utils.regex import (
 	ReBadgeInfo, ReBadges, ReColor,
 	ReDisplayName, ReEmotes, ReID,
-	ReLogin, ReRoomID, ReSystemMsg,
-	ReTMISendTS, ReUserID, ReContent,
-	ReRoomName
+	ReLogin, ReMod, ReRoomID,
+	ReSystemMsg, ReTMISendTS, ReUserID,
+	ReContent, ReRoomName
 )
 
 class GeneralTwitchTagUtils(object):
@@ -79,24 +79,22 @@ class GeneralTwitchTagUtils(object):
 
 		return False
 
-class UserNoticeStructure(GeneralTwitchTagUtils):
+class BasicEventStructure(GeneralTwitchTagUtils):
 	"""
-	Every USERNOTICE has a set array of twitch-tags that are alway given,
-	this class is suppost to cover the basic tags and also the prop functions attached to it,
-	It will make a basic process in .build and call .extraBuild after basic proccess is done,
-	.extraBuild should be overwritten by all subclasses
+	A big amout of events has a real basic array of tags.
+	of course there are some that have even less.
+	But at least PRIVMSG and USERNOTICE share most of them
 	"""
 	def __init__(self, raw:str or None):
-		# tags (ordered)
+		# base tags (ordered)
 		self._badges_info:List[Badge] = []
 		self._badges:List[Badge] = []
 		self._color:str = UNDEFINED
 		self._display_name:str = UNDEFINED
 		self._emotes:List[Emote] = []
 		self._id:str = UNDEFINED
-		self._login:str = UNDEFINED
+		self._mod:bool = UNDEFINED
 		self._room_id:str = UNDEFINED
-		self._system_msg:str = UNDEFINED
 		self._tmi_sent_ts:str = UNDEFINED
 		self._user_id:str = UNDEFINED
 		self._content:str = UNDEFINED
@@ -111,11 +109,11 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 
 		if raw != None:
 			try:
-				self.build(raw)
-				self.extraBuild(raw)
+				self.basicEventStructureBuild(raw)
 			except:
 				raise AttributeError(raw)
 
+	# utils
 	def compact(self) -> dict:
 		d:dict = {}
 		d["badges_info"] = self.badges_info
@@ -124,12 +122,10 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		d["display_name"] = self.display_name
 		d["emotes"] = self.emotes
 		d["msg_id"] = self.msg_id
-		d["login"] = self.login
 		d["mod"] = self.mod
 		d["partner"] = self.partner
 		d["room_id"] = self.room_id
 		d["subscriber"] = self.subscriber
-		d["system_msg"] = self.system_msg
 		d["tmi_sent_ts"] = self.tmi_sent_ts
 		d["turbo"] = self.turbo
 		d["user_id"] = self.user_id
@@ -137,8 +133,7 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		d["room_name"] = self.room_name
 		return d
 
-	# utils
-	def build(self, raw:str) -> None:
+	def basicEventStructureBuild(self, raw:str) -> None:
 		search:re.Match
 
 		# _badge_info_str
@@ -171,20 +166,15 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		if search != None:
 			self._id = search.group(1)
 
-		# _login
-		search = re.search(ReLogin, raw)
+		# _mod
+		search = re.search(ReMod, raw)
 		if search != None:
-			self._login = search.group(1)
+			self._mod = True if search.group(1) == '1' else False
 
 		# _room_id
 		search = re.search(ReRoomID, raw)
 		if search != None:
 			self._room_id = search.group(1)
-
-		# _system_msg
-		search = re.search(ReSystemMsg, raw)
-		if search != None:
-			self._system_msg = self.removeTagChars( search.group(1) )
 
 		# _tmi_sent_ts
 		search = re.search(ReTMISendTS, raw)
@@ -211,10 +201,7 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		self._badges = self.buildBadges(self._badge_str)
 		self._emotes = self.buildEmotes(self._emote_str, self._content)
 
-	def extraBuild(self, raw:str) -> None:
-		pass
-
-	# props
+	# base props
 	@property
 	def badges_info(self) -> List[Badge]:
 		return self._badges_info
@@ -230,9 +217,6 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 	@property
 	def display_name(self) -> str:
 		return str(self._display_name or "")
-	@property
-	def user_display_name(self) -> str:
-		return self.display_name
 
 	@property
 	def emotes(self) -> List[Emote]:
@@ -246,18 +230,12 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		return self.id
 
 	@property
-	def login(self) -> str:
-		return str(self._login or "")
-	@property
-	def user_name(self) -> str:
-		return str(self._login or "")
-
-	@property
 	def mod(self) -> bool:
 		if self.hasBadge(self.badges, "moderator"): return True
 		if self.hasBadge(self.badges, "broadcaster"): return True
 		if self.hasBadge(self.badges, "admin"): return True
 		if self.hasBadge(self.badges, "staff"): return True
+		if self._mod: return True
 		return False
 
 	@property
@@ -268,9 +246,6 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 	@property
 	def room_id(self) -> str:
 		return str(self._room_id or "")
-	@property
-	def channel_id(self) -> str:
-		return self.room_id
 
 	@property
 	def subscriber(self) -> bool:
@@ -278,10 +253,6 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		if self.hasBadge(self.badges_info, "subscriber"): return True
 		if self.hasBadge(self.badges, "founder"): return True
 		return False
-
-	@property
-	def system_msg(self) -> str:
-		return str(self._system_msg or "")
 
 	@property
 	def tmi_sent_ts(self) -> str:
@@ -297,13 +268,56 @@ class UserNoticeStructure(GeneralTwitchTagUtils):
 		return str(self._user_id or "")
 
 	@property
+	def room_name(self) -> str:
+		return str(self._room_name or "")
+
+	@property
 	def vip(self) -> bool:
 		if self.hasBadge(self.badges, "vip"): return True
 		return False
 
+class UserNoticeStructure(BasicEventStructure):
+	"""
+	Every USERNOTICE has a set array of twitch-tags that are alway given,
+	this class is suppost to cover the basic tags and also the extra prop functions attached to it.
+	"""
+	def __init__(self, raw:str or None):
+		# new tags (ordered)
+		self._login:str = UNDEFINED
+		self._system_msg:str = UNDEFINED
+
+		if raw != None:
+			try:
+				super().__init__(raw)
+				self.userNoticeStructureBuild(raw)
+			except:
+				raise AttributeError(raw)
+
+	def compact(self) -> dict:
+		d:dict = super().compact()
+		d["login"] = self.login
+		d["system_msg"] = self.system_msg
+		return d
+
+	# utils
+	def userNoticeStructureBuild(self, raw:str) -> None:
+		search:re.Match
+
+		# _login
+		search = re.search(ReLogin, raw)
+		if search != None:
+			self._login = search.group(1)
+
+		# _system_msg
+		search = re.search(ReSystemMsg, raw)
+		if search != None:
+			self._system_msg = self.removeTagChars( search.group(1) )
+
+	# props
 	@property
-	def room_name(self) -> str:
-		return str(self._room_name or "")
+	def login(self) -> str:
+		return str(self._login or "")
+
 	@property
-	def channel_name(self) -> str:
-		return self.room_name
+	def system_msg(self) -> str:
+		return str(self._system_msg or "")
