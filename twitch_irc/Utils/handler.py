@@ -12,7 +12,7 @@ from ..Classes.user import User
 from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
-from ..Classes.sub import Sub, ReSub, GiftPaidUpgrade, PrimePaidUpgrade
+from ..Classes.sub import Sub, ReSub, GiftPaidUpgrade, PrimePaidUpgrade, StandardPayForward
 from ..Classes.giftsub import GiftSub
 from ..Classes.mysterygiftsub import MysteryGiftSub
 from ..Classes.reward import Reward
@@ -369,6 +369,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
     - onMysteryGiftSub(MysteryGiftSub)
 	- onGiftPaidUpgrade(GiftPaidUpgrade)
 	- onPrimePaidUpgrade(TwitchPaidUpgrade)
+	- onStandardPayForward(StandardPayForward)
 	- onRitual(Ritual)
 	"""
 
@@ -449,6 +450,18 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 
 		Log.debug(f"Client launching: Client.onPrimePaidUpgrade: {str(vars(NewPrimeUpgrade))}")
 		asyncio.ensure_future( cls.onPrimePaidUpgrade(NewPrimeUpgrade) )
+		return True
+
+	if found_event == "standardpayforward":
+		NewStandardPay:StandardPayForward = StandardPayForward(payload)
+
+		NewStandardPay.Channel = cls.channels.get(NewStandardPay.room_name, None)
+		NewStandardPay.User = cls.users.get(NewStandardPay.user_name, None)
+		NewStandardPay.Prior = cls.users.get(NewStandardPay.prior_gifter_user_name, None)
+		NewStandardPay.Recipient = cls.users.get(NewStandardPay.recipient_user_name, None)
+
+		Log.debug(f"Client launching: Client.onStandardPayForward: {str(vars(NewStandardPay))}")
+		asyncio.ensure_future( cls.onStandardPayForward(NewStandardPay) )
 		return True
 
 	if found_event == "ritual":
