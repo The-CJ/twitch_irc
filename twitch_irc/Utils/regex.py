@@ -73,7 +73,7 @@ ReUserID:"re.Pattern" = re.compile(r"[@; ]user-id=(\d*?)[; ]")
 ReUserType:"re.Pattern" = re.compile(r"[@; ]user-type=(\S*?)[; ]")
 
 # other
-ReBadgeParts:"re.Pattern" = re.compile(r"^([^/]+)/?(\d+)?$")
+ReBadgeParts:"re.Pattern" = re.compile(r"^([^/]+)/?(\d*)$")
 ReUserName:"re.Pattern" = re.compile(r"(?:@|;| |^):(\S*?)!(\S*?)@(\S*?)\.tmi\.twitch\.tv[; ]")
-ReRoomName:"re.Pattern" = re.compile(r"[@; ](JOIN|PART|CLEARMSG|CLEARCHAT|ROOMSTATE|USERSTATE|PRIVMSG|USERNOTICE) #(\S*?)([; ]|$)")
-ReContent:"re.Pattern" = re.compile(r"[@; ](JOIN|PART|CLEARMSG|CLEARCHAT|ROOMSTATE|USERSTATE|PRIVMSG|USERNOTICE) #\S+? :(.+)")
+ReRoomName:"re.Pattern" = re.compile(r"[@; ](?:JOIN|PART|CLEARMSG|CLEARCHAT|ROOMSTATE|USERSTATE|PRIVMSG|USERNOTICE) #(\S*?)(?:[; ]|$)")
+ReContent:"re.Pattern" = re.compile(r"[@; ](?:JOIN|PART|CLEARMSG|CLEARCHAT|ROOMSTATE|USERSTATE|PRIVMSG|USERNOTICE) #\S+? :(.+)")
