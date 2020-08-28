@@ -113,11 +113,11 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 
 	search = re.search(ReContent, payload)
 	if search != None:
-		MehMessage._content = search.group(2)
+		MehMessage._content = search.group(1)
 
 	search = re.search(ReRoomName, payload)
 	if search != None:
-		MehMessage._room_name = search.group(2)
+		MehMessage._room_name = search.group(1)
 		WeKnowTheChan:Channel = cls.channels.get(MehMessage.room_name, None)
 		if WeKnowTheChan:
 			MehMessage.Channel = WeKnowTheChan
@@ -386,7 +386,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "sub":
 		NewSub:Sub = Sub(payload)
 
-		NewSub.User = cls.users.get(NewSub.user_name, None)
+		NewSub.User = cls.users.get(NewSub.login, None)
 		NewSub.Channel = cls.channels.get(NewSub.room_name, None)
 
 		Log.debug(f"Client launching: Client.onSub: {str(vars(NewSub))}")
@@ -396,7 +396,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "resub":
 		NewReSub:ReSub = ReSub(payload)
 
-		NewReSub.User = cls.users.get(NewReSub.user_name, None)
+		NewReSub.User = cls.users.get(NewReSub.login, None)
 		NewReSub.Channel = cls.channels.get(NewReSub.room_name, None)
 
 		Log.debug(f"Client launching: Client.onReSub: {str(vars(NewReSub))}")
@@ -407,7 +407,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewGiftSub:GiftSub = GiftSub(payload)
 
 		NewGiftSub.Channel = cls.channels.get(NewGiftSub.room_name, None)
-		NewGiftSub.Gifter = cls.users.get(NewGiftSub.user_name, None)
+		NewGiftSub.Gifter = cls.users.get(NewGiftSub.login, None)
 		NewGiftSub.Recipient = cls.users.get(NewGiftSub.recipient_user_name, None)
 
 		Log.debug(f"Client launching: Client.onGiftSub: {str(vars(NewGiftSub))}")
@@ -417,7 +417,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "submysterygift":
 		NewMassSub:MysteryGiftSub = MysteryGiftSub(payload)
 
-		NewMassSub.Gifter = cls.users.get(NewMassSub.user_name, None)
+		NewMassSub.Gifter = cls.users.get(NewMassSub.login, None)
 		NewMassSub.Channel = cls.channels.get(NewMassSub.room_name, None)
 
 		Log.debug(f"Client launching: Client.onMysteryGiftSub: {str(vars(NewMassSub))}")
@@ -427,7 +427,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "rewardgift":
 		NewReward:Reward = Reward(payload)
 
-		NewReward.Gifter = cls.users.get(NewReward.user_name, None)
+		NewReward.Gifter = cls.users.get(NewReward.login, None)
 		NewReward.Channel = cls.channels.get(NewReward.room_name, None)
 
 		Log.debug(f"Client launching: Client.onReward: {str(vars(NewReward))}")
@@ -438,7 +438,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewGiftUpgrade:GiftPaidUpgrade = GiftPaidUpgrade(payload)
 
 		NewGiftUpgrade.Channel = cls.channels.get(NewGiftUpgrade.room_name, None)
-		NewGiftUpgrade.User = cls.users.get(NewGiftUpgrade.user_name, None)
+		NewGiftUpgrade.User = cls.users.get(NewGiftUpgrade.login, None)
 		NewGiftUpgrade.Gifter = cls.users.get(NewGiftUpgrade.sender_login, None)
 
 		Log.debug(f"Client launching: Client.onGiftPaidUpgrade: {str(vars(NewGiftUpgrade))}")
@@ -448,7 +448,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "primepaidupgrade":
 		NewPrimeUpgrade:PrimePaidUpgrade = PrimePaidUpgrade(payload)
 
-		NewPrimeUpgrade.User = cls.users.get(NewPrimeUpgrade.user_name, None)
+		NewPrimeUpgrade.User = cls.users.get(NewPrimeUpgrade.login, None)
 		NewPrimeUpgrade.Channel = cls.channels.get(NewPrimeUpgrade.room_name, None)
 
 		Log.debug(f"Client launching: Client.onPrimePaidUpgrade: {str(vars(NewPrimeUpgrade))}")
@@ -459,7 +459,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewStandardPay:StandardPayForward = StandardPayForward(payload)
 
 		NewStandardPay.Channel = cls.channels.get(NewStandardPay.room_name, None)
-		NewStandardPay.User = cls.users.get(NewStandardPay.user_name, None)
+		NewStandardPay.User = cls.users.get(NewStandardPay.login, None)
 		NewStandardPay.Prior = cls.users.get(NewStandardPay.prior_gifter_user_name, None)
 		NewStandardPay.Recipient = cls.users.get(NewStandardPay.recipient_user_name, None)
 
@@ -471,7 +471,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewCommunityPay:CommunityPayForward = CommunityPayForward(payload)
 
 		NewCommunityPay.Channel = cls.channels.get(NewCommunityPay.room_name, None)
-		NewCommunityPay.User = cls.users.get(NewCommunityPay.user_name, None)
+		NewCommunityPay.User = cls.users.get(NewCommunityPay.login, None)
 		NewCommunityPay.Prior = cls.users.get(NewCommunityPay.prior_gifter_user_name, None)
 
 		Log.debug(f"Client launching: Client.onCommunityPayForward: {str(vars(NewCommunityPay))}")
@@ -482,7 +482,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewRitual:Ritual = Ritual(payload)
 
 		NewRitual.Channel = cls.channels.get(NewRitual.room_name, None)
-		NewRitual.User = cls.users.get(NewRitual.user_name)
+		NewRitual.User = cls.users.get(NewRitual.login)
 
 		Log.debug(f"Client launching: Client.onRitual: {str(vars(NewRitual))}")
 		asyncio.ensure_future( cls.onRitual(NewRitual) )
@@ -492,7 +492,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewRaid:Raid = Raid(payload)
 
 		NewRaid.Channel = cls.channels.get(NewRaid.room_name, None)
-		NewRaid.User = cls.users.get(NewRaid.user_name)
+		NewRaid.User = cls.users.get(NewRaid.login)
 
 		Log.debug(f"Client launching: Client.onRaid: {str(vars(NewRaid))}")
 		asyncio.ensure_future( cls.onRaid(NewRaid) )
