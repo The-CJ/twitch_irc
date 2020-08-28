@@ -13,7 +13,7 @@ from .channel import Channel
 from .stores import ChannelStore, UserStore
 from .user import User
 from .timeout import Timeout, Ban
-from .sub import Sub, ReSub, GiftPaidUpgrade
+from .sub import Sub, ReSub, GiftPaidUpgrade, CommunityPayForward, StandardPayForward, PrimePaidUpgrade
 from .giftsub import GiftSub
 from .mysterygiftsub import MysteryGiftSub
 from .reward import Reward
@@ -400,6 +400,27 @@ class Client():
 		"""
 		called every time someone resubs/upgrades from a gifted sub... yeah thats a extra case,
 		has a .Channel .User and a .Gifter object attachted to it
+		"""
+		pass
+
+	async def onPrimePaidUpgrade(self, PrimeUpgrade:PrimePaidUpgrade) -> None:
+		"""
+		called every time someone resubs/upgrades from a prime sub... yeah thats a extra case,
+		has a .Channel .User and a .Gifter object attachted to it
+		"""
+		pass
+
+	async def onStandardPayForward(self, StandardForward:StandardPayForward) -> None:
+		"""
+		called every time someone gifts to someone who got a gift before... yeah thats a extra case,
+		has a .Channel .User a .Gifter and a .Recipient object attachted to it
+		"""
+		pass
+
+	async def onCommunityPayForward(self, CommunityForward:CommunityPayForward) -> None:
+		"""
+		called every time someone resubs, who got hit by a mass sub before... yeah thats a extra case,
+		has a .Channel a .User and a .Prior attachted to it
 		"""
 		pass
 
