@@ -85,12 +85,12 @@ class Timeout(object):
 		# _room_name
 		search = re.search(ReRoomName, raw)
 		if search != None:
-			self._room_name = search.group(2)
+			self._room_name = search.group(1)
 
 		# _user_name
 		search = re.search(ReContent, raw)
 		if search != None:
-			self._user_name = search.group(2)
+			self._user_name = search.group(1)
 
 	# props
 	@property

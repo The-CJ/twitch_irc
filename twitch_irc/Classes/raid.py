@@ -182,7 +182,7 @@ class Raid(object):
 		# _room_name
 		search = re.search(ReRoomName, raw)
 		if search != None:
-			self._room_name = search.group(2)
+			self._room_name = search.group(1)
 
 		# _content
 		search = re.search(ReContent, raw)
