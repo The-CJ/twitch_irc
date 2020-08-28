@@ -17,6 +17,7 @@ from ..Classes.giftsub import GiftSub
 from ..Classes.mysterygiftsub import MysteryGiftSub
 from ..Classes.reward import Reward
 from ..Classes.ritual import Ritual
+from ..Classes.raid import Raid
 
 from ..Utils.regex import (
 	ReTargetMsgID, ReTMISendTS, ReLogin,
@@ -371,6 +372,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	- onPrimePaidUpgrade(TwitchPaidUpgrade)
 	- onStandardPayForward(StandardPayForward)
 	- onRitual(Ritual)
+	- onRaid(Raid)
 	"""
 
 	found_event:str = None
@@ -472,6 +474,16 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 
 		Log.debug(f"Client launching: Client.onRitual: {str(vars(NewRitual))}")
 		asyncio.ensure_future( cls.onRitual(NewRitual) )
+		return True
+
+	if found_event == "raid":
+		NewRaid:Raid = Raid(payload)
+
+		NewRaid.Channel = cls.channels.get(NewRaid.room_name, None)
+		NewRaid.User = cls.users.get(NewRaid.user_name)
+
+		Log.debug(f"Client launching: Client.onRaid: {str(vars(NewRaid))}")
+		asyncio.ensure_future( cls.onRaid(NewRaid) )
 		return True
 
 	print('#'*32)

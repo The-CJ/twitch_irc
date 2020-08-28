@@ -18,6 +18,7 @@ from .giftsub import GiftSub
 from .mysterygiftsub import MysteryGiftSub
 from .reward import Reward
 from .ritual import Ritual
+from .raid import Raid
 from ..Utils.traffic import addTraffic, trafficQuery
 from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
 from ..Utils.req import reqTags, reqCommands, reqMembership
@@ -420,6 +421,15 @@ class Client():
 		"""
 		called every time someone starts any kind of ritual. (rituals are strange)
 		has a .Channel and .User object attachted to it
+		"""
+		pass
+
+	async def onRaid(self, RaidEvent:Raid) -> None:
+		"""
+		called when another channel raids a channel
+		has a .Channel and .User object attachted to it
+		.Channel is the target aka where the bot is in
+		.User is the User (and also the channel) who is raiding
 		"""
 		pass
 
