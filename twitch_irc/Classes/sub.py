@@ -39,6 +39,7 @@ class Sub(UserNoticeStructure):
 			except:
 				raise AttributeError(raw)
 
+	# utils
 	def compact(self) -> dict:
 		d:dict = super().compact()
 		d["cumulative_months"] = self.cumulative_months
@@ -48,7 +49,6 @@ class Sub(UserNoticeStructure):
 		d["sub_plan_name"] = self.sub_plan_name
 		return d
 
-	# utils
 	def subBuild(self, raw:str):
 		search:re.Match
 
