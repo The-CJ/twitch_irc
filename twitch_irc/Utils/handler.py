@@ -12,7 +12,7 @@ from ..Classes.user import User
 from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
-from ..Classes.sub import Sub, ReSub, GiftPaidUpgrade
+from ..Classes.sub import Sub, ReSub, GiftPaidUpgrade, PrimePaidUpgrade
 from ..Classes.giftsub import GiftSub
 from ..Classes.mysterygiftsub import MysteryGiftSub
 from ..Classes.reward import Reward
@@ -368,6 +368,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	- onGiftSub(GiftSub)
     - onMysteryGiftSub(MysteryGiftSub)
 	- onGiftPaidUpgrade(GiftPaidUpgrade)
+	- onPrimePaidUpgrade(TwitchPaidUpgrade)
 	- onRitual(Ritual)
 	"""
 
@@ -438,6 +439,16 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 
 		Log.debug(f"Client launching: Client.onGiftPaidUpgrade: {str(vars(NewGiftUpgrade))}")
 		asyncio.ensure_future( cls.onGiftPaidUpgrade(NewGiftUpgrade) )
+		return True
+
+	if found_event == "primepaidupgrade":
+		NewPrimeUpgrade:PrimePaidUpgrade = PrimePaidUpgrade(payload)
+
+		NewPrimeUpgrade.User = cls.users.get(NewPrimeUpgrade.user_name, None)
+		NewPrimeUpgrade.Channel = cls.channels.get(NewPrimeUpgrade.room_name, None)
+
+		Log.debug(f"Client launching: Client.onPrimePaidUpgrade: {str(vars(NewPrimeUpgrade))}")
+		asyncio.ensure_future( cls.onPrimePaidUpgrade(NewPrimeUpgrade) )
 		return True
 
 	if found_event == "ritual":
