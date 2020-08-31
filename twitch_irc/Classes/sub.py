@@ -126,7 +126,7 @@ class GiftSub(UserNoticeStructure):
 		if raw != None:
 			try:
 				super().__init__(raw)
-				self.build(raw)
+				self.giftSubBuild(raw)
 			except:
 				raise AttributeError(raw)
 
@@ -146,7 +146,7 @@ class GiftSub(UserNoticeStructure):
 		d["Recipient"] = self.Recipient
 		return d
 
-	def build(self, raw:str):
+	def giftSubBuild(self, raw:str):
 		search:re.Match
 
 		# _msg_param_gift_months
