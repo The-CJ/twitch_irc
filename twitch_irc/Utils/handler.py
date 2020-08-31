@@ -415,13 +415,13 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		return True
 
 	if found_event == "submysterygift":
-		NewMassSub:MysteryGiftSub = MysteryGiftSub(payload)
+		NewGiftBomb:MysteryGiftSub = MysteryGiftSub(payload)
 
-		NewMassSub.Gifter = cls.users.get(NewMassSub.login, None)
-		NewMassSub.Channel = cls.channels.get(NewMassSub.room_name, None)
+		NewGiftBomb.Gifter = cls.users.get(NewGiftBomb.login, None)
+		NewGiftBomb.Channel = cls.channels.get(NewGiftBomb.room_name, None)
 
-		Log.debug(f"Client launching: Client.onMysteryGiftSub: {str(vars(NewMassSub))}")
-		asyncio.ensure_future( cls.onMysteryGiftSub(NewMassSub) )
+		Log.debug(f"Client launching: Client.onMysteryGiftSub: {str(vars(NewGiftBomb))}")
+		asyncio.ensure_future( cls.onMysteryGiftSub(NewGiftBomb) )
 		return True
 
 	if found_event == "rewardgift":
