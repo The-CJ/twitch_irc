@@ -13,7 +13,8 @@ from .channel import Channel
 from .stores import ChannelStore, UserStore
 from .user import User
 from .timeout import Timeout, Ban
-from .sub import Sub, ReSub, GiftPaidUpgrade, CommunityPayForward, StandardPayForward, PrimePaidUpgrade
+from .sub import Sub
+from .resub import ReSub, GiftPaidUpgrade, CommunityPayForward, StandardPayForward, PrimePaidUpgrade
 from .giftsub import GiftSub
 from .mysterygiftsub import MysteryGiftSub
 from .reward import Reward

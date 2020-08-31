@@ -12,7 +12,8 @@ from ..Classes.user import User
 from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
-from ..Classes.sub import Sub, ReSub, GiftPaidUpgrade, PrimePaidUpgrade, StandardPayForward, CommunityPayForward
+from ..Classes.sub import Sub
+from ..Classes.resub import ReSub, GiftPaidUpgrade, PrimePaidUpgrade, StandardPayForward, CommunityPayForward
 from ..Classes.giftsub import GiftSub
 from ..Classes.mysterygiftsub import MysteryGiftSub
 from ..Classes.reward import Reward
@@ -369,7 +370,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	- onGiftSub(GiftSub)
     - onMysteryGiftSub(MysteryGiftSub)
 	- onGiftPaidUpgrade(GiftPaidUpgrade)
-	- onPrimePaidUpgrade(TwitchPaidUpgrade)
+	- onPrimePaidUpgrade(PrimePaidUpgrade)
 	- onStandardPayForward(StandardPayForward)
 	- onCommunityPayForward(CommunityPayForward)
 	- onRitual(Ritual)
@@ -386,8 +387,8 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "sub":
 		NewSub:Sub = Sub(payload)
 
-		NewSub.User = cls.users.get(NewSub.login, None)
 		NewSub.Channel = cls.channels.get(NewSub.room_name, None)
+		NewSub.User = cls.users.get(NewSub.login, None)
 
 		Log.debug(f"Client launching: Client.onSub: {str(vars(NewSub))}")
 		asyncio.ensure_future( cls.onSub(NewSub) )
@@ -396,8 +397,8 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "resub":
 		NewReSub:ReSub = ReSub(payload)
 
-		NewReSub.User = cls.users.get(NewReSub.login, None)
 		NewReSub.Channel = cls.channels.get(NewReSub.room_name, None)
+		NewReSub.User = cls.users.get(NewReSub.login, None)
 
 		Log.debug(f"Client launching: Client.onReSub: {str(vars(NewReSub))}")
 		asyncio.ensure_future( cls.onReSub(NewReSub) )
@@ -438,8 +439,8 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewGiftUpgrade:GiftPaidUpgrade = GiftPaidUpgrade(payload)
 
 		NewGiftUpgrade.Channel = cls.channels.get(NewGiftUpgrade.room_name, None)
-		NewGiftUpgrade.User = cls.users.get(NewGiftUpgrade.login, None)
 		NewGiftUpgrade.Gifter = cls.users.get(NewGiftUpgrade.sender_login, None)
+		NewGiftUpgrade.User = cls.users.get(NewGiftUpgrade.login, None)
 
 		Log.debug(f"Client launching: Client.onGiftPaidUpgrade: {str(vars(NewGiftUpgrade))}")
 		asyncio.ensure_future( cls.onGiftPaidUpgrade(NewGiftUpgrade) )
@@ -448,8 +449,8 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "primepaidupgrade":
 		NewPrimeUpgrade:PrimePaidUpgrade = PrimePaidUpgrade(payload)
 
-		NewPrimeUpgrade.User = cls.users.get(NewPrimeUpgrade.login, None)
 		NewPrimeUpgrade.Channel = cls.channels.get(NewPrimeUpgrade.room_name, None)
+		NewPrimeUpgrade.User = cls.users.get(NewPrimeUpgrade.login, None)
 
 		Log.debug(f"Client launching: Client.onPrimePaidUpgrade: {str(vars(NewPrimeUpgrade))}")
 		asyncio.ensure_future( cls.onPrimePaidUpgrade(NewPrimeUpgrade) )
@@ -459,8 +460,8 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewStandardPay:StandardPayForward = StandardPayForward(payload)
 
 		NewStandardPay.Channel = cls.channels.get(NewStandardPay.room_name, None)
-		NewStandardPay.User = cls.users.get(NewStandardPay.login, None)
 		NewStandardPay.Prior = cls.users.get(NewStandardPay.prior_gifter_user_name, None)
+		NewStandardPay.User = cls.users.get(NewStandardPay.login, None)
 		NewStandardPay.Recipient = cls.users.get(NewStandardPay.recipient_user_name, None)
 
 		Log.debug(f"Client launching: Client.onStandardPayForward: {str(vars(NewStandardPay))}")
@@ -471,8 +472,8 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewCommunityPay:CommunityPayForward = CommunityPayForward(payload)
 
 		NewCommunityPay.Channel = cls.channels.get(NewCommunityPay.room_name, None)
-		NewCommunityPay.User = cls.users.get(NewCommunityPay.login, None)
 		NewCommunityPay.Prior = cls.users.get(NewCommunityPay.prior_gifter_user_name, None)
+		NewCommunityPay.User = cls.users.get(NewCommunityPay.login, None)
 
 		Log.debug(f"Client launching: Client.onCommunityPayForward: {str(vars(NewCommunityPay))}")
 		asyncio.ensure_future( cls.onCommunityPayForward(NewCommunityPay) )

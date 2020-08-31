@@ -45,8 +45,8 @@ class GiftPaidUpgrade(UserNoticeStructure):
 
 		# classes
 		self.Channel:"TwitchChannel" = None
-		self.User:"TwitchUser" = None
 		self.Gifter:"TwitchUser" = None
+		self.User:"TwitchUser" = None
 
 		if raw != None:
 			try:
@@ -152,8 +152,8 @@ class StandardPayForward(UserNoticeStructure):
 
 		# classes
 		self.Channel:"TwitchChannel" = None
-		self.User:"TwitchUser" = None
 		self.Prior:"TwitchUser" = None
+		self.User:"TwitchUser" = None
 		self.Recipient:"TwitchUser" = None
 
 		if raw != None:
@@ -263,8 +263,8 @@ class CommunityPayForward(UserNoticeStructure):
 
 		# classes
 		self.Channel:"TwitchChannel" = None
-		self.User:"TwitchUser" = None
 		self.Prior:"TwitchUser" = None
+		self.User:"TwitchUser" = None
 
 		if raw != None:
 			try:
