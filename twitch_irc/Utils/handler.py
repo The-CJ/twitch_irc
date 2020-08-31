@@ -12,9 +12,8 @@ from ..Classes.user import User
 from ..Classes.userstate import UserState
 from ..Classes.message import Message
 from ..Classes.timeout import Timeout, Ban
-from ..Classes.sub import Sub
+from ..Classes.sub import Sub, GiftSub
 from ..Classes.resub import ReSub, GiftPaidUpgrade, PrimePaidUpgrade, StandardPayForward, CommunityPayForward
-from ..Classes.giftsub import GiftSub
 from ..Classes.mysterygiftsub import MysteryGiftSub
 from ..Classes.reward import Reward
 from ..Classes.ritual import Ritual
