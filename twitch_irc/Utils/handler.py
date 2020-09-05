@@ -18,6 +18,7 @@ from ..Classes.mysterygiftsub import MysteryGiftSub
 from ..Classes.reward import Reward
 from ..Classes.ritual import Ritual
 from ..Classes.raid import Raid
+from ..Classes.bitsbadgetier import BitsBadgeTier
 
 from ..Utils.regex import (
 	ReTargetMsgID, ReTMISendTS, ReLogin,
@@ -496,6 +497,16 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 
 		Log.debug(f"Client launching: Client.onRaid: {str(vars(NewRaid))}")
 		asyncio.ensure_future( cls.onRaid(NewRaid) )
+		return True
+
+	if found_event == "bitsbadgetier":
+		NewSomething:BitsBadgeTier = BitsBadgeTier(payload)
+
+		NewSomething.Channel = cls.channels.get(NewRaid.room_name, None)
+		NewSomething.User = cls.users.get(NewRaid.login)
+
+		Log.debug(f"Client launching: Client.onBitsBadgeTier: {str(vars(NewSomething))}")
+		asyncio.ensure_future( cls.onBitsBadgeTier(NewSomething) )
 		return True
 
 	print('#'*32)

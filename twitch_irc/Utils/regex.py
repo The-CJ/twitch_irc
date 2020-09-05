@@ -54,6 +54,7 @@ ReMsgParamSenderLogin:"re.Pattern" = re.compile(r"[@; ]msg-param-sender-login=(\
 ReMsgParamSenderName:"re.Pattern" = re.compile(r"[@; ]msg-param-sender-name=(\S*?)[; ]")
 ReMsgParamSubPlan:"re.Pattern" = re.compile(r"[@; ]msg-param-sub-plan=(\S*?)[; ]")
 ReMsgParamSubPlanName:"re.Pattern" = re.compile(r"[@; ]msg-param-sub-plan-name=(\S*?)[; ]")
+ReMsgParamThreshold:"re.Pattern" = re.compile(r"[@; ]msg-param-threshold=(\d*?)[; ]")
 ReMsgParamTotalRewardCount:"re.Pattern" = re.compile(r"[@; ]msg-param-total-reward-count=(\d*?)[; ]")
 ReMsgParamTriggerAmount:"re.Pattern" = re.compile(r"[@; ]msg-param-trigger-amount=(\d*?)[; ]")
 ReMsgParamTriggerType:"re.Pattern" = re.compile(r"[@; ]msg-param-trigger-type=(\S*?)[; ]")
