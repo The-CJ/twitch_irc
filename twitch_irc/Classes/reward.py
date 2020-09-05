@@ -15,6 +15,11 @@ from ..Utils.regex import (
 class Reward(UserNoticeStructure):
 	"""
 	This Class represents a reward. Things like, unlocking emotes to random people when someone gifts subs or so.
+
+	Example:
+	```
+	@badge-info=;badges=;color=#696969;display-name=The__CJ;emotes=;flags=;id=392fba88-487c-48ea-b642-4aa12dd6672d;login=the__cj;mod=0;msg-id=rewardgift;msg-param-domain=hyperscape_megacommerce;msg-param-selected-count=5;msg-param-total-reward-count=5;msg-param-trigger-amount=1;msg-param-trigger-type=SUBGIFT;room-id=94638902;subscriber=0;system-msg=The__CJ's\sGift\sshared\srewards\sto\s5\sothers\sin\sChat!;tmi-sent-ts=1598920508436;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
+	```
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.user_name}'>"

@@ -393,6 +393,12 @@ class Client():
 	async def onReSub(self, ReSubEvent:ReSub) -> None:
 		"""
 		called every time someone resubs, has a .Channel and .User object attachted to it
+
+		an alternativ of this event may get fired, because twitch hates me
+		- onGiftPaidUpgrade
+		- onPrimePaidUpgrade
+		- onStandardPayForward
+		- onCommunityPayForward
 		"""
 		pass
 
@@ -435,6 +441,8 @@ class Client():
 		called every time someone gifts sub(s) to random people in chat,
 		u may wanna use .mass_gift_count to get the number on how many (.sub_plan) subs have been gifted
 		has a .Channel and .Gifter object attachted to it
+
+		This event is followed by {MysteryGiftSubEvent.mass_gift_count} of self.onGiftSub
 		"""
 		pass
 

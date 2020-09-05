@@ -21,6 +21,11 @@ class ReSub(Sub):
 	That thing is so basic, that it has the exact same tags as a Sub.
 	This case is the only nice thing, because there is a handful of "special" resub options.
 	Buckle Up My Dude, the following classes with be dog feces. YEEEE-HAAAAA
+
+	Example raw:
+	```
+	@badge-info=subscriber/4;badges=subscriber/3,premium/1;color=#696969;display-name=The__CJ;emotes=;flags=;id=1823ea14-c9b9-414b-b914-0106ed56b27b;login=the__cj;mod=0;msg-id=resub;msg-param-cumulative-months=4;msg-param-months=0;msg-param-should-share-streak=0;msg-param-sub-plan-name=Name;msg-param-sub-plan=Prime;msg-param-was-gifted=false;room-id=94638902;subscriber=1;system-msg=The__CJ\ssubscribed\swith\sTwitch\sPrime.\sThey've\ssubscribed\sfor\s4\smonths!;tmi-sent-ts=1598919683700;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot :o hello there
+	```
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}' months='{self.cumulative_months}'>"
@@ -33,10 +38,15 @@ class GiftPaidUpgrade(UserNoticeStructure):
 
 	Dev Note: soo.. twitch is not giving us a `msg-param-sub-plan` tag, which is strange,
 	i mean what happens if you got gifted a tier 1 and then resub by yourself with tier 2?
-	it will trigger a `msg-id=giftpaidupgrad` but will not show which tier... strange
+	it will trigger a `msg-id=giftpaidupgrade` but will not show which tier... strange
+
+	Example:
+	```
+	@badge-info=subscriber/1;badges=subscriber/0;color=#696969;display-name=The__CJ;emotes=;flags=;id=f5e242bd-2932-464f-991b-8d07d155c616;login=the__cj;mod=0;msg-id=giftpaidupgrade;msg-param-sender-login=phaaze;msg-param-sender-name=Phaaze;room-id=94638902;subscriber=1;system-msg=The__CJ\sis\scontinuing\sthe\sGift\sSub\sthey\sgot\sfrom\sPhaaze!;tmi-sent-ts=1598923441090;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
+	```
 	"""
 	def __repr__(self):
-		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}' gifter='{self.sender_login}'>"
+		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}' old_gifter='{self.sender_login}'>"
 
 	def __init__(self, raw:str or None):
 		# extra tags (ordered)
@@ -92,6 +102,11 @@ class PrimePaidUpgrade(UserNoticeStructure):
 	Yeeeay another special case of sub.
 	This Class comes up when a user subbed with prime once, and now resubbs to a normal paid sub.
 	aaaa yes... twitch.
+
+	Example:
+	```
+	@badge-info=subscriber/27;badges=subscriber/24,premium/1;color=#696969;display-name=The__CJ;emotes=;flags=;id=3ce2d100-c623-4695-b6db-63c15e125205;login=the__cj;mod=0;msg-id=primepaidupgrade;msg-param-sub-plan=1000;room-id=94638902;subscriber=1;system-msg=The__CJ\sconverted\sfrom\sa\sTwitch\sPrime\ssub\sto\sa\sTier\s1\ssub!;tmi-sent-ts=1599060360623;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
+	```
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}'>"
@@ -250,6 +265,11 @@ class CommunityPayForward(UserNoticeStructure):
 	"""
 	U know... everytime i think im done, there is more...
 	Sooo this Class comes up when someone resubs, who was hit with a MysteryGiftSub (aka. Mass Sub) before.
+
+	Example:
+	```
+	@badge-info=subscriber/1;badges=subscriber/0;color=;display-name=The__CJ;emotes=;flags=;id=3ce64633-6bb1-4092-9f16-f1efaf1df6d8;login=the__cj;mod=0;msg-id=communitypayforward;msg-param-prior-gifter-anonymous=false;msg-param-prior-gifter-display-name=Phaaze;msg-param-prior-gifter-id=534374936;msg-param-prior-gifter-user-name=kage_ryu07;room-id=94638902;subscriber=1;system-msg=The__CJ\sis\spaying\sforward\sthe\sGift\sthey\sgot\sfrom\sPhaaze\sto\sthe\scommunity!;tmi-sent-ts=1599167980309;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
+	```
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}' old_massgifter='{self.prior_gifter_user_name}'>"

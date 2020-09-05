@@ -15,9 +15,14 @@ class Raid(UserNoticeStructure):
 	So rituals are a new(?) thing in twitch and they may appear on multiple channel and or user related events,
 	however, currently its only used in one case, the 'new_chatter' event.
 	More might come at some point.
+
+	Example:
+	```
+    @badge-info=subscriber/8;badges=subscriber/6,partner/1;color=#696969;display-name=The__CJ;emotes=;flags=;id=4e016d38-6c1e-41ec-8775-5541a517d2a6;login=The__CJ;mod=1;msg-id=raid;msg-param-displayName=The__CJ;msg-param-login=the__cj;msg-param-profileImageURL=https://static-cdn.jtvnw.net/jtv_user_pictures/abcdefg.png;msg-param-viewerCount=1234;room-id=94638902;subscriber=1;system-msg=1234\sraiders\sfrom\sThe__CJ\shave\sjoined!;tmi-sent-ts=1598924134689;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
+	```
 	"""
 	def __repr__(self):
-		return f"<{self.__class__.__name__} channel='{self.room_name}' event='{self.ritual_name}'>"
+		return f"<{self.__class__.__name__} from='{self.login}' amount='{self.viewer_count}'>"
 
 	def __init__(self, raw:str or None):
 		# new tags (ordered)

@@ -14,6 +14,11 @@ class Ritual(UserNoticeStructure):
 	So rituals are a new(?) thing in twitch and they may appear on multiple channel and or user related events,
 	however, currently its only used in one case, the 'new_chatter' event.
 	More might come at some point.
+
+	Example:
+	```
+	@badge-info=;badges=;color=#696969;display-name=The__CJ;emotes=30259:0-6;flags=;id=ca8a4f94-2a75-4f23-9873-4a384a798559;login=the__cj;mod=0;msg-id=ritual;msg-param-ritual-name=new_chatter;room-id=94638902;subscriber=0;system-msg=@The__CJ\sis\snew\shere.\sSay\shello!;tmi-sent-ts=1599232912415;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot :HeyGuys
+	```
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' event='{self.ritual_name}' user='{self.login}'>"

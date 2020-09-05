@@ -12,7 +12,12 @@ from ..Utils.regex import ReMsgParamMassGiftCount, ReMsgParamSubPlan, ReMsgParam
 class MysteryGiftSub(UserNoticeStructure):
 	"""
 	This Class represents a submysterygift, u may also call this a: "Sub Bomb" or so
-    (in this event is not tracked who got the subs, just the one who buyed the subs)
+	(in this event is not tracked who got the subs, just the one who buyed the subs)
+
+	Example:
+	```
+	@badge-info=subscriber/16;badges=subscriber/12,bits-charity/1;color=#696969;display-name=The__CJ;emotes=;flags=;id=5bcf7520-4596-4494-9fea-41943783ccf8;login=the__cj;mod=0;msg-id=submysterygift;msg-param-mass-gift-count=3;msg-param-origin-id=123456789;msg-param-sender-count=27;msg-param-sub-plan=1000;room-id=94638902;subscriber=1;system-msg=The__CJ\sis\sgifting\s3\sTier\s1\sSubs\sto\sPhaazebot's\scommunity!\sThey've\sgifted\sa\stotal\sof\s27\sin\sthe\schannel!;tmi-sent-ts=1599059927291;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
+	```
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' gifter='{self.login}' amount='{self.mass_gift_count}'>"
