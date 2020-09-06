@@ -32,17 +32,19 @@ class ReSub(Sub):
 
 class GiftPaidUpgrade(UserNoticeStructure):
 	"""
-	This Class represents a upgrade from a gift sub, its like a normal resub... but special
-	yeah... twitch stuff.
-	It just means someone who got a giftsub, now subs normaly, but its not normal resub, because we get extra vars... duh
+	This Class represents a notification from a gift sub, to a normal paid sub. (Its not a resub.)
+	This happens whenever the person decides to upgrade, which might happen 2 hours after reciving the giftsub.
+	The resub that followes will come at the next month.
 
-	Dev Note: soo.. twitch is not giving us a `msg-param-sub-plan` tag, which is strange,
-	i mean what happens if you got gifted a tier 1 and then resub by yourself with tier 2?
-	it will trigger a `msg-id=giftpaidupgrade` but will not show which tier... strange
+	This class will also be used for `msg-id=anongiftpaidupgrade` if its anonym, sender_name and sender_login are always empty
 
-	Example:
+	Example giftpaidupgrade:
 	```
 	@badge-info=subscriber/1;badges=subscriber/0;color=#696969;display-name=The__CJ;emotes=;flags=;id=f5e242bd-2932-464f-991b-8d07d155c616;login=the__cj;mod=0;msg-id=giftpaidupgrade;msg-param-sender-login=phaaze;msg-param-sender-name=Phaaze;room-id=94638902;subscriber=1;system-msg=The__CJ\sis\scontinuing\sthe\sGift\sSub\sthey\sgot\sfrom\sPhaaze!;tmi-sent-ts=1598923441090;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
+	```
+	Example anongiftpaidupgrade:
+	```
+	@badge-info=subscriber/2;badges=subscriber/2,partner/1;color=#696969;display-name=The__CJ;emotes=;flags=;id=a063c384-0db6-4698-80b1-27e65fc08d50;login=the__cj;mod=0;msg-id=anongiftpaidupgrade;room-id=94638902;subscriber=1;system-msg=The__CJ\sis\scontinuing\sthe\sGift\sSub\sthey\sgot\sfrom\san\sanonymous\suser!;tmi-sent-ts=1599393085963;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
 	```
 	"""
 	def __repr__(self):
@@ -70,6 +72,7 @@ class GiftPaidUpgrade(UserNoticeStructure):
 		d:dict = super().compact()
 		d["sender_login"] = self.sender_login
 		d["sender_name"] = self.sender_name
+		d["anonym"] = self.anonym
 		d["Channel"] = self.Channel
 		d["User"] = self.User
 		d["Gifter"] = self.Gifter
@@ -96,6 +99,10 @@ class GiftPaidUpgrade(UserNoticeStructure):
 	@property
 	def sender_name(self) -> str:
 		return str(self._msg_param_sender_name or "")
+
+	@property
+	def anonym(self) -> bool:
+		return not bool(self._msg_param_sender_login)
 
 class PrimePaidUpgrade(UserNoticeStructure):
 	"""
