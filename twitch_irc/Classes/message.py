@@ -10,7 +10,7 @@ from .undefined import UNDEFINED
 from ..Utils.regex import (
     ReAction, ReUserName, ReBits,
 	ReReplyParentDisplayName, ReReplyParentMsgBody, ReReplyParentMsgID,
-	ReReplyParentUserID, ReReplyParentUserLogin
+	ReReplyParentUserID, ReReplyParentUserLogin, ReEmoteOnly
 )
 
 class Message(BasicEventStructure):
@@ -32,6 +32,7 @@ class Message(BasicEventStructure):
 	def __init__(self, raw:str or None):
 		# new tags (ordered)
 		self._bits:int = UNDEFINED
+		self._emote_only:bool = UNDEFINED
 		self._reply_parent_display_name:str = UNDEFINED
 		self._reply_parent_msg_body:str = UNDEFINED
 		self._reply_parent_msg_id:str = UNDEFINED
@@ -59,6 +60,7 @@ class Message(BasicEventStructure):
 		d:dict = super().compact()
 		d["content"] = self.content
 		d["bits"] = self.bits
+		d["_emote_only"] = self._emote_only
 		d["is_reply"] = self.is_reply
 		d["is_action"] = self.is_action
 		d["Channel"] = self.Channel
@@ -80,6 +82,11 @@ class Message(BasicEventStructure):
 		search = re.search(ReBits, raw)
 		if search != None:
 			self._bits = search.group(1) # TODO
+
+		# _emote_only
+		search = re.search(ReEmoteOnly, raw)
+		if search != None:
+			self._emote_only = True if search.group(1) == '1' else False
 
 		# _reply_parent_display_name
 		search = re.search(ReReplyParentDisplayName, raw)
@@ -136,6 +143,10 @@ class Message(BasicEventStructure):
 	@property
 	def bits(self) -> str:
 		return self._bits or ""
+
+	@property
+	def emote_only(self) -> str:
+		return bool(self._emote_only)
 
 	@property
 	def content(self) -> str:
