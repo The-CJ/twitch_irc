@@ -66,7 +66,8 @@ class GeneralTwitchTagUtils(object):
 		looks for a specific badge, might also enshure a minimum version of this badge if given.
 		works for both, .badges and .badges_info
 		```
-		check_badges = [<Badge name='subscriber' version='12'>]
+		check_badges = [<Badge name='subscriber' version='9'>]
+		hasBadge(check_badges, "subscriber") -> True
 		hasBadge(check_badges, "subscriber", 6) -> True
 		hasBadge(check_badges, "subscriber", 12) -> False
 		hasBadge(check_badges, "premium") -> False

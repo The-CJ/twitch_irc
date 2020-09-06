@@ -142,7 +142,7 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 	Msg:Message = Message(payload)
 
 	#get Channel
-	Chan:Channel = cls.channels.get(Msg.channel_name, None)
+	Chan:Channel = cls.channels.get(Msg.room_name, None)
 	if Chan:
 		Msg.Channel = Chan
 	else:
@@ -176,7 +176,7 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 
 	# safty step, add author to channels viewer list, and channel to viewer
 	Msg.Channel.viewers[Msg.Author.name] = Msg.Author
-	Msg.Author.found_in.add(Msg.channel_name)
+	Msg.Author.found_in.add(Msg.room_name)
 
 	Log.debug(f"Client launching: Client.onMessage: {str(vars(Msg))}")
 	asyncio.ensure_future( cls.onMessage(Msg) )

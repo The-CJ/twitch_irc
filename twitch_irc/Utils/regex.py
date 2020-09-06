@@ -17,6 +17,7 @@ ReUserNotice:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv USERNOTICE #.+$")
 
 # extended IRC Events
 ReUserListData:"re.Pattern" = re.compile(r".*353 .* = #(\S+?) :(.*)$")
+ReAction:"re.Pattern" = re.compile(r"\x01{1}ACTION (.+?)\x01{1}")
 
 # twitch tags
 ReBadgeInfo:"re.Pattern" = re.compile(r"[@; ]badge-info=(\S*?)[; ]")
@@ -61,6 +62,11 @@ ReMsgParamTriggerType:"re.Pattern" = re.compile(r"[@; ]msg-param-trigger-type=(\
 ReMsgParamViewerCount:"re.Pattern" = re.compile(r"[@; ]msg-param-viewerCount=(\d*?)[; ]")
 ReR9k:"re.Pattern" = re.compile(r"[@; ]r9k=(1|0)[; ]")
 ReRituals:"re.Pattern" = re.compile(r"[@; ]rituals=(1|0)[; ]")
+ReReplyParentDisplayName:"re.Pattern" = re.compile(r"[@; ]reply-parent-display-name=(\S*?)[; ]")
+ReReplyParentMsgBody:"re.Pattern" = re.compile(r"[@; ]reply-parent-msg-body=(\S*?)[; ]")
+ReReplyParentMsgID:"re.Pattern" = re.compile(r"[@; ]reply-parent-msg-id=(\S*?)[; ]")
+ReReplyParentUserID:"re.Pattern" = re.compile(r"[@; ]reply-parent-user-id=(\d*?)[; ]")
+ReReplyParentUserLogin:"re.Pattern" = re.compile(r"[@; ]reply-parent-user-login=(\S*?)[; ]")
 ReRoomID:"re.Pattern" = re.compile(r"[@; ]room-id=(\d*?)[; ]")
 ReSlow:"re.Pattern" = re.compile(r"[@; ]slow=(\d*?)[; ]")
 ReSubscriber:"re.Pattern" = re.compile(r"[@; ]subscriber=(0|1)[; ]")

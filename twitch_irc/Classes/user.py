@@ -87,7 +87,7 @@ class User(object):
 		"""
 
 		self._name = Msg.user_name
-		self._display_name = Msg.user_display_name
+		self._display_name = Msg.display_name
 		self._user_id = Msg.user_id
 		self._generated_via_channel = Msg.room_name
 
