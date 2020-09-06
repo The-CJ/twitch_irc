@@ -502,8 +502,8 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	if found_event == "bitsbadgetier":
 		NewSomething:BitsBadgeTier = BitsBadgeTier(payload)
 
-		NewSomething.Channel = cls.channels.get(NewRaid.room_name, None)
-		NewSomething.User = cls.users.get(NewRaid.login)
+		NewSomething.Channel = cls.channels.get(NewSomething.room_name, None)
+		NewSomething.User = cls.users.get(NewSomething.login)
 
 		Log.debug(f"Client launching: Client.onBitsBadgeTier: {str(vars(NewSomething))}")
 		asyncio.ensure_future( cls.onBitsBadgeTier(NewSomething) )

@@ -143,6 +143,9 @@ class Client():
 			self.users = UserStore()
 			self.query_running = True
 			self.auth_success = False
+			if self.ConnectionWriter:
+				self.ConnectionWriter.close()
+
 			# not resetting self.stored_traffic, maybe there is something inside
 			Log.debug("Client resetted main attributes")
 
