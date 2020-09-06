@@ -107,8 +107,9 @@ class GiftPaidUpgrade(UserNoticeStructure):
 class PrimePaidUpgrade(UserNoticeStructure):
 	"""
 	Yeeeay another special case of sub.
-	This Class comes up when a user subbed with prime once, and now resubbs to a normal paid sub.
-	aaaa yes... twitch.
+	This Class comes up when a user subbed with prime once, and now decides to pais for the next month.
+	This happens whenever the person decides to upgrade, which might happen 2 hours after subbing with prime.
+	The resub that followes will come at the next month.
 
 	Example:
 	```
@@ -158,6 +159,11 @@ class StandardPayForward(UserNoticeStructure):
 	"""
 	eeee yeah... whatever
 	Happens when someone else is gifting a sub to somone who got a sub from somone else before... thanks twitch
+
+	Example:
+	```
+	@badge-info=subscriber/1;badges=subscriber/0,hype-train/2;color=#696969;display-name=The__CJ;emotes=;flags=;id=802d2f8e-99ea-4095-aa43-3cb6b72b403e;login=the__cj;mod=0;msg-id=standardpayforward;msg-param-prior-gifter-anonymous=false;msg-param-prior-gifter-display-name=Phaaze;msg-param-prior-gifter-id=123456;msg-param-prior-gifter-user-name=phaaze;msg-param-recipient-display-name=Phooze;msg-param-recipient-id=654321;msg-param-recipient-user-name=phooze;room-id=94638902;subscriber=1;system-msg=The__CJ\sis\spaying\sforward\sthe\sGift\sthey\sgot\sfrom\sPhaaze\sto\sPhooze!;tmi-sent-ts=1599426215104;user-id=67664971;user-type= :tmi.twitch.tv USERNOTICE #phaazebot
+	```
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' new_gifter='{self.login}' old_gifter={self.prior_gifter_user_name} to='{self.recipient_user_name}'>"
