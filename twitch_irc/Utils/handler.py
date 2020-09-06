@@ -435,7 +435,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		asyncio.ensure_future( cls.onReward(NewReward) )
 		return True
 
-	if found_event == "giftpaidupgrade":
+	if found_event in ["giftpaidupgrade", "anongiftpaidupgrade"]:
 		NewGiftUpgrade:GiftPaidUpgrade = GiftPaidUpgrade(payload)
 
 		NewGiftUpgrade.Channel = cls.channels.get(NewGiftUpgrade.room_name, None)
