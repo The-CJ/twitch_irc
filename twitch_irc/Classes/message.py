@@ -82,7 +82,7 @@ class Message(BasicEventStructure):
 		# _bits
 		search = re.search(ReBits, raw)
 		if search != None:
-			self._bits = search.group(1) # TODO
+			self._bits = search.group(1)
 
 		# _emote_only
 		search = re.search(ReEmoteOnly, raw)
@@ -152,8 +152,8 @@ class Message(BasicEventStructure):
 
 	# new props
 	@property
-	def bits(self) -> str:
-		return self._bits or ""
+	def bits(self) -> int:
+		return int(self._bits or 0)
 
 	@property
 	def emote_only(self) -> str:
