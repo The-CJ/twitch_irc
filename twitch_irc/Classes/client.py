@@ -129,7 +129,7 @@ class Client():
 
 	async def main(self) -> None:
 		"""
-		a loop that creates the connections a and proceed all events
+		a loop that creates the connections and processess all events
 		if self.reconnect is active, it handles critical errors with a restart of the bot
 		will run forever until self.stop() is called
 		or a critical error without reconnect
@@ -198,7 +198,6 @@ class Client():
 	async def listen(self) -> None:
 
 		#listen to twitch
-		# async for payload in OrderedAsyncLoop(self):
 		while self.running:
 
 			Log.debug("Client awaiting response...")
@@ -246,6 +245,7 @@ class Client():
 		if (self.traffic <= self.request_limit) or ignore_limit:
 			asyncio.ensure_future( addTraffic(self) )
 			asyncio.ensure_future( self.onSend(content) )
+			Log.debug(f"Client sending {len(content)} bytes of content to the ConnectionWriter")
 			self.ConnectionWriter.write( content )
 
 		else:
