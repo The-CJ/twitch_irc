@@ -294,7 +294,7 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 
 	# the user left the last channel we monitor, he now is useless for us
 	if len(KnownUser.found_in) == 0:
-		cls.users.pop(KnownUser, None)
+		cls.users.pop(KnownUser.name, None)
 
 	Log.debug(f"Client launching: Client.onMemberPart: {str(vars(Chan))} {str(vars(KnownUser))}")
 	asyncio.ensure_future( cls.onMemberPart(Chan, KnownUser) )
