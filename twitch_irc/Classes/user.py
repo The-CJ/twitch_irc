@@ -130,9 +130,9 @@ class User(object):
 
 		ret:List["Channel"] = []
 
-		for channel_id in self.found_in:
+		for channel_name in self.found_in:
 
-			Ch:"Channel" = cls.channels.get(channel_id, None)
+			Ch:"Channel" = cls.channels.get(channel_name, None)
 			if Ch: ret.append(Ch)
 
 		return ret
