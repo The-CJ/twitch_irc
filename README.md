@@ -6,7 +6,14 @@ but usable to any purpose
 
 > Inspired by the code of Rapptz's Discord library (function names and usage)
 
-## Usage
+## Install
+
+There are many ways. here my "prefered" one:
+```
+py -m pip install git+https://github.com/The-CJ/twitch_irc.py.git#egg=twitch_irc
+```
+
+## Example
 
 ```py
 import twitch_irc
