@@ -168,15 +168,13 @@ class Client():
 				Log.debug("Client sended base data, continue to listen for response...")
 				await self.listen() # <- that processess stuff
 
-			except InvalidAuth as E:
+			except InvalidAuth:
 				Log.error("Invalid Auth for Twitch, please check `token` and `nickname`, not trying to reconnect")
-				await self.onError(E)
 				self.stop()
 				continue
 
-			except InvalidCredentials as E:
+			except InvalidCredentials:
 				Log.error("Twitch never send any response, check credentials for syntax, not trying to reconnect")
-				await self.onError(E)
 				self.stop()
 				continue
 
