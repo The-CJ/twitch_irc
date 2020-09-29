@@ -19,7 +19,7 @@ __title__ = 'twitch_irc'
 __author__ = 'The_CJ'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2018-2020 The_CJ'
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from .Classes.badge import Badge
 from .Classes.bitsbadgetier import BitsBadgeTier
@@ -36,3 +36,6 @@ from .Classes.sub import Sub, GiftSub
 from .Classes.timeout import Timeout, Ban
 from .Classes.user import User
 from .Classes.userstate import UserState
+
+class Errors(object):
+	from .Utils.errors import InvalidAuth, InvalidCredentials, PingTimeout, EmptyPayload

@@ -20,7 +20,7 @@ from .reward import Reward
 from .ritual import Ritual
 from .raid import Raid
 from ..Utils.traffic import addTraffic, trafficQuery
-from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload
+from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload, InvalidCredentials
 from ..Utils.req import reqTags, reqCommands, reqMembership
 from ..Utils.cmd import sendNick, sendPass
 from ..Utils.detector import mainEventDetector, garbageDetector
@@ -170,8 +170,15 @@ class Client():
 
 			except InvalidAuth as E:
 				Log.error("Invalid Auth for Twitch, please check `token` and `nickname`, not trying to reconnect")
-				self.stop()
 				await self.onError(E)
+				self.stop()
+				continue
+
+			except InvalidCredentials as E:
+				Log.error("Twitch never send any response, check credentials for syntax, not trying to reconnect")
+				await self.onError(E)
+				self.stop()
+				continue
 
 			except EmptyPayload as E:
 				Log.error("Empty payload from twitch, trying reconnect")
@@ -208,7 +215,10 @@ class Client():
 
 			#just to be sure
 			if payload in ["", " ", None] or not payload:
-				raise EmptyPayload()
+				if self.auth_success:
+					raise EmptyPayload()
+				else:
+					raise InvalidCredentials()
 
 			# last ping is over 6min (way over twitch normal response)
 			if (time.time() - self.last_ping) > 60*6:
