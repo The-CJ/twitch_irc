@@ -29,7 +29,7 @@ class MyBot(twitch_irc.Client):
     # do more with your code
 
 
-x = MyBot()
-x.run(token="oauth:supersecret", nickname="cool_username")
+x = MyBot(token="oauth:supersecret", nickname="cool_username")
+x.run()
 ```
 :copyright: 2018-2020 The_CJ
