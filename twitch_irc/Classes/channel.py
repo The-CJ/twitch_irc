@@ -1,5 +1,7 @@
-from typing import Any, Dict, List, NewType
+from typing import Any, Dict, List, NewType, TYPE_CHECKING
 UserName = NewType("UserName", str)
+if TYPE_CHECKING:
+	from .client import Client as TwitchClient
 
 import re
 from .message import Message
@@ -7,7 +9,7 @@ from .user import User
 from .stores import UserStore
 from .userstate import UserState
 from .undefined import UNDEFINED
-
+from ..Utils.commands import sendMessage
 from ..Utils.regex import (
 	ReEmoteOnly, ReFollowersOnly, ReR9k,
 	ReRituals, ReRoomID, ReSlow,
@@ -169,6 +171,19 @@ class Channel(object):
 			if valid: return Viewer
 
 		return None
+
+	# funcs
+	async def sendMessage(self, cls:"TwitchClient", content:str) -> None:
+		"""
+		Send a message to the channel,
+		requires you to give this function the Client class, don't ask why...
+
+		this is basicly an alternative to:
+		cls.sendMessage(Channel.name, content)
+
+		makes you think... is this even faster? i dunno, adding it anyways LULW
+		"""
+		return await sendMessage(cls, self.name, content)
 
 	# props
 	@property
