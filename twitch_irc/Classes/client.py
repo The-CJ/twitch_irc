@@ -127,11 +127,18 @@ class Client():
 			Log.debug(f"All task discarded, closing loop")
 			self.Loop.close()
 
-	async def start(self, **kwargs:dict) -> None:
+	async def start(self) -> None:
 		"""
-		nearly the same as self.run()
-		except its not going to create a loop.
-		- This function is blocking, it only returns after stop is called
+		Blocking call that starts the bot, this function is a coroutine.
+
+		### This function is blocking, it only returns after .stop() is called
+
+		## Warning!
+		This function should be ideally handled via .run()
+		because else, there will be no cleanup of futures and task on .stop()
+		Which actully is totally ok, but its messy and not really intended.
+		If you don't add loop cleanup yourself,
+		your console will be flooded by `addTraffic` coros waiting to be completed.
 		"""
 		if self.running:
 			raise RuntimeError("already running")
@@ -139,12 +146,7 @@ class Client():
 		self.running = True
 		self.query_running = True
 
-		if not self.token:
-			self.token = kwargs.get('token', None)
-		if not self.nickname:
-			self.nickname = kwargs.get('nickname', None)
-
-		if self.token == None or self.nickname == None:
+		if (not self.token) or (not self.nickname):
 			raise AttributeError("'token' and 'nickname' must be provided")
 
 		Log.debug(f"Client.start() all required fields found, awaiting Client.main()")
