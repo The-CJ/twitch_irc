@@ -29,51 +29,74 @@ class Client():
 	"""
 	Main class for everything.
 	Init and call .run()
-	"""
-	def __init__(self, token:str=None, nickname:str=None, reconnect:bool=True, request_limit:int=19):
 
-		self.Loop:asyncio.AbstractEventLoop = None
+	Optional Keyword Arguments
+	--------------------------
+	* Loop `asyncio.AbstractEventLoop` : Default: asyncio.get_event_loop()
+	  * Main event loop, used for everything
+	* reconnect `bool` : Default: True
+	  * Should the client automatically try to reconnect
+	* nickname `str` : Default: None
+	  * User nickname, only lowercase
+	* token `str` : Default: None
+	  * User oauth token
+	* request_limit `int` : Default: 19
+	  * How many requests can be send before the client goes into rate limit protection (request_limit per 60 sec)
+	    * For normal accounts thats 20/60s
+	    * 1 channel moderator bots 100/60s
+	    * Offical bots 5000/60s
+	"""
+	def __init__(self, Loop:asyncio.AbstractEventLoop=None, **kwargs:dict):
+
+		# setable vars
+		self.Loop:asyncio.AbstractEventLoop = asyncio.get_event_loop() if Loop is None else Loop
+		self.reconnect:bool = kwargs.get("reconnect", True)
+		self.nickname:str = kwargs.get("nickname", None)
+		self.token:str = kwargs.get("token", None)
+		self.request_limit:int = kwargs.get("request_limit", 19)
+
+		# static* vars
+		self.host:str = "irc.chat.twitch.tv"
+		self.port:int = 6667
+
+		# runtime vars
 		self.running:bool = False
 		self.auth_success:bool = False
 		self.query_running:bool = False
-		self.reconnect:bool = reconnect
-
-		self.token:str = token
-		self.nickname:str = nickname
-		self.host:str = "irc.chat.twitch.tv"
-		self.port:int = 6667
 		self.last_ping:float = time.time()
+		self.traffic:int = 0
+		self.stored_traffic:List[str or bytes] = []
 
+		# Connection objects
 		self.ConnectionReader:asyncio.StreamReader = None
 		self.ConnectionWriter:asyncio.StreamWriter = None
 
 		self.channels:Dict[ChannelName, Channel] = ChannelStore()
 		self.users:Dict[UserName, User] = UserStore()
 
-		self.request_limit:int = request_limit
-		self.traffic:int = 0
-		self.stored_traffic:List[str or bytes] = []
-
 	def stop(self, *x, **xx) -> None:
 		"""
-		gracefully shuts down the bot, .start and .run will be no longer blocking
+		gracefully shuts down the bot, .start() and .run() will be no longer blocking
 		"""
 		Log.debug(f"Client.stop() has been called, shutting down")
-		self.auth_success = False
 		self.running = False
-		self.query_running = False
 		self.ConnectionWriter.close()
 		self.Loop.stop()
 
-	def run(self, **kwargs:dict) -> None:
+	def run(self) -> None:
 		"""
-		start the bot, this function will wrap self.start() into a asyncio loop.
-		- This function is blocking, it only returns after stop is called
+		Blocking call that starts the bot, it will wrap .start() into a coroutine for you.
+
+		### This function is blocking, it only returns after .stop() is called
 		"""
-		Log.debug(f"Client.run() has been called, creating loop and wrapping future")
-		self.Loop = asyncio.new_event_loop()
-		MainFuture:asyncio.Future = asyncio.ensure_future( self.start(**kwargs), loop=self.Loop )
+
+		if self.running:
+			raise RuntimeError("already running")
+
+		Log.debug(f"Client.run() has been called, wrapping future")
+		MainFuture:asyncio.Future = asyncio.ensure_future( self.start(), loop=self.Loop )
 		MainFuture.add_done_callback( self.stop )
+
 		try:
 			Log.debug(f"Client.run() starting Client.start() future")
 			self.Loop.run_forever()
