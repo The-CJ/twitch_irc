@@ -14,6 +14,9 @@ async def sendMessage(cls:"Client", Chan:Channel or str, content:str):
 
 	All IRC Channel-names start with a '#' you don't have to provide this, we will handle everything. ("#the__cj" == "the__cj")
 	"""
+	if not content:
+		raise AttributeError("can't send empty content")
+
 	if isinstance(Chan, Channel):
 		destination:str = Chan.name
 	else:
