@@ -1,12 +1,13 @@
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from .channel import Channel as TwitchChannel
-    from .user import User as TwitchUser
+	from .client import Client as TwitchClient
+	from .channel import Channel as TwitchChannel
+	from .user import User as TwitchUser
 
 import re
 from .structure import BasicEventStructure
 from .undefined import UNDEFINED
-
+from ..Utils.commands import sendMessage
 from ..Utils.regex import (
     ReAction, ReUserName, ReBits,
 	ReReplyParentDisplayName, ReReplyParentMsgBody, ReReplyParentMsgID,
@@ -149,6 +150,18 @@ class Message(BasicEventStructure):
 		"""
 		if self.reply_parent_msg_id:
 			self.is_reply = True
+
+	# funcs
+	async def reply(self, cls:"TwitchClient", reply:str) -> None:
+		"""
+		Fast reply with content to a message,
+		requires you to give this function the Client class, don't ask why...
+		and a valid content you want to send.
+
+		maybe you wanna add a @{user_name} at the start of the message?
+		At least that how i respond to message, but do want you want 
+		"""
+		return await sendMessage(cls, self.room_name, reply)
 
 	# new props
 	@property
