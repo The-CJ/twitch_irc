@@ -7,7 +7,6 @@ if TYPE_CHECKING:
 import re
 from .structure import BasicEventStructure
 from .undefined import UNDEFINED
-from ..Utils.commands import sendMessage
 from ..Utils.regex import (
     ReAction, ReUserName, ReBits,
 	ReReplyParentDisplayName, ReReplyParentMsgBody, ReReplyParentMsgID,
@@ -159,9 +158,9 @@ class Message(BasicEventStructure):
 		and a valid content you want to send.
 
 		maybe you wanna add a @{user_name} at the start of the message?
-		At least that how i respond to message, but do want you want 
+		At least that how i respond to message, but do want you want
 		"""
-		return await sendMessage(cls, self.room_name, reply)
+		return await cls.sendMessage(self.room_name, reply)
 
 	# new props
 	@property

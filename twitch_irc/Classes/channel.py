@@ -9,7 +9,6 @@ from .user import User
 from .stores import UserStore
 from .userstate import UserState
 from .undefined import UNDEFINED
-from ..Utils.commands import sendMessage
 from ..Utils.regex import (
 	ReEmoteOnly, ReFollowersOnly, ReR9k,
 	ReRituals, ReRoomID, ReSlow,
@@ -183,7 +182,7 @@ class Channel(object):
 
 		makes you think... is this even faster? i dunno, adding it anyways LULW
 		"""
-		return await sendMessage(cls, self.name, content)
+		return await cls.sendMessage(self.name, content)
 
 	# props
 	@property
