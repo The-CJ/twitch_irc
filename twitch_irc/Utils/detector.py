@@ -11,14 +11,14 @@ from ..Utils.handler import (
 	handleRoomState, handleJoin, handlePart,
 	handlePrivMessage, handleClearChat, handleClearMsg,
 	handleUserState, handleUserList, handleUserNotice,
-	handleNotice
+	handleNotice, handleHostTarget
 )
 from ..Utils.regex import (
 	RePing, ReWrongAuth, RePrivMessage,
 	ReOnReady, ReRoomState,	ReClearChat,
 	ReJoin,	RePart, ReGarbage,
 	ReClearMsg, ReUserState, ReUserList,
-	ReUserNotice, ReNotice
+	ReUserNotice, ReNotice, ReHostTarget
 )
 
 async def garbageDetector(cls:"Client", payload:str) -> bool:
@@ -82,6 +82,10 @@ async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	# handels events: None
 	if re.match(ReNotice, payload) != None:
 		return await handleNotice(cls, payload)
+
+	# handels events: None
+	if re.match(ReHostTarget, payload) != None:
+		return await handleHostTarget(cls, payload)
 
 	# handels events: onReady, onReconnect
 	if re.match(ReOnReady, payload) != None:

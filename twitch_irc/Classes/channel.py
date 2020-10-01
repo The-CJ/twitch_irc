@@ -41,6 +41,7 @@ class Channel(object):
 		self._name:str = UNDEFINED
 
 		self._viewers:Dict[UserName, User] = UserStore()
+		self._host_target:str = UNDEFINED
 		self._me:UserState = UNDEFINED
 
 		self.minimalistic:bool = UNDEFINED
@@ -64,6 +65,7 @@ class Channel(object):
 		d["viewers"] = self.viewers
 		d["name"] = self.name
 		d["me"] = self.me
+		d["host_target"] = self.host_target
 		d["minimalistic"] = self.minimalistic
 		return d
 
@@ -229,6 +231,10 @@ class Channel(object):
 			return self._me
 		else:
 			return UserState(None)
+
+	@property
+	def host_target(self) -> str:
+		return str(self._host_target or "")
 
 	@property
 	def broadcaster_lang(self) -> Exception: # depricated

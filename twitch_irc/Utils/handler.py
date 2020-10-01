@@ -23,7 +23,7 @@ from ..Classes.bitsbadgetier import BitsBadgeTier
 from ..Utils.regex import (
 	ReTargetMsgID, ReTMISendTS, ReLogin,
 	ReContent, ReRoomName, ReMsgID,
-	ReUserListData
+	ReUserListData, ReHostTargetData
 )
 
 async def handleClearChat(cls:"Client", payload:str) -> bool:
@@ -531,3 +531,26 @@ async def handleNotice(cls:"Client", payload:str) -> bool:
 	# both host events get ignored since we get more usefull data via NOTICE
 	if found_event == "host_on": return True
 	if found_event == "host_off": return True
+
+async def handleHostTarget(cls:"Client", payload:str) -> bool:
+	"""
+	Handles all HOSTTARGET events which just means the channel is hosting someone else, does someone care about this?
+	probly not, but idfc and so i will add this in a channel object.
+
+	may calls the following events for custom code:
+	- None
+	"""
+
+	# :tmi.twitch.tv HOSTTARGET #sodapoppin :nmplol -
+
+	search:re.Match = re.search(ReHostTargetData, payload)
+	if search != None: return True # i really don't care
+
+	base_channel:str = search.group(1)
+	host_target:str = search.group(2)
+
+	KnownChannel:Channel = cls.channels.get(base_channel, None)
+	if not KnownChannel: return True
+
+	KnownChannel._host_target = host_target
+	return True

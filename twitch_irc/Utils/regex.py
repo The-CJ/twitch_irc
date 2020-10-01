@@ -20,6 +20,7 @@ ReHostTarget:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv HOSTTARGET #.+$")
 # extended IRC Events
 ReUserListData:"re.Pattern" = re.compile(r".*353 .* = #(\S+?) :(.*)$")
 ReAction:"re.Pattern" = re.compile(r"\x01{1}ACTION (.+?)\x01{1}")
+ReHostTargetData:"re.Pattern" = re.compile(r"^:tmi\.twitch\.tv HOSTTARGET #(\S*?) :(\S*?) -$")
 
 # twitch tags
 ReBadgeInfo:"re.Pattern" = re.compile(r"[@; ]badge-info=(\S*?)[; ]")
