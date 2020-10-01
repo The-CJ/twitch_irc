@@ -14,6 +14,8 @@ ReUserState:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv USERSTATE #.+$")
 ReClearMsg:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv CLEARMSG #.+$")
 RePrivMessage:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv PRIVMSG #.+$")
 ReUserNotice:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv USERNOTICE #.+$")
+ReNotice:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv NOTICE #.+$")
+ReHostTarget:"re.Pattern" = re.compile(r"^.+tmi\.twitch\.tv HOSTTARGET #.+$")
 
 # extended IRC Events
 ReUserListData:"re.Pattern" = re.compile(r".*353 .* = #(\S+?) :(.*)$")

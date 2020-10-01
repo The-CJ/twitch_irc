@@ -360,7 +360,7 @@ async def handleUserList(cls:"Client", payload:str) -> bool:
 
 async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	"""
-	welcome to the bane of my existence, USERSTATE.
+	welcome to the bane of my existence, USERNOTICE.
 	twitch uses this event to send (gift-)subs, resubs, raids and rituals
 	And we try to handle all of it... yeah
 
@@ -512,3 +512,22 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	print('#'*32)
 	print(f"# {found_event} #")
 	print(payload)
+
+async def handleNotice(cls:"Client", payload:str) -> bool:
+	"""
+	Handles all NOTICE events, these are mostly channal events that... do something i guess
+
+	may calls the following events for custom code:
+	- None
+	"""
+
+	found_event:str = None
+	search:re.Match = re.search(ReMsgID, payload)
+	if search != None:
+		found_event = search.group(1)
+
+	if not found_event: return False
+
+	# both host events get ignored since we get more usefull data via NOTICE
+	if found_event == "host_on": return True
+	if found_event == "host_off": return True
