@@ -24,7 +24,7 @@ class Message(BasicEventStructure):
 	@badge-info=subscriber/39;badges=broadcaster/1,subscriber/3012,premium/1;color=#696969;display-name=The__CJ;emotes=25:17-21;flags=;id=0b85e5f4-4720-45f0-9f05-8cfa4f1a0de4;mod=0;msg-id=highlighted-message;reply-parent-display-name=Phaazebot;reply-parent-msg-body=!\sKappa\sKeepo\sKappaHD;reply-parent-msg-id=ae046cec-718d-47aa-aac5-82cbf591d837;reply-parent-user-id=94638902;reply-parent-user-login=phaazebot;room-id=67664971;subscriber=1;tmi-sent-ts=1599346386783;turbo=0;user-id=67664971;user-type= :the__cj!the__cj@the__cj.tmi.twitch.tv PRIVMSG #the__cj :@Phaazebot Reeee Kappa
 	"""
 	def __repr__(self):
-		return f"<{self.__class__.__name__} channel='{self.channel_name}' author='{self.user_name}'>"
+		return f"<{self.__class__.__name__} channel='{self.room_name}' author='{self.user_name}'>"
 
 	def __str__(self):
 		return self.content or ""
