@@ -224,6 +224,10 @@ class BasicEventStructure(GeneralTwitchTagUtils):
 		return self._emotes
 
 	@property
+	def emote_count(self) -> int:
+		return sum(Emo.count for Emo in self.emotes)
+
+	@property
 	def id(self) -> str:
 		return str(self._id or "")
 	@property

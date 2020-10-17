@@ -19,7 +19,7 @@ __title__ = 'twitch_irc'
 __author__ = 'The_CJ'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2018-2020 The_CJ'
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 
 from .Classes.badge import Badge
 from .Classes.bitsbadgetier import BitsBadgeTier
