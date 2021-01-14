@@ -8,7 +8,7 @@ Twitch IRC wrapper
 Simple to use IRC connection for Twitch optimized for the PhaazeOS project
 but usable to any purpose
 
-:copyright: (c) 2018-2020 The_CJ
+:copyright: (c) 2018-2021 The_CJ
 :license: MIT License
 
 - Inspired by the code of Rapptz's Discord library
@@ -18,7 +18,7 @@ but usable to any purpose
 __title__ = 'twitch_irc'
 __author__ = 'The_CJ'
 __license__ = 'MIT'
-__copyright__ = 'Copyright 2018-2020 The_CJ'
+__copyright__ = 'Copyright 2018-2021 The_CJ'
 __version__ = "1.2.2"
 
 from .Classes.badge import Badge

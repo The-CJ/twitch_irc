@@ -32,4 +32,4 @@ class MyBot(twitch_irc.Client):
 x = MyBot(token="oauth:supersecret", nickname="cool_username")
 x.run()
 ```
-:copyright: 2018-2020 The_CJ
+:copyright: 2018-2021 The_CJ

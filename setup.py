@@ -1,12 +1,13 @@
-import setuptools, re, pathlib
+import setuptools
+import pathlib
+import re
 here = pathlib.Path(__file__).parent
 
 with open(f"{here}/README.md", "r") as rm:
 	long_description = rm.read()
 
-requirements = []
 with open(f"{here}/requirements.txt", "r") as req:
-  requirements = req.read().splitlines()
+	requirements = req.read().splitlines()
 
 try:
 	version = re.findall(r"^__version__\s?=\s?[\'\"](.+)[\'\"]$", open("twitch_irc/__init__.py").read(), re.M)[0]
