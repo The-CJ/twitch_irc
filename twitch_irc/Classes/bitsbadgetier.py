@@ -1,17 +1,16 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
-    from .channel import Channel as TwitchChannel
-    from .user import User as TwitchUser
+	from .channel import Channel as TwitchChannel
+	from .user import User as TwitchUser
 
 import re
 from .structure import UserNoticeStructure
-from .undefined import UNDEFINED
 
 from ..Utils.regex import ReMsgParamThreshold
 
 class BitsBadgeTier(UserNoticeStructure):
 	"""
-	I don't know what this is, i don't really want to know it. I dont care.
+	I don't know what this is, i don't really want to know it. I don't care.
 
 	Example:
 	```
@@ -21,15 +20,15 @@ class BitsBadgeTier(UserNoticeStructure):
 	def __repr__(self):
 		return f"<{self.__class__.__name__} from='{self.room_name}' threshold='{self.threshold}'>"
 
-	def __init__(self, raw:str or None):
+	def __init__(self, raw:Optional[str]):
 		# new tags (ordered)
-		self._msg_param_threshold:int = UNDEFINED
+		self._msg_param_threshold:int = 0
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.User:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.User:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.bitsBadgeTierBuild(raw)
@@ -49,10 +48,10 @@ class BitsBadgeTier(UserNoticeStructure):
 
 		# _msg_param_threshold
 		search = re.search(ReMsgParamThreshold, raw)
-		if search != None:
+		if search:
 			self._msg_param_threshold = search.group(1)
 
 	# extra props
 	@property
 	def threshold(self) -> int:
-		return int(self._msg_param_profileImageURL or 0)
+		return int(self._msg_param_threshold or 0)

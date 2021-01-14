@@ -1,5 +1,5 @@
+from typing import Optional
 import re
-from .undefined import UNDEFINED
 from ..Utils.regex import ReBadgeParts
 
 class Badge(object):
@@ -18,18 +18,18 @@ class Badge(object):
 	def __str__(self):
 		return f"{self.name}/{self.version}"
 
-	def __init__(self, badge_str:str or None):
-		self._name:str = UNDEFINED
-		self._version:str = UNDEFINED
+	def __init__(self, badge_str:Optional[str]):
+		self._name:str = ''
+		self._version:str = ''
 
-		if badge_str != None:
+		if badge_str:
 			try:
 				self.build(badge_str)
 			except:
 				raise AttributeError(badge_str)
 
 	def compact(self) -> dict:
-		d:dict = {}
+		d:dict = dict()
 		d["name"] = self.name
 		d["version"] = self.version
 		return d
