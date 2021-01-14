@@ -20,7 +20,6 @@ from ..Utils.errors import InvalidAuth, PingTimeout, EmptyPayload, InvalidCreden
 from ..Utils.req import reqTags, reqCommands, reqMembership
 from ..Utils.cmd import sendNick, sendPass
 from ..Utils.detector import mainEventDetector, garbageDetector
-from ..Utils.commands import sendMessage, joinChannel, partChannel
 
 Log:logging.Logger = logging.getLogger("twitch_irc")
 ChannelName = NewType("ChannelName", str)
@@ -327,19 +326,56 @@ class Client(object):
 		return None
 
 	# commands
-	# u might wonder why im doing this... well my IDE, PyCharm CAN'T FUCKING UNDERSTAND function import's into classes
-	# so i wrap it, so the FUCKING TYPECHECKER is not showing errors.
-	# For Protocol, yes:
-	# from ..Utils.commands import sendMessage
-	# Would totally work and does the same, but PyCharm don't get the cls/self Ref in the 1st arg. FUCK
-	async def joinChannel(self, Chan:Union[Channel, str]) -> None:
-		return await joinChannel(self, Chan)
+	async def sendMessage(self, Chan:[Channel, str], content: str):
+		"""
+		This will send the content/message to a channel. (If you are not timed out, banned or otherwise, that not my fault duh)
+		1st arg, `Chan` is the destination, provide a `Channel` object or a string like "the__cj", where you want to send your 2nd arg `content`.
 
-	async def partChannel(self, Chan:Union[Channel, str]) -> None:
-		return await partChannel(self, Chan)
+		All IRC Channel-names start with a '#' you don't have to provide this, we will handle everything. ("#the__cj" == "the__cj")
+		"""
+		if not content:
+			raise AttributeError("can't send empty content")
 
-	async def sendMessage(self, Chan:Union[Channel, str], content:str) -> None:
-		return await sendMessage(self, Chan, content)
+		if isinstance(Chan, Channel):
+			destination: str = Chan.name
+		else:
+			destination: str = str(Chan)
+
+		destination = destination.lower().strip('#')
+		Log.debug(f"Sending: PRIVMSG #{destination} - {content[:50]}")
+		await self.sendContent(f"PRIVMSG #{destination} :{content}\r\n")
+
+	async def joinChannel(self, Chan:[Channel, str]):
+		"""
+		Joining a channel allows the client to receive messages from this channel.
+		`Chan` is the destination, provide a `Channel` object or a string like "the__cj" or "#phaazebot"
+
+		All IRC Channel-names start with a '#' you don't have to provide this, we will handle everything. ("#phaazebot" == "phaazebot")
+		"""
+		if isinstance(Chan, Channel):
+			destination: str = Chan.name
+		else:
+			destination: str = str(Chan)
+
+		destination = destination.lower().strip('#')
+		Log.debug(f"Sending: JOIN #{destination}")
+		await self.sendContent(f"JOIN #{destination}\r\n")
+
+	async def partChannel(self, Chan:Union[Channel,str]):
+		"""
+		Parting a channel disables receiving messages from this channel.
+		`Chan` may is a `Channel` object or a string like "phaazebot" or "#the__cj"
+
+		All IRC Channel-names start with a '#' you don't have to provide this, we will handle everything. ("#the__cj" == "the__cj")
+		"""
+		if isinstance(Chan, Channel):
+			destination: str = Chan.name
+		else:
+			destination: str = str(Chan)
+
+		destination = destination.lower().strip('#')
+		Log.debug(f"Sending: PART #{destination}")
+		await self.sendContent(f"PART #{destination}\r\n")
 
 	# events
 	# noinspection PyMethodMayBeStatic
