@@ -1,11 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
-    from .channel import Channel as TwitchChannel
-    from .user import User as TwitchUser
+	from .channel import Channel as TwitchChannel
+	from .user import User as TwitchUser
 
 import re
 from .structure import UserNoticeStructure
-from .undefined import UNDEFINED
 
 from ..Utils.regex import ReMsgParamRitualName
 
@@ -25,13 +24,13 @@ class Ritual(UserNoticeStructure):
 
 	def __init__(self, raw:str or None):
 		# new tags (ordered)
-		self._msg_param_ritual_name:str = UNDEFINED
+		self._msg_param_ritual_name:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.User:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.User:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.ritualBuild(raw)
@@ -51,7 +50,7 @@ class Ritual(UserNoticeStructure):
 
 		# _msg_param_ritual_name
 		search = re.search(ReMsgParamRitualName, raw)
-		if search != None:
+		if search:
 			self._msg_param_ritual_name = search.group(1)
 
 	# extra props
