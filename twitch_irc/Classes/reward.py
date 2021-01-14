@@ -1,11 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
-    from .channel import Channel as TwitchChannel
-    from .user import User as TwitchUser
+	from .channel import Channel as TwitchChannel
+	from .user import User as TwitchUser
 
 import re
 from .structure import UserNoticeStructure
-from .undefined import UNDEFINED
 
 from ..Utils.regex import (
 	ReMsgParamSelectedCount, ReMsgParamTotalRewardCount, ReMsgParamTriggerAmount,
@@ -22,21 +21,21 @@ class Reward(UserNoticeStructure):
 	```
 	"""
 	def __repr__(self):
-		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.user_name}'>"
+		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}'>"
 
-	def __init__(self, raw:str or None):
+	def __init__(self, raw:Optional[str]):
 		# new tags (ordered)
-		self._msg_param_domain:str = UNDEFINED
-		self._msg_param_selected_count:int = UNDEFINED
-		self._msg_param_total_reward_count:int = UNDEFINED
-		self._msg_param_trigger_amount:int = UNDEFINED
-		self._msg_param_trigger_type:str = UNDEFINED
+		self._msg_param_domain:Optional[str] = None
+		self._msg_param_selected_count:Optional[int] = None
+		self._msg_param_total_reward_count:Optional[int] = None
+		self._msg_param_trigger_amount:Optional[int] = None
+		self._msg_param_trigger_type:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.Gifter:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.Gifter:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.rewardBuild(raw)
@@ -60,27 +59,27 @@ class Reward(UserNoticeStructure):
 
 		# _msg_param_domain
 		search = re.search(ReMsgParamDomain, raw)
-		if search != None:
+		if search:
 			self._msg_param_domain = search.group(1)
 
 		# _msg_param_selected_count
 		search = re.search(ReMsgParamSelectedCount, raw)
-		if search != None:
+		if search:
 			self._msg_param_selected_count = search.group(1)
 
 		# _msg_param_total_reward_count
 		search = re.search(ReMsgParamTotalRewardCount, raw)
-		if search != None:
+		if search:
 			self._msg_param_total_reward_count = search.group(1)
 
 		# _msg_param_trigger_amount
 		search = re.search(ReMsgParamTriggerAmount, raw)
-		if search != None:
+		if search:
 			self._msg_param_trigger_amount = search.group(1)
 
 		# _msg_param_trigger_type
 		search = re.search(ReMsgParamTriggerType, raw)
-		if search != None:
+		if search:
 			self._msg_param_trigger_type = search.group(1)
 
 	# extra props

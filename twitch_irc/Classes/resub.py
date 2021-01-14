@@ -1,12 +1,11 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
-    from .channel import Channel as TwitchChannel
-    from .user import User as TwitchUser
+	from .channel import Channel as TwitchChannel
+	from .user import User as TwitchUser
 
 import re
 from .sub import Sub
 from .structure import UserNoticeStructure
-from .undefined import UNDEFINED
 
 from ..Utils.regex import (
 	ReMsgParamPriorGifterAnonymous, ReMsgParamPriorGifterDisplayName,
@@ -33,7 +32,7 @@ class ReSub(Sub):
 class GiftPaidUpgrade(UserNoticeStructure):
 	"""
 	This Class represents a notification from a gift sub, to a normal paid sub. (Its not a resub.)
-	This happens whenever the person decides to upgrade, which might happen 2 hours after reciving the giftsub.
+	This happens whenever the person decides to upgrade, which might happen 2 hours after receiving the giftsub.
 	The resub that followes will come at the next month.
 
 	This class will also be used for `msg-id=anongiftpaidupgrade` if its anonym, sender_name and sender_login are always empty
@@ -50,17 +49,17 @@ class GiftPaidUpgrade(UserNoticeStructure):
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}' old_gifter='{self.sender_login}'>"
 
-	def __init__(self, raw:str or None):
+	def __init__(self, raw:Optional[str]):
 		# extra tags (ordered)
-		self._msg_param_sender_login:str = UNDEFINED
-		self._msg_param_sender_name:str = UNDEFINED
+		self._msg_param_sender_login:Optional[str] = None
+		self._msg_param_sender_name:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.Gifter:"TwitchUser" = None
-		self.User:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.Gifter:Optional["TwitchUser"] = None
+		self.User:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.giftPaidUpgradeBuild(raw)
@@ -83,12 +82,12 @@ class GiftPaidUpgrade(UserNoticeStructure):
 
 		# _msg_param_sender_login
 		search = re.search(ReMsgParamSenderLogin, raw)
-		if search != None:
+		if search:
 			self._msg_param_sender_login = search.group(1)
 
 		# _msg_param_sender_name
 		search = re.search(ReMsgParamSenderName, raw)
-		if search != None:
+		if search:
 			self._msg_param_sender_name = search.group(1)
 
 	# extra props
@@ -109,7 +108,7 @@ class PrimePaidUpgrade(UserNoticeStructure):
 	Yeeeay another special case of sub.
 	This Class comes up when a user subbed with prime once, and now decides to pais for the next month.
 	This happens whenever the person decides to upgrade, which might happen 2 hours after subbing with prime.
-	The resub that followes will come at the next month.
+	The resub that follows will come at the next month.
 
 	Example:
 	```
@@ -119,15 +118,15 @@ class PrimePaidUpgrade(UserNoticeStructure):
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}'>"
 
-	def __init__(self, raw:str or None):
+	def __init__(self, raw:Optional[str]):
 		# tags (ordered)
-		self._msg_param_sub_plan:str = UNDEFINED
+		self._msg_param_sub_plan:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.User:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.User:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.primePaidUpgradeBuild(raw)
@@ -147,7 +146,7 @@ class PrimePaidUpgrade(UserNoticeStructure):
 
 		# _msg_param_sub_plan
 		search = re.search(ReMsgParamSubPlan, raw)
-		if search != None:
+		if search:
 			self._msg_param_sub_plan = search.group(1)
 
 	# extra props
@@ -158,7 +157,7 @@ class PrimePaidUpgrade(UserNoticeStructure):
 class StandardPayForward(UserNoticeStructure):
 	"""
 	eeee yeah... whatever
-	Happens when someone else is gifting a sub to somone who got a sub from somone else before... thanks twitch
+	Happens when someone else is gifting a sub to someone who got a sub from someone else before... thanks twitch
 
 	Example:
 	```
@@ -168,23 +167,23 @@ class StandardPayForward(UserNoticeStructure):
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' new_gifter='{self.login}' old_gifter={self.prior_gifter_user_name} to='{self.recipient_user_name}'>"
 
-	def __init__(self, raw:str or None):
+	def __init__(self, raw:Optional[str]):
 		# extra tags (ordered)
-		self._msg_param_prior_gifter_anonymous:bool = UNDEFINED
-		self._msg_param_prior_gifter_display_name:str = UNDEFINED
-		self._msg_param_prior_gifter_id:str = UNDEFINED
-		self._msg_param_prior_gifter_user_name:str = UNDEFINED
-		self._msg_param_recipient_display_name:str = UNDEFINED
-		self._msg_param_recipient_id:str = UNDEFINED
-		self._msg_param_recipient_user_name:str = UNDEFINED
+		self._msg_param_prior_gifter_anonymous:Optional[bool] = None
+		self._msg_param_prior_gifter_display_name:Optional[str] = None
+		self._msg_param_prior_gifter_id:Optional[str] = None
+		self._msg_param_prior_gifter_user_name:Optional[str] = None
+		self._msg_param_recipient_display_name:Optional[str] = None
+		self._msg_param_recipient_id:Optional[str] = None
+		self._msg_param_recipient_user_name:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.Prior:"TwitchUser" = None
-		self.User:"TwitchUser" = None
-		self.Recipient:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.Prior:Optional["TwitchUser"] = None
+		self.User:Optional["TwitchUser"] = None
+		self.Recipient:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.standardPayForwardBuild(raw)
@@ -212,37 +211,37 @@ class StandardPayForward(UserNoticeStructure):
 
 		# _msg_param_prior_gifter_anonymous
 		search = re.search(ReMsgParamPriorGifterAnonymous, raw)
-		if search != None:
+		if search:
 			self._msg_param_prior_gifter_anonymous = True if search.group(1) == "true" else False
 
 		# _msg_param_prior_gifter_display_name
 		search = re.search(ReMsgParamPriorGifterDisplayName, raw)
-		if search != None:
-			self._msg_param_prior_gifter_display_name =  search.group(1)
+		if search:
+			self._msg_param_prior_gifter_display_name = search.group(1)
 
 		# _msg_param_prior_gifter_id
 		search = re.search(ReMsgParamPriorGifterID, raw)
-		if search != None:
+		if search:
 			self._msg_param_prior_gifter_id = search.group(1)
 
 		# _msg_param_prior_gifter_user_name
 		search = re.search(ReMsgParamPriorGifterUserName, raw)
-		if search != None:
+		if search:
 			self._msg_param_prior_gifter_user_name = search.group(1)
 
 		# _msg_param_recipient_display_name
 		search = re.search(ReMsgParamRecipientDisplayName, raw)
-		if search != None:
+		if search:
 			self._msg_param_recipient_display_name = search.group(1)
 
 		# _msg_param_recipient_id
 		search = re.search(ReMsgParamRecipientID, raw)
-		if search != None:
+		if search:
 			self._msg_param_recipient_id = search.group(1)
 
 		# _msg_param_recipient_user_name
 		search = re.search(ReMsgParamRecipientUserName, raw)
-		if search != None:
+		if search:
 			self._msg_param_recipient_user_name = search.group(1)
 
 	# extra props
@@ -287,19 +286,19 @@ class CommunityPayForward(UserNoticeStructure):
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' user='{self.login}' old_massgifter='{self.prior_gifter_user_name}'>"
 
-	def __init__(self, raw:str or None):
+	def __init__(self, raw:Optional[str]):
 		# new tags (ordered)
-		self._msg_param_prior_gifter_anonymous:bool = UNDEFINED
-		self._msg_param_prior_gifter_display_name:str = UNDEFINED
-		self._msg_param_prior_gifter_id:str = UNDEFINED
-		self._msg_param_prior_gifter_user_name:str = UNDEFINED
+		self._msg_param_prior_gifter_anonymous:Optional[bool] = None
+		self._msg_param_prior_gifter_display_name:Optional[str] = None
+		self._msg_param_prior_gifter_id:Optional[str] = None
+		self._msg_param_prior_gifter_user_name:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.Prior:"TwitchUser" = None
-		self.User:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.Prior:Optional["TwitchUser"] = None
+		self.User:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.communityPayForwardBuild(raw)
@@ -323,22 +322,22 @@ class CommunityPayForward(UserNoticeStructure):
 
 		# _msg_param_prior_gifter_anonymous
 		search = re.search(ReMsgParamPriorGifterAnonymous, raw)
-		if search != None:
+		if search:
 			self._msg_param_prior_gifter_anonymous = True if search.group(1) == "true" else False
 
 		# _msg_param_prior_gifter_display_name
 		search = re.search(ReMsgParamPriorGifterDisplayName, raw)
-		if search != None:
-			self._msg_param_prior_gifter_display_name =  search.group(1)
+		if search:
+			self._msg_param_prior_gifter_display_name = search.group(1)
 
 		# _msg_param_prior_gifter_id
 		search = re.search(ReMsgParamPriorGifterID, raw)
-		if search != None:
+		if search:
 			self._msg_param_prior_gifter_id = search.group(1)
 
 		# _msg_param_prior_gifter_user_name
 		search = re.search(ReMsgParamPriorGifterUserName, raw)
-		if search != None:
+		if search:
 			self._msg_param_prior_gifter_user_name = search.group(1)
 
 	# new props
