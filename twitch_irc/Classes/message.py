@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
 	from .client import Client as TwitchClient
 	from .channel import Channel as TwitchChannel
@@ -6,9 +6,8 @@ if TYPE_CHECKING:
 
 import re
 from .structure import BasicEventStructure
-from .undefined import UNDEFINED
 from ..Utils.regex import (
-    ReAction, ReUserName, ReBits,
+	ReAction, ReUserName, ReBits,
 	ReReplyParentDisplayName, ReReplyParentMsgBody, ReReplyParentMsgID,
 	ReReplyParentUserID, ReReplyParentUserLogin, ReEmoteOnly,
 	ReMsgID
@@ -29,16 +28,16 @@ class Message(BasicEventStructure):
 	def __str__(self):
 		return self.content or ""
 
-	def __init__(self, raw:str or None):
+	def __init__(self, raw:Optional[str]):
 		# new tags (ordered)
-		self._bits:int = UNDEFINED
-		self._emote_only:bool = UNDEFINED
-		self._reply_parent_display_name:str = UNDEFINED
-		self._reply_parent_msg_body:str = UNDEFINED
-		self._reply_parent_msg_id:str = UNDEFINED
-		self._reply_parent_user_id:str = UNDEFINED
-		self._reply_parent_user_login:str = UNDEFINED
-		self._user_name:str = UNDEFINED
+		self._bits:Optional[int] = None
+		self._emote_only:Optional[bool] = None
+		self._reply_parent_display_name:Optional[str] = None
+		self._reply_parent_msg_body:Optional[str] = None
+		self._reply_parent_msg_id:Optional[str] = None
+		self._reply_parent_user_id:Optional[str] = None
+		self._reply_parent_user_login:Optional[str] = None
+		self._user_name:Optional[str] = None
 
 		# other
 		self.is_action:bool = False
@@ -46,10 +45,10 @@ class Message(BasicEventStructure):
 		self.is_reply:bool = False
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.Author:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.Author:["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.messageBuild(raw)
@@ -81,47 +80,47 @@ class Message(BasicEventStructure):
 
 		# _bits
 		search = re.search(ReBits, raw)
-		if search != None:
+		if search:
 			self._bits = search.group(1)
 
 		# _emote_only
 		search = re.search(ReEmoteOnly, raw)
-		if search != None:
+		if search:
 			self._emote_only = True if search.group(1) == '1' else False
 
 		# _reply_parent_display_name
 		search = re.search(ReReplyParentDisplayName, raw)
-		if search != None:
+		if search:
 			self._reply_parent_display_name = search.group(1)
 
 		# _reply_parent_msg_body
 		search = re.search(ReReplyParentMsgBody, raw)
-		if search != None:
-			self._reply_parent_msg_body = self.removeTagChars( search.group(1) )
+		if search:
+			self._reply_parent_msg_body = self.removeTagChars(search.group(1))
 
 		# _reply_parent_msg_id
 		search = re.search(ReReplyParentMsgID, raw)
-		if search != None:
+		if search:
 			self._reply_parent_msg_id = search.group(1)
 
 		# _reply_parent_user_id
 		search = re.search(ReReplyParentUserID, raw)
-		if search != None:
+		if search:
 			self._reply_parent_user_id = search.group(1)
 
 		# _reply_parent_user_login
 		search = re.search(ReReplyParentUserLogin, raw)
-		if search != None:
+		if search:
 			self._reply_parent_user_login = search.group(1)
 
 		# _user_name
 		search = re.search(ReUserName, raw)
-		if search != None:
+		if search:
 			self._user_name = search.group(2)
 
 		# check some data other data
 		self.checkAction()
-		self.checkHighlight(raw)
+		self.checkHighlight()
 		self.checkReply()
 
 	def checkAction(self) -> None:
@@ -130,17 +129,17 @@ class Message(BasicEventStructure):
 		action means its a /me message. If it is, change content and set is_action true
 		"""
 		search:re.Match = re.search(ReAction, self.content)
-		if search != None:
+		if search:
 			self.is_action = True
 			self._content = search.group(1)
 
-	def checkHighlight(self, raw:str) -> None:
+	def checkHighlight(self) -> None:
 		"""
 		Checks if the message is a highlighted,
 		a message is highlighted when the user uses channel points to redeem it.
 		"""
 		search:re.Match = re.search(ReMsgID, self.content)
-		if search!= None and search.group(1) == "highlighted-message":
+		if search and search.group(1) == "highlighted-message":
 			self.is_highlight = True
 
 	def checkReply(self) -> None:
@@ -168,12 +167,12 @@ class Message(BasicEventStructure):
 		return int(self._bits or 0)
 
 	@property
-	def emote_only(self) -> str:
+	def emote_only(self) -> bool:
 		return bool(self._emote_only)
 
 	@property
 	def content(self) -> str:
-		# actully not a new prop, but BasicEventStructure dont has a .content, since ._content is used by other classes as a different value
+		# actually not a new prop, but BasicEventStructure don't has a .content, since ._content is used by other classes as a different value
 		return str(self._content or "")
 
 	@property
