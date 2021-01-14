@@ -27,7 +27,7 @@ class User(object):
 	def __str__(self):
 		return self.name or ""
 
-	def __init__(self, raw:str, emergency:bool=False, Msg:Optional[Message]=None):
+	def __init__(self, raw:Optional[str], emergency:bool=False, Msg:Optional[Message]=None):
 		self._name:Optional[str] = None
 		self._display_name:Optional[str] = None # *
 		self._user_id:Optional[str] = None # *

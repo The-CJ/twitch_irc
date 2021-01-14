@@ -21,84 +21,84 @@ from ..Utils.regex import (
 	ReUserNotice, ReNotice, ReHostTarget
 )
 
-async def garbageDetector(cls:"Client", payload:str) -> bool:
+async def garbageDetector(_cls:"Client", payload:str) -> bool:
 	"""
-	This detector is suppost to catch all known patterns that are also known as trash.
+	This detector is suppose to catch all known patterns that are also known as trash.
 	Like this: `:tmi.twitch.tv 002 phaazebot :Your host is tmi.twitch.tv`
 	"""
-	if re.match(ReGarbage, payload) != None:
+	if re.match(ReGarbage, payload) is not None:
 		return True
 
 	return False
 
 async def mainEventDetector(cls:"Client", payload:str) -> bool:
 	"""
-	This detector is suppost to catch all events we can somehow process, if not, give back False.
+	This detector is suppose to catch all events we can somehow process, if not, give back False.
 	If that happens the Client `cls` makes additional handling
 	"""
 
-	#response to PING
-	if re.match(RePing, payload) != None:
+	# response to PING
+	if re.match(RePing, payload) is not None:
 		cls.last_ping = time.time()
 		await sendPong(cls)
 		return True
 
-	# handels events: onMessage
-	if re.match(RePrivMessage, payload) != None:
+	# handles events: onMessage
+	if re.match(RePrivMessage, payload) is not None:
 		return await handlePrivMessage(cls, payload)
 
-	# handels events: None
-	if re.match(ReUserState, payload) != None:
+	# handles events: None
+	if re.match(ReUserState, payload) is not None:
 		return await handleUserState(cls, payload)
 
-	# handels events: onBan, onTimeout, onClearChat
-	if re.match(ReClearChat, payload) != None:
+	# handles events: onBan, onTimeout, onClearChat
+	if re.match(ReClearChat, payload) is not None:
 		return await handleClearChat(cls, payload)
 
 	# handles events: way to many
-	if re.match(ReUserNotice, payload) != None:
+	if re.match(ReUserNotice, payload) is not None:
 		return await handleUserNotice(cls, payload)
 
-	# handels events: onChannelUpdate
-	if re.match(ReRoomState, payload) != None:
+	# handles events: onChannelUpdate
+	if re.match(ReRoomState, payload) is not None:
 		return await handleRoomState(cls, payload)
 
-	# handels events: onMemberJoin
-	if re.match(ReJoin, payload) != None:
+	# handles events: onMemberJoin
+	if re.match(ReJoin, payload) is not None:
 		return await handleJoin(cls, payload)
 
-	# handels events: onMemberPart
-	if re.match(RePart, payload) != None:
+	# handles events: onMemberPart
+	if re.match(RePart, payload) is not None:
 		return await handlePart(cls, payload)
 
-	# handels events: onClearMsg
-	if re.match(ReClearMsg, payload) != None:
+	# handles events: onClearMsg
+	if re.match(ReClearMsg, payload) is not None:
 		return await handleClearMsg(cls, payload)
 
-	# handels events: None
-	if re.match(ReUserList, payload) != None:
+	# handles events: None
+	if re.match(ReUserList, payload) is not None:
 		return await handleUserList(cls, payload)
 
-	# handels events: None
-	if re.match(ReNotice, payload) != None:
+	# handles events: None
+	if re.match(ReNotice, payload) is not None:
 		return await handleNotice(cls, payload)
 
-	# handels events: None
-	if re.match(ReHostTarget, payload) != None:
+	# handles events: None
+	if re.match(ReHostTarget, payload) is not None:
 		return await handleHostTarget(cls, payload)
 
-	# handels events: onReady, onReconnect
-	if re.match(ReOnReady, payload) != None:
+	# handles events: onReady, onReconnect
+	if re.match(ReOnReady, payload) is not None:
 		if cls.auth_success:
-			#means we got a reconnect
-			asyncio.ensure_future( cls.onReconnect() )
+			# means we got a reconnect
+			asyncio.ensure_future(cls.onReconnect())
 		cls.auth_success = True
-		asyncio.ensure_future( cls.onReady() )
+		asyncio.ensure_future(cls.onReady())
 		return True
 
 	# wrong_auth
 	if not cls.auth_success:
-		if re.match(ReWrongAuth, payload) != None:
-			raise InvalidAuth( payload )
+		if re.match(ReWrongAuth, payload) is not None:
+			raise InvalidAuth(payload)
 
 	return False

@@ -1,10 +1,8 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
-    from ..Classes.client import Client
+	from ..Classes.client import Client
 
 import logging
-Log:logging.Logger = logging.getLogger("twitch_irc")
-
 import re
 import asyncio
 from ..Classes.channel import Channel
@@ -26,13 +24,15 @@ from ..Utils.regex import (
 	ReUserListData, ReHostTargetData
 )
 
+Log:logging.Logger = logging.getLogger("twitch_irc")
+
 async def handleClearChat(cls:"Client", payload:str) -> bool:
 	"""
 	handles all CLEARCHAT events
 
 	may calls the following events for custom code:
 	- onClearChat(Channel)
-	- onTimout(Timout)
+	- onTimeout(Timeout)
 	- onBan(Ban)
 	"""
 
@@ -49,10 +49,10 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 			Chan._room_id = Detect.room_id
 
 		Log.debug(f"Client launching: Client.onClearChat: {str(vars(Chan))}")
-		asyncio.ensure_future( cls.onClearChat(Chan) )
+		asyncio.ensure_future(cls.onClearChat(Chan))
 		return True
 
-	# its actully a ban
+	# its actually a ban
 	if Detect.duration == 0: Detect:Ban = Ban(Detect)
 
 	# get channel where that happens, lets hope, we always get one, because else its dudu
@@ -73,19 +73,17 @@ async def handleClearChat(cls:"Client", payload:str) -> bool:
 
 	if type(Detect) is Ban:
 		Log.debug(f"Client launching: Client.onBan: {str(vars(Detect))}")
-		asyncio.ensure_future( cls.onBan(Detect) )
+		asyncio.ensure_future(cls.onBan(Detect))
 		return True
 	else:
 		Log.debug(f"Client launching: Client.onTimeout: {str(vars(Detect))}")
-		asyncio.ensure_future( cls.onTimeout(Detect) )
+		asyncio.ensure_future(cls.onTimeout(Detect))
 		return True
-
-	return False # will never be reached, but why not?
 
 async def handleClearMsg(cls:"Client", payload:str) -> bool:
 	"""
 	handles all CLEARMSG events
-	which... well near to never happend but whatever
+	which... well near to never happened but whatever
 
 	may calls the following events for custom code:
 	- onClearMsg(Message)
@@ -95,15 +93,15 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 
 	search:re.Match
 	search = re.search(ReTargetMsgID, payload)
-	if search != None:
+	if search:
 		MehMessage._msg_id = search.group(1)
 
 	search = re.search(ReTMISendTS, payload)
-	if search != None:
+	if search:
 		MehMessage._tmi_sent_ts = search.group(1)
 
 	search = re.search(ReLogin, payload)
-	if search != None:
+	if search:
 		MehMessage._user_name = search.group(1)
 		WeKnowTheUser:User = cls.users.get(MehMessage.user_name, None)
 		if WeKnowTheUser:
@@ -113,11 +111,11 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 			MehMessage._user_display_name = WeKnowTheUser.display_name
 
 	search = re.search(ReContent, payload)
-	if search != None:
+	if search:
 		MehMessage._content = search.group(1)
 
 	search = re.search(ReRoomName, payload)
-	if search != None:
+	if search:
 		MehMessage._room_name = search.group(1)
 		WeKnowTheChan:Channel = cls.channels.get(MehMessage.room_name, None)
 		if WeKnowTheChan:
@@ -125,9 +123,9 @@ async def handleClearMsg(cls:"Client", payload:str) -> bool:
 			MehMessage._room_id = WeKnowTheChan.room_id
 			MehMessage._room_name = WeKnowTheChan.name
 
-	# welp thats all we can get, if we even get it, so take it or die i guess
+	# welp that's all we can get, if we even get it, so take it or die i guess
 	Log.debug(f"Client launching: Client.onClearMsg: {str(vars(MehMessage))}")
-	asyncio.ensure_future( cls.onClearMsg(MehMessage) )
+	asyncio.ensure_future(cls.onClearMsg(MehMessage))
 	return True
 
 async def handlePrivMessage(cls:"Client", payload:str) -> bool:
@@ -141,7 +139,7 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 	# generate message
 	Msg:Message = Message(payload)
 
-	#get Channel
+	# get Channel
 	Chan:Channel = cls.channels.get(Msg.room_name, None)
 	if Chan:
 		Msg.Channel = Chan
@@ -164,7 +162,7 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 		Msg.Author = Author
 	else:
 		# get called when the user write a message before twitch tells us the he joined,
-		# so we add it to viewer befor we get the join event
+		# so we add it to viewer before we get the join event
 		Alternative:User = User(None, emergency=False, Msg=Msg)
 
 		# add new user to client's user dict
@@ -172,14 +170,14 @@ async def handlePrivMessage(cls:"Client", payload:str) -> bool:
 
 		Msg.Author = Alternative
 		Log.debug(f"Client launching: Client.onMemberJoin: {str(vars(Chan))} {str(vars(Alternative))}")
-		asyncio.ensure_future( cls.onMemberJoin(Chan, Alternative) )
+		asyncio.ensure_future(cls.onMemberJoin(Chan, Alternative))
 
-	# safty step, add author to channels viewer list, and channel to viewer
+	# safety step, add author to channels viewer list, and channel to viewer
 	Msg.Channel.viewers[Msg.Author.name] = Msg.Author
 	Msg.Author.found_in.add(Msg.room_name)
 
 	Log.debug(f"Client launching: Client.onMessage: {str(vars(Msg))}")
-	asyncio.ensure_future( cls.onMessage(Msg) )
+	asyncio.ensure_future(cls.onMessage(Msg))
 	return True
 
 async def handleRoomState(cls:"Client", payload:str) -> bool:
@@ -196,7 +194,7 @@ async def handleRoomState(cls:"Client", payload:str) -> bool:
 	if not CurrentChannel:
 		cls.channels[ChannelUpdate.name] = ChannelUpdate
 		Log.debug(f"Client launching: Client.onChannelUpdate: {str(vars(ChannelUpdate))}")
-		asyncio.ensure_future( cls.onChannelUpdate(ChannelUpdate, {}) )
+		asyncio.ensure_future(cls.onChannelUpdate(ChannelUpdate, {}))
 		return True
 
 	changes:dict = CurrentChannel.update(ChannelUpdate)
@@ -205,7 +203,7 @@ async def handleRoomState(cls:"Client", payload:str) -> bool:
 		changes = {}
 
 	Log.debug(f"Client launching: Client.onChannelUpdate: {str(vars(CurrentChannel))} {str(changes)}")
-	asyncio.ensure_future( cls.onChannelUpdate(CurrentChannel, changes) )
+	asyncio.ensure_future(cls.onChannelUpdate(CurrentChannel, changes))
 	return True
 
 async def handleJoin(cls:"Client", payload:str) -> bool:
@@ -251,7 +249,7 @@ async def handleJoin(cls:"Client", payload:str) -> bool:
 	KnownUser.found_in.add(Chan.name)
 
 	Log.debug(f"Client launching: Client.onMemberJoin: {str(vars(Chan))} {str(vars(KnownUser))}")
-	asyncio.ensure_future( cls.onMemberJoin(Chan, KnownUser) )
+	asyncio.ensure_future(cls.onMemberJoin(Chan, KnownUser))
 	return True
 
 async def handlePart(cls:"Client", payload:str) -> bool:
@@ -278,7 +276,7 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 	# let's see if we got this user already
 	KnownUser:User = cls.users.get(PartUser.name, None)
 	if not KnownUser:
-		# we never saw this user, even duh we got a leave.. twitch is strange issn't it?
+		# we never saw this user, even duh we got a leave.. twitch is strange isn't it?
 		KnownUser = PartUser
 
 	Chan:Channel = cls.channels.get(PartUser._generated_via_channel, None)
@@ -297,13 +295,13 @@ async def handlePart(cls:"Client", payload:str) -> bool:
 		cls.users.pop(KnownUser.name, None)
 
 	Log.debug(f"Client launching: Client.onMemberPart: {str(vars(Chan))} {str(vars(KnownUser))}")
-	asyncio.ensure_future( cls.onMemberPart(Chan, KnownUser) )
+	asyncio.ensure_future(cls.onMemberPart(Chan, KnownUser))
 	return True
 
 async def handleUserState(cls:"Client", payload:str) -> bool:
 	"""
 	handles all USERSTATE events
-	which is only needed for internal proccesses and for channel.Me
+	which is only needed for internal processes and for channel.Me
 	that represents the Client's user state in a channel
 
 	may calls the following events for custom code:
@@ -312,7 +310,7 @@ async def handleUserState(cls:"Client", payload:str) -> bool:
 
 	BotState:UserState = UserState(payload)
 
-	# get channel of event, thanks tiwtch for NOT giving me the room id,
+	# get channel of event, thanks twitch for NOT giving me the room id,
 	# who needs direct access when you can iterate over it
 	StateChan:Channel = cls.channels.get(BotState.room_name, None)
 
@@ -334,7 +332,7 @@ async def handleUserList(cls:"Client", payload:str) -> bool:
 
 	# e.g.: :phaazebot.tmi.twitch.tv 353 phaazebot = #phaazebot :the__cj someone someoneelse
 	search:re.Match = re.search(ReUserListData, payload)
-	if search != None:
+	if search:
 		room_name:str = search.group(1)
 		ChannelToFill:Channel = cls.channels.get(room_name, None)
 		if not ChannelToFill: return True
@@ -368,7 +366,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	- onSub(Sub)
 	- onReSub(ReSub)
 	- onGiftSub(GiftSub)
-    - onMysteryGiftSub(MysteryGiftSub)
+	- onMysteryGiftSub(MysteryGiftSub)
 	- onGiftPaidUpgrade(GiftPaidUpgrade)
 	- onPrimePaidUpgrade(PrimePaidUpgrade)
 	- onStandardPayForward(StandardPayForward)
@@ -377,9 +375,9 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 	- onRaid(Raid)
 	"""
 
-	found_event:str = None
+	found_event:Optional[str] = None
 	search:re.Match = re.search(ReMsgID, payload)
-	if search != None:
+	if search:
 		found_event = search.group(1)
 
 	if not found_event: return False
@@ -391,7 +389,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewSub.User = cls.users.get(NewSub.login, None)
 
 		Log.debug(f"Client launching: Client.onSub: {str(vars(NewSub))}")
-		asyncio.ensure_future( cls.onSub(NewSub) )
+		asyncio.ensure_future(cls.onSub(NewSub))
 		return True
 
 	if found_event == "resub":
@@ -401,7 +399,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewReSub.User = cls.users.get(NewReSub.login, None)
 
 		Log.debug(f"Client launching: Client.onReSub: {str(vars(NewReSub))}")
-		asyncio.ensure_future( cls.onReSub(NewReSub) )
+		asyncio.ensure_future(cls.onReSub(NewReSub))
 		return True
 
 	if found_event == "subgift":
@@ -412,7 +410,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewGiftSub.Recipient = cls.users.get(NewGiftSub.recipient_user_name, None)
 
 		Log.debug(f"Client launching: Client.onGiftSub: {str(vars(NewGiftSub))}")
-		asyncio.ensure_future( cls.onGiftSub(NewGiftSub) )
+		asyncio.ensure_future(cls.onGiftSub(NewGiftSub))
 		return True
 
 	if found_event == "submysterygift":
@@ -422,7 +420,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewGiftBomb.Channel = cls.channels.get(NewGiftBomb.room_name, None)
 
 		Log.debug(f"Client launching: Client.onMysteryGiftSub: {str(vars(NewGiftBomb))}")
-		asyncio.ensure_future( cls.onMysteryGiftSub(NewGiftBomb) )
+		asyncio.ensure_future(cls.onMysteryGiftSub(NewGiftBomb))
 		return True
 
 	if found_event == "rewardgift":
@@ -432,7 +430,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewReward.Channel = cls.channels.get(NewReward.room_name, None)
 
 		Log.debug(f"Client launching: Client.onReward: {str(vars(NewReward))}")
-		asyncio.ensure_future( cls.onReward(NewReward) )
+		asyncio.ensure_future(cls.onReward(NewReward))
 		return True
 
 	if found_event in ["giftpaidupgrade", "anongiftpaidupgrade"]:
@@ -443,7 +441,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewGiftUpgrade.User = cls.users.get(NewGiftUpgrade.login, None)
 
 		Log.debug(f"Client launching: Client.onGiftPaidUpgrade: {str(vars(NewGiftUpgrade))}")
-		asyncio.ensure_future( cls.onGiftPaidUpgrade(NewGiftUpgrade) )
+		asyncio.ensure_future(cls.onGiftPaidUpgrade(NewGiftUpgrade))
 		return True
 
 	if found_event == "primepaidupgrade":
@@ -453,7 +451,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewPrimeUpgrade.User = cls.users.get(NewPrimeUpgrade.login, None)
 
 		Log.debug(f"Client launching: Client.onPrimePaidUpgrade: {str(vars(NewPrimeUpgrade))}")
-		asyncio.ensure_future( cls.onPrimePaidUpgrade(NewPrimeUpgrade) )
+		asyncio.ensure_future(cls.onPrimePaidUpgrade(NewPrimeUpgrade))
 		return True
 
 	if found_event == "standardpayforward":
@@ -465,7 +463,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewStandardPay.Recipient = cls.users.get(NewStandardPay.recipient_user_name, None)
 
 		Log.debug(f"Client launching: Client.onStandardPayForward: {str(vars(NewStandardPay))}")
-		asyncio.ensure_future( cls.onStandardPayForward(NewStandardPay) )
+		asyncio.ensure_future(cls.onStandardPayForward(NewStandardPay))
 		return True
 
 	if found_event == "communitypayforward":
@@ -476,7 +474,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewCommunityPay.User = cls.users.get(NewCommunityPay.login, None)
 
 		Log.debug(f"Client launching: Client.onCommunityPayForward: {str(vars(NewCommunityPay))}")
-		asyncio.ensure_future( cls.onCommunityPayForward(NewCommunityPay) )
+		asyncio.ensure_future(cls.onCommunityPayForward(NewCommunityPay))
 		return True
 
 	if found_event == "ritual":
@@ -486,7 +484,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewRitual.User = cls.users.get(NewRitual.login)
 
 		Log.debug(f"Client launching: Client.onRitual: {str(vars(NewRitual))}")
-		asyncio.ensure_future( cls.onRitual(NewRitual) )
+		asyncio.ensure_future(cls.onRitual(NewRitual))
 		return True
 
 	if found_event == "raid":
@@ -496,7 +494,7 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewRaid.User = cls.users.get(NewRaid.login)
 
 		Log.debug(f"Client launching: Client.onRaid: {str(vars(NewRaid))}")
-		asyncio.ensure_future( cls.onRaid(NewRaid) )
+		asyncio.ensure_future(cls.onRaid(NewRaid))
 		return True
 
 	if found_event == "bitsbadgetier":
@@ -506,45 +504,43 @@ async def handleUserNotice(cls:"Client", payload:str) -> bool:
 		NewSomething.User = cls.users.get(NewSomething.login)
 
 		Log.debug(f"Client launching: Client.onBitsBadgeTier: {str(vars(NewSomething))}")
-		asyncio.ensure_future( cls.onBitsBadgeTier(NewSomething) )
+		asyncio.ensure_future(cls.onBitsBadgeTier(NewSomething))
 		return True
 
 	print('#'*32)
 	print(f"# {found_event} #")
 	print(payload)
 
-async def handleNotice(cls:"Client", payload:str) -> bool:
+async def handleNotice(_cls:"Client", payload:str) -> bool:
 	"""
-	Handles all NOTICE events, these are mostly channal events that... do something i guess
+	Handles all NOTICE events, these are mostly channel events that... do something i guess
 
 	may calls the following events for custom code:
 	- None
 	"""
 
-	found_event:str = None
+	found_event:Optional[str] = None
 	search:re.Match = re.search(ReMsgID, payload)
-	if search != None:
+	if search:
 		found_event = search.group(1)
 
 	if not found_event: return False
 
-	# both host events get ignored since we get more usefull data via NOTICE
+	# both host events get ignored since we get more useful data via NOTICE
 	if found_event == "host_on": return True
 	if found_event == "host_off": return True
 
 async def handleHostTarget(cls:"Client", payload:str) -> bool:
 	"""
 	Handles all HOSTTARGET events which just means the channel is hosting someone else, does someone care about this?
-	probly not, but idfc and so i will add this in a channel object.
+	probably not, but idfc and so i will add this in a channel object.
 
 	may calls the following events for custom code:
 	- None
 	"""
 
-	# :tmi.twitch.tv HOSTTARGET #sodapoppin :nmplol -
-
 	search:re.Match = re.search(ReHostTargetData, payload)
-	if search != None: return True # i really don't care
+	if search: return True # i really don't care
 
 	base_channel:str = search.group(1)
 	host_target:str = search.group(2)

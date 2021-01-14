@@ -39,7 +39,3 @@ from .Classes.userstate import UserState
 
 class Errors(object):
 	from .Utils.errors import InvalidAuth, InvalidCredentials, PingTimeout, EmptyPayload
-
-
-x = Client()
-x.joinChannel("the__cj")

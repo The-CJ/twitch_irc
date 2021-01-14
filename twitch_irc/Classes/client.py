@@ -69,8 +69,8 @@ class Client(object):
 		self.ConnectionReader:Optional[asyncio.StreamReader] = None
 		self.ConnectionWriter:Optional[asyncio.StreamWriter] = None
 
-		self.channels:Dict[ChannelName, Channel] = ChannelStore()
-		self.users:Dict[UserName, User] = UserStore()
+		self.channels:Dict[Union[ChannelName,str], Channel] = ChannelStore()
+		self.users:Dict[Union[ChannelName,str], User] = UserStore()
 
 	def stop(self, *_, **__) -> None:
 		"""

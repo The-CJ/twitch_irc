@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, NewType, TYPE_CHECKING, Optional
+from typing import Any, Dict, List, NewType, TYPE_CHECKING, Optional, Union
 if TYPE_CHECKING:
 	from .client import Client as TwitchClient
 
@@ -41,7 +41,7 @@ class Channel(object):
 		self._subs_only:Optional[bool] = None
 		self._name:Optional[str] = None
 
-		self._viewers:Dict[UserName, User] = UserStore()
+		self._viewers:Dict[Union[UserName, str], User] = UserStore()
 		self._host_target:Optional[str] = None
 		self._me:Optional[UserState] = None
 
@@ -216,11 +216,11 @@ class Channel(object):
 		return bool(self._subs_only)
 
 	@property
-	def users(self) -> Dict[UserName, User]:
+	def users(self) -> Dict[Union[UserName, str], User]:
 		return self._viewers
 
 	@property
-	def viewers(self) -> Dict[UserName, User]:
+	def viewers(self) -> Dict[Union[UserName, str], User]:
 		return self._viewers
 
 	@property
