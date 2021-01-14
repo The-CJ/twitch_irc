@@ -1,8 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 import re
 from .badge import Badge
-from .undefined import UNDEFINED
 
 from ..Utils.regex import (
 	ReBadgeInfo, ReBadges, ReColor,
@@ -13,38 +12,38 @@ from ..Utils.regex import (
 class UserState(object):
 	"""
 	This class is generated when the bot join's a chat room and whenever a PRIVMSG is send,
-	it's suppost to act as a permission class, so custom code can see that the client's user is a mod in in channel X
+	it's suppose to act as a permission class, so custom code can see that the client's user is a mod in in channel X
 	or has a sub badge for XX months, etc.
 	"""
 	def __repr__(self):
 		return f"<{self.__class__.__name__} for channel: '{self.room_name}'>"
 
-	def __init__(self, raw:str or None):
+	def __init__(self, raw:Optional[str]):
 		# tags (ordered)
 		self._badges_info:List[Badge] = []
 		self._badges:List[Badge] = []
-		self._color:str = UNDEFINED
-		self._display_name:str = UNDEFINED
-		self._mod:bool = UNDEFINED
-		self._subscriber:bool = UNDEFINED
-		self._turbo:bool = UNDEFINED
-		self._user_type:str = UNDEFINED
+		self._color:Optional[str] = None
+		self._display_name:Optional[str] = None
+		self._mod:Optional[bool] = None
+		self._subscriber:Optional[bool] = None
+		self._turbo:Optional[bool] = None
+		self._user_type:Optional[str] = None
 
 		# other
-		self._room_name:str = UNDEFINED
+		self._room_name:Optional[str] = None
 
 		# raw data / utils
-		self._badge_str:str = UNDEFINED
-		self._badge_info_str:str = UNDEFINED
+		self._badge_str:Optional[str] = None
+		self._badge_info_str:Optional[str] = None
 
-		if raw != None:
+		if raw:
 			try:
 				self.build(raw)
 			except:
 				raise AttributeError(raw)
 
 	def compact(self) -> dict:
-		d:dict = {}
+		d:dict = dict()
 		d["badges_info"] = self.badges_info
 		d["badges"] = self.badges
 		d["color"] = self.color
@@ -64,47 +63,47 @@ class UserState(object):
 		"""
 		# _badge_info_str
 		search = re.search(ReBadgeInfo, raw)
-		if search != None:
+		if search:
 			self._badge_info_str = search.group(1)
 
 		# _badge_str
 		search = re.search(ReBadges, raw)
-		if search != None:
+		if search:
 			self._badge_str = search.group(1)
 
 		# _color
 		search = re.search(ReColor, raw)
-		if search != None:
+		if search:
 			self._color = search.group(1)
 
 		# _user_display_name
 		search = re.search(ReDisplayName, raw)
-		if search != None:
+		if search:
 			self._display_name = search.group(1)
 
 		# _mod
 		search = re.search(ReMod, raw)
-		if search != None:
+		if search:
 			self._mod = True if search.group(1) == "1" else False
 
 		# _subscriber
 		search = re.search(ReSubscriber, raw)
-		if search != None:
+		if search:
 			self._subscriber = True if search.group(1) == "1" else False
 
 		# _turbo
 		search = re.search(ReTurbo, raw)
-		if search != None:
+		if search:
 			self._turbo = True if search.group(1) == "1" else False
 
 		# _user_type
 		search = re.search(ReUserType, raw)
-		if search != None:
+		if search:
 			self._user_type = search.group(1)
 
 		# _room_name
 		search = re.search(ReRoomName, raw)
-		if search != None:
+		if search:
 			self._room_name = search.group(1)
 
 		# generate other data
@@ -118,8 +117,8 @@ class UserState(object):
 
 		badge_str_list:List[str] = badges_str.split(",")
 		for badge_str in badge_str_list:
-			Bad:Badge = Badge( badge_str )
-			self._badges.append( Bad )
+			Bad:Badge = Badge(badge_str)
+			self._badges.append(Bad)
 
 	def buildBadgeInfo(self, badge_info_str:str) -> None:
 		# subscriber/15,somethingelse/5
@@ -130,8 +129,9 @@ class UserState(object):
 
 		badge_str_list:List[str] = badge_info_str.split(",")
 		for badge_str in badge_str_list:
-			Bad:Badge = Badge( badge_str )
-			self._badges_info.append( Bad )
+			Bad:Badge = Badge(badge_str)
+			self._badges_info.append(Bad)
+
 	# props
 	@property
 	def badges_info(self) -> List[Badge]:
@@ -148,6 +148,7 @@ class UserState(object):
 	@property
 	def user_display_name(self) -> str:
 		return str(self._display_name or "")
+
 	@property
 	def display_name(self) -> str:
 		return str(self._display_name or "")
@@ -171,6 +172,7 @@ class UserState(object):
 	@property
 	def room_name(self) -> str:
 		return str(self._room_name or "")
+
 	@property
 	def channel_name(self) -> str:
 		return str(self._room_name or "")
