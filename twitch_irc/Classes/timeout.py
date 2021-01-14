@@ -1,7 +1,7 @@
+from typing import Optional
 import re
 from .channel import Channel
 from .user import User
-from .undefined import UNDEFINED
 
 from ..Utils.regex import (
 	ReBanDuration, ReRoomID, ReTargetUserID,
@@ -22,26 +22,26 @@ class Timeout(object):
 	def __repr__(self):
 		return f"<{self.__class__.__name__} channel='{self.room_id}' user='{self.target_user_id}' duration={self.duration}s>"
 
-	def __init__(self, raw:str):
+	def __init__(self, raw:Optional[str]):
 
-		self._ban_duration:int = UNDEFINED
-		self._room_id:str = UNDEFINED
-		self._target_user_id:str = UNDEFINED
-		self._tmi_sent_ts:str = UNDEFINED
-		self._room_name:str = UNDEFINED
-		self._user_name:str = UNDEFINED
+		self._ban_duration:Optional[int] = None
+		self._room_id:Optional[str] = None
+		self._target_user_id:Optional[str] = None
+		self._tmi_sent_ts:Optional[str] = None
+		self._room_name:Optional[str] = None
+		self._user_name:Optional[str] = None
 
-		self.User:User = None
-		self.Channel:Channel = None
+		self.User:Optional[User] = None
+		self.Channel:Optional[Channel] = None
 
-		if raw != None:
+		if raw:
 			try:
 				self.build(raw)
 			except:
 				raise AttributeError(raw)
 
 	def compact(self) -> dict:
-		d:dict = {}
+		d:dict = dict()
 		d["ban_duration"] = self.ban_duration
 		d["room_id"] = self.room_id
 		d["target_user_id"] = self.target_user_id
@@ -64,38 +64,39 @@ class Timeout(object):
 
 		# _ban_duration
 		search:re.Match = re.search(ReBanDuration, raw)
-		if search != None:
-			self._ban_duration = int( search.group(1) )
+		if search:
+			self._ban_duration = int(search.group(1))
 
 		# _room_id
 		search = re.search(ReRoomID, raw)
-		if search != None:
+		if search:
 			self._room_id = search.group(1)
 
 		# _target_user_id
 		search = re.search(ReTargetUserID, raw)
-		if search != None:
+		if search:
 			self._target_user_id = search.group(1)
 
 		# _tmi_sent_ts
 		search = re.search(ReTMISendTS, raw)
-		if search != None:
+		if search:
 			self._tmi_sent_ts = search.group(1)
 
 		# _room_name
 		search = re.search(ReRoomName, raw)
-		if search != None:
+		if search:
 			self._room_name = search.group(1)
 
 		# _user_name
 		search = re.search(ReContent, raw)
-		if search != None:
+		if search:
 			self._user_name = search.group(1)
 
 	# props
 	@property
 	def ban_duration(self) -> int:
 		return int(self._ban_duration or 0)
+
 	@property
 	def duration(self) -> int:
 		return int(self._ban_duration or 0)
@@ -103,6 +104,7 @@ class Timeout(object):
 	@property
 	def room_id(self) -> str:
 		return str(self._room_id or "")
+
 	@property
 	def channel_id(self) -> str:
 		return str(self._room_id or "")
@@ -122,6 +124,7 @@ class Timeout(object):
 	@property
 	def room_name(self) -> str:
 		return str(self._room_name or "")
+
 	@property
 	def channel_name(self) -> str:
 		return str(self._room_name or "")
@@ -135,15 +138,13 @@ class Ban(Timeout):
 
 	def __init__(self, Out:Timeout):
 
-		self._ban_duration:int = UNDEFINED
+		super().__init__(None)
+		self._ban_duration:Optional[int] = None
 		self._room_id:str = Out.room_id
 		self._target_user_id:str = Out.target_user_id
 		self._tmi_sent_ts:str = Out.tmi_sent_ts
 		self._room_name:str = Out.room_name
 		self._user_name:str = Out.user_name
-
-		self.User:User = None
-		self.Channel:Channel = None
 
 	def compact(self) -> dict:
 		d:dict = super().compact()

@@ -1,11 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
-    from .channel import Channel as TwitchChannel
-    from .user import User as TwitchUser
+	from .channel import Channel as TwitchChannel
+	from .user import User as TwitchUser
 
 import re
 from .structure import UserNoticeStructure
-from .undefined import UNDEFINED
 
 from ..Utils.regex import (
 	ReMsgParamCumulativeMonths,	ReMsgParamStreakMonths,	ReMsgParamShouldShareStreak,
@@ -29,17 +28,17 @@ class Sub(UserNoticeStructure):
 
 	def __init__(self, raw:str or None):
 		# extra tags (ordered)
-		self._msg_param_cumulative_months:int = UNDEFINED
-		self._msg_param_streak_months:int = UNDEFINED
-		self._msg_param_should_share_streak:bool = UNDEFINED
-		self._msg_param_sub_plan:str = UNDEFINED
-		self._msg_param_sub_plan_name:str = UNDEFINED
+		self._msg_param_cumulative_months:Optional[int] = None
+		self._msg_param_streak_months:Optional[int] = None
+		self._msg_param_should_share_streak:Optional[bool] = None
+		self._msg_param_sub_plan:Optional[str] = None
+		self._msg_param_sub_plan_name:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.User:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.User:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.subBuild(raw)
@@ -61,28 +60,28 @@ class Sub(UserNoticeStructure):
 
 		# _msg_param_cumulative_months
 		search = re.search(ReMsgParamCumulativeMonths, raw)
-		if search != None:
+		if search:
 			self._msg_param_cumulative_months = search.group(1)
 
 		# _msg_param_streak_months
 		search = re.search(ReMsgParamStreakMonths, raw)
-		if search != None:
+		if search:
 			self._msg_param_streak_months = search.group(1)
 
 		# _msg_param_should_share_streak
 		search = re.search(ReMsgParamShouldShareStreak, raw)
-		if search != None:
+		if search:
 			self._msg_param_should_share_streak = True if search.group(1) == "1" else False
 
 		# _msg_param_sub_plan
 		search = re.search(ReMsgParamSubPlan, raw)
-		if search != None:
+		if search:
 			self._msg_param_sub_plan = search.group(1)
 
 		# _msg_param_sub_plan_name
 		search = re.search(ReMsgParamSubPlanName, raw)
-		if search != None:
-			self._msg_param_sub_plan_name = self.removeTagChars( search.group(1) )
+		if search:
+			self._msg_param_sub_plan_name = self.removeTagChars(search.group(1))
 
 	# extra props
 	@property
@@ -119,21 +118,21 @@ class GiftSub(UserNoticeStructure):
 
 	def __init__(self, raw:str or None):
 		# new tags (ordered)
-		self._msg_param_gift_months:int = UNDEFINED
-		self._msg_param_months:int = UNDEFINED
-		self._msg_param_recipient_display_name:str = UNDEFINED
-		self._msg_param_recipient_id:str = UNDEFINED
-		self._msg_param_recipient_user_name:str = UNDEFINED
-		self._msg_param_sender_count:int = UNDEFINED
-		self._msg_param_sub_plan:str = UNDEFINED
-		self._msg_param_sub_plan_name:str = UNDEFINED
+		self._msg_param_gift_months:Optional[int] = None
+		self._msg_param_months:Optional[int] = None
+		self._msg_param_recipient_display_name:Optional[str] = None
+		self._msg_param_recipient_id:Optional[str] = None
+		self._msg_param_recipient_user_name:Optional[str] = None
+		self._msg_param_sender_count:Optional[int] = None
+		self._msg_param_sub_plan:Optional[str] = None
+		self._msg_param_sub_plan_name:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.Gifter:"TwitchUser" = None
-		self.Recipient:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.Gifter:Optional["TwitchUser"] = None
+		self.Recipient:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.giftSubBuild(raw)
@@ -161,43 +160,43 @@ class GiftSub(UserNoticeStructure):
 
 		# _msg_param_gift_months
 		search = re.search(ReMsgParamGiftMounths, raw)
-		if search != None:
+		if search:
 			self._msg_param_gift_months = search.group(1)
 
 		# _msg_param_months
 		search = re.search(ReMsgParamMounths, raw)
-		if search != None:
+		if search:
 			self._msg_param_months = search.group(1)
 
 		# _msg_param_recipient_display_name
 		search = re.search(ReMsgParamRecipientDisplayName, raw)
-		if search != None:
+		if search:
 			self._msg_param_recipient_display_name = search.group(1)
 
 		# _msg_param_recipient_id
 		search = re.search(ReMsgParamRecipientID, raw)
-		if search != None:
+		if search:
 			self._msg_param_recipient_id = search.group(1)
 
 		# _msg_param_recipient_user_name
 		search = re.search(ReMsgParamRecipientUserName, raw)
-		if search != None:
+		if search:
 			self._msg_param_recipient_user_name = search.group(1)
 
 		# _msg_param_sender_count
 		search = re.search(ReMsgParamSenderCount, raw)
-		if search != None:
+		if search:
 			self._msg_param_sender_count = search.group(1)
 
 		# _msg_param_sub_plan
 		search = re.search(ReMsgParamSubPlan, raw)
-		if search != None:
+		if search:
 			self._msg_param_sub_plan = search.group(1)
 
 		# _msg_param_sub_plan_name
 		search = re.search(ReMsgParamSubPlanName, raw)
-		if search != None:
-			self._msg_param_sub_plan_name = self.removeTagChars( search.group(1) )
+		if search:
+			self._msg_param_sub_plan_name = self.removeTagChars(search.group(1))
 
 	@property
 	def gift_months(self) -> int:
