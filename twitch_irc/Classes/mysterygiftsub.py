@@ -1,18 +1,17 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
-    from .channel import Channel as TwitchChannel
-    from .user import User as TwitchUser
+	from .channel import Channel as TwitchChannel
+	from .user import User as TwitchUser
 
 import re
 from .structure import UserNoticeStructure
-from .undefined import UNDEFINED
 
 from ..Utils.regex import ReMsgParamMassGiftCount, ReMsgParamSubPlan, ReMsgParamSenderCount
 
 class MysteryGiftSub(UserNoticeStructure):
 	"""
 	This Class represents a submysterygift, u may also call this a: "Sub Bomb" or so
-	(in this event is not tracked who got the subs, just the one who buyed the subs)
+	(in this event is not tracked who got the subs, just the one who bought the subs)
 
 	Example:
 	```
@@ -23,15 +22,15 @@ class MysteryGiftSub(UserNoticeStructure):
 		return f"<{self.__class__.__name__} channel='{self.room_name}' gifter='{self.login}' amount='{self.mass_gift_count}'>"
 
 	def __init__(self, raw:str or None):
-		self._msg_param_mass_gift_count:int = UNDEFINED
-		self._msg_param_sender_count:int = UNDEFINED
-		self._msg_param_sub_plan:str = UNDEFINED
+		self._msg_param_mass_gift_count:Optional[int] = None
+		self._msg_param_sender_count:Optional[int] = None
+		self._msg_param_sub_plan:Optional[str] = None
 
 		# classes
-		self.Channel:"TwitchChannel" = None
-		self.Gifter:"TwitchUser" = None
+		self.Channel:Optional["TwitchChannel"] = None
+		self.Gifter:Optional["TwitchUser"] = None
 
-		if raw != None:
+		if raw:
 			try:
 				super().__init__(raw)
 				self.mysteryGiftSubBuild(raw)
@@ -53,17 +52,17 @@ class MysteryGiftSub(UserNoticeStructure):
 
 		# _msg_param_mass_gift_count
 		search = re.search(ReMsgParamMassGiftCount, raw)
-		if search != None:
+		if search:
 			self._msg_param_mass_gift_count = search.group(1)
 
 		# _msg_param_sender_count
 		search = re.search(ReMsgParamSenderCount, raw)
-		if search != None:
+		if search:
 			self._msg_param_sender_count = search.group(1)
 
 		# _msg_param_sub_plan
 		search = re.search(ReMsgParamSubPlan, raw)
-		if search != None:
+		if search:
 			self._msg_param_sub_plan = search.group(1)
 
 	# new props
